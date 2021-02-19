@@ -3,7 +3,7 @@
 1) download ACC and DLPFC Neurosynth images
 2) run find_peak_coordinates.m on each neurosynth image
 3) find the highest coordinate in each hemisphere (manually)
-4) create ROI_settins file, using the identified coordinates from step 3) correlate_crunch.m
+4) create ROI_settings file, using the identified coordinates from step 3) correlate_crunch.m
 5) create ROI spheres (XX.sh)
 
 ##### ROI 2: steps for creating and analyzing mim task-based fmri via ROIs (since 20200712)
@@ -13,4 +13,5 @@
 
 ##### Creating CRUNCH Figs
 1) run export_fmri_rois_to_redcap.sh
+2) for exporting ROI to redcap run combine_subject_mri_redcap.sh
 2) for CRUNCH figs.. 1) run identify_individual_discrete_crunch.m, 2) average_individual_discrete_crunch.m, 3) correlate_crunch.m
