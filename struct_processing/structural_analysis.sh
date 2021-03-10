@@ -30,7 +30,7 @@ done
 export MATLABPATH=${Matlab_dir}/helper
 cd "$Study_dir"
 ml matlab/2020a
-matlab -nodesktop -nosplash -r "try; cat12StructuralAnalysis('subjects',{'$subject'},'t1_folder','02_T1','t1_filename','T1.nii','steps_to_run_vector',[1 0 0 0 0],'template_dir','/blue/rachaelseidler/tfettrow/Crunch_Code/MR_Templates'); catch; end; quit"
+matlab -nodesktop -nosplash -r "try; cat12StructuralAnalysis('subjects',$subject,'t1_folder','02_T1','t1_filename','T1.nii','steps_to_run_vector',[1 0 0 0 0],'template_dir','/blue/rachaelseidler/tfettrow/Crunch_Code/MR_Templates'); catch; end; quit"
 
 
 
