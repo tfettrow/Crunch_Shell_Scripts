@@ -7,15 +7,15 @@
 #SBATCH --qos=rachaelseidler
 #SBATCH --time=96:00:00               			# Time limit hrs:min:sec
 #SBATCH --output=batch_struct.%A_%a.out 	# Standard output and error log
-#SBATCH --array=0-1								# array range
+#SBATCH --array=0								# array range
 pwd; hostname; date
 
-subjects_vector_for_matlab="{'2002','2007'}"
-echo $subjects_vector_for_matlab
 Shell_dir=/blue/rachaelseidler/wangtianyi/MiM_Shell_Scripts
 Matlab_dir=/blue/rachaelseidler/wangtianyi/MiM_Matlab
 Template_dir=/blue/rachaelseidler/wangtianyi/MR_Templates
 Study_dir=/blue/rachaelseidler/share/FromExternal/Research_Projects_UF/CRUNCH/Eric_BrainAge_TestData
-cd $Shell_dir
 
-./struct_processing/structural_analysis.sh "$Matlab_dir" "$Template_dir" "$Study_dir" "$subjects_vector_for_matlab"
+cd "$Study_dir"
+ml matlab/2020a
+export MATLABPATH=${Matlab_dir}/helper
+matlab -nodesktop -nosplash -r "try; cat12StructuralAnalysis('subjects',{'1007','1008'},'t1_folder','02_T1','t1_filename','T1.nii','steps_to_run_vector',[1 0 1 0 1 1 1 1 1 1],'template_dir','/blue/rachaelseidler/tfettrow/Crunch_Code/MR_Templates'); catch; end; quit"
