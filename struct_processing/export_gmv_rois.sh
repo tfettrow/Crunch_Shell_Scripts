@@ -11,8 +11,8 @@
 
 # this script requires arguments 
 
-# example >> export_struct_rois_to_redcap.sh '1002,1004,1007,1009,1010,1011,1013,1020,1022,1024,1027,2002,2007,2008,2012,2013,2015,2017,2018,2020,2021,2022,2023,2025,2026,2033,2034,2037,2042,2052' 02_T1 ROI_settings_MiMRedcap.txt
-# export_struct_rois_to_redcap.sh '1002' 02_T1 ROI_settings_MiMRedcap_NewAcc.txt
+# example >> export_gmv_rois.sh '1002,1004,1007,1009,1010,1011,1013,1020,1022,1024,1027,2002,2007,2008,2012,2013,2015,2017,2018,2020,2021,2022,2023,2025,2026,2033,2034,2037,2042,2052,3004,3008,3006,3007' 02_T1 ROI_settings_MiMRedcap.txt
+# export_gmvs_rois.sh '1002' 02_T1 ROI_settings_MiMRedcap_NewAcc.txt
 # FYI>> This is setup to deal with CAT12 output atm
 
 
@@ -37,12 +37,16 @@ ml fsl/6.0.1
 while IFS=',' read -ra subject_list; do
     for this_subject in "${subject_list[@]}"; do
        	cd ${Study_dir}/$this_subject/Processed/MRI_files/${this_struct_folder_name}/CAT12_Analysis/mri	     					
-   	    outfile=${this_subject}_struct_roi_vols.csv
+   	    outfile=${this_subject}_gmv_roi_vols.csv
+   	    # ATTENTION: remove this after running once... output used to have this name but no longer does
 		if [ -e ${this_subject}_struct_roi_vols.csv ]; then
 			rm ${this_subject}_struct_roi_vols.csv
 		fi
+		if [ -e ${this_subject}_gmv_roi_vols.csv ]; then
+			rm ${this_subject}_gmv_roi_vols.csv
+		fi
 		var1="record_id, redcap_event_name"
-		var2="$H${this_subject}, base_v4_mri_arm_1" 
+		var2="$H${this_subject}, base_v4_mri_arm_1"
 		echo -e "$var1\n$var2" >> "$outfile"
        	cd "${Study_dir}"
 		lines_to_ignore=$(awk '/#/{print NR}' $roi_settings_file)
