@@ -28,7 +28,7 @@ done
 	export MATLABPATH=${Matlab_dir}/helper
 	ml matlab/2020a
 	ml gcc/5.2.0; ml ants ## ml gcc/9.3.0; ml ants/2.3.4
-	ml fsl/6.0.1
+	ml fsl/6.0.3
 	
 	cd $Subject_dir
 
@@ -155,26 +155,35 @@ for this_preprocessing_step in ${preprocessing_steps[@]};do
 			rm topup_results_movpar.txt
 		fi
 		if [ -e my_fieldmap_nifti.nii ]; then
-	   			rm my_fieldmap_nifti.nii
+	   		rm my_fieldmap_nifti.nii
 	   	fi
 	   	if [ -e acqParams.txt ]; then
 	   		rm acqParams.txt
 	   	fi
-	   	if [ -e my_fieldmap_mag.nii ]; then
-			rm my_fieldmap_mag.nii
+	   	if [ -e my_fieldmap_mask.nii ]; then
+			rm my_fieldmap_mask.nii
+			rm my_fieldmap_rads.nii
+			rm my_fieldmap_mask_brain.nii
 		fi
 
-		fslmerge -t AP_PA_merged.nii DistMap_AP.nii DistMap_PA.nii
+		# removing a slice
+		fslroi DistMap_AP DistMap_AP1 0 1
+		fslroi DistMap_PA DistMap_PA1 0 1
+		
+		fslmerge -t AP_PA_merged.nii DistMap_AP1.nii DistMap_PA1.nii
 		gunzip -f *nii.gz
 		
 		this_file_header_info=$(fslhd AP_PA_merged.nii )
 		this_file_number_of_slices=$(echo $this_file_header_info | grep -o dim3.* | tr -s ' ' | cut -d ' ' -f 2)
 		if [ $((this_file_number_of_slices%2)) -ne 0 ]; then
-			fslsplit AP_PA_merged.nii slice -z
-			gunzip -f *nii.gz
-			rm slice0000.nii
-			fslmerge -z AP_PA_merged slice0*
-			rm slice00*.nii
+			# removing a slice
+			fslroi AP_PA_merged AP_PA_merged 0 -1 0 -1 0 68 0 -1
+
+			# fslsplit AP_PA_merged.nii slice -z
+			# gunzip -f *nii.gz
+			# rm slice0000.nii
+			# fslmerge -z AP_PA_merged slice0*
+			# rm slice00*.nii
 		fi
 		gunzip -f *nii.gz
 
@@ -187,7 +196,7 @@ for this_preprocessing_step in ${preprocessing_steps[@]};do
 			encoding_direction=$(grep "PhaseEncodingDirection" ${this_json_file} | cut -d: -f 2 | head -1 | tr -d '"' |  tr -d ',')
 			this_file_name=$(echo $this_json_file | cut -d. -f 1)
 			
-			this_file_header_info=$(fslhd $this_file_name.nii)
+			this_file_header_info=$(fslhd ${this_file_name}1.nii)
 			this_file_number_of_volumes=$(echo $this_file_header_info | grep -o dim4.* | tr -s ' ' | cut -d ' ' -f 2)
 			for (( this_volume=1; this_volume<=$this_file_number_of_volumes; this_volume++ )); do
 				if [[ $encoding_direction =~ j- ]]; then
@@ -204,7 +213,7 @@ for this_preprocessing_step in ${preprocessing_steps[@]};do
 	
 		topup --imain=AP_PA_merged.nii --datain=acqParams.txt --fout=my_fieldmap --config=b02b0.cnf --iout=se_epi_unwarped --out=topup_results
 
-		fslmaths my_fieldmap -mul 6.28 my_fieldmap_rads
+
 		fslmaths se_epi_unwarped -Tmean my_fieldmap_mask
 		bet2 my_fieldmap_mask my_fieldmap_mask_brain
 		gunzip -f *nii.gz
@@ -237,8 +246,10 @@ for this_preprocessing_step in ${preprocessing_steps[@]};do
 		NVOL=`fslnvols driftcorrected_DWI.nii`
 		for ((i=1; i<=${NVOL}; i+=1)); do indx="$indx 1"; done; echo $indx > index.txt
 
-		           # need to remove  a slice from DWI data
+		# need to remove  a slice from DWI data
+        
         # fslsplit driftcorrected_DWI.nii slice -z
+
         # # Remove slice 0000 (remove the most inferior slice). Check what this slice looks like before you delete it!
         # rm slice0000.nii.gz
         # # Merge remaining slices
@@ -250,48 +261,18 @@ for this_preprocessing_step in ${preprocessing_steps[@]};do
 
 
 		# need this?? only if fieldmap slice_removed!!	
-		# rm eddycorrected_driftcorrected_DWI.*
-		# rm my_fieldmap_mask_brain_pixAdjust.nii
-		# rm Mean_driftcorrected_DWI.nii
-		# fslmaths driftcorrected_DWI -Tmean Mean_driftcorrected_DWI
-		# flirt -in my_fieldmap_mask_brain.nii -ref Mean_driftcorrected_DWI.nii -out my_fieldmap_mask_brain_pixAdjust.nii
-		# flirt -in my_fieldmap_mask_brain.nii -ref Mean_driftcorrected_DWI.nii -out my_fieldmap_pixAdjust.nii
+		rm eddycorrected_driftcorrected_DWI.*
+		rm my_fieldmap_mask_brain_pixAdjust.nii
+		rm Mean_driftcorrected_DWI.nii
+		fslmaths driftcorrected_DWI -Tmean Mean_driftcorrected_DWI
+		flirt -in my_fieldmap_mask_brain.nii -ref Mean_driftcorrected_DWI.nii -out my_fieldmap_mask_brain_pixAdjust.nii
+		flirt -in my_fieldmap_mask_brain.nii -ref Mean_driftcorrected_DWI.nii -out my_fieldmap_pixAdjust.nii
 
-	 # 	eddy_cuda9.1 --imain=driftcorrected_DWI.nii --mask=my_fieldmap_mask_brain_pixAdjust --acqp=acqParams.txt --index=index.txt --bvecs=DWI.bvec --bvals=DWI.bval --niter=8 --fwhm=10,8,4,2,0,0,0,0 --repol --out=eddycorrected_driftcorrected_DWI --mporder=6 --json=DWI.json --s2v_niter=5 --s2v_lambda=1 --s2v_interp=trilinear --cnr_maps
-
+	 	eddy_cuda9.1 --imain=driftcorrected_DWI.nii --mask=my_fieldmap_mask_brain_pixAdjust --acqp=acqParams.txt --index=index.txt --bvecs=DWI.bvec --bvals=DWI.bval --niter=8 --fwhm=10,8,4,2,0,0,0,0 --repol --out=eddycorrected_driftcorrected_DWI --mporder=6 --json=DWI.json --s2v_niter=5 --s2v_lambda=1 --s2v_interp=trilinear --cnr_maps
 
 		rm -r eddycorrected_driftcorrected_DWI.qc
 		eddy_quad ${Subject_dir}/Processed/MRI_files/${dwi_folder_name}/eddycorrected_driftcorrected_DWI --eddyIdx index.txt --eddyParams acqParams.txt --mask my_fieldmap_mask_brain_pixAdjust --bvals DWI.bval --output-dir=eddycorrected_driftcorrected_DWI.qc 
 		
-
-
-		# eddy_openmp --imain=driftcorrected_DWI --mask=my_fieldmap_mask_brain_pixAdjust --acqp=acqParams.txt --index=index.txt --bvecs=DWI.bvec --bvals=DWI.bval --out=eddy_corrected_data
-		# module load cuda/10.0.130  gcc/7.3.0
-		
-
-		# matlab -nodesktop -nosplash -r "try; create_slspec_text; catch; end; quit"
-
-		# eddy_cuda9.1
-		# how do we get the slspec.txt?? json convert?
-		# module load cuda/10.0.130  gcc/7.3.0
-
-		# ln -sf ${HPC_FSL_DIR}bin/eddy_cuda9.1 ${HPC_FSL_DIR}bin/eddy_cuda9.1
-
-		# eddy_cuda9.1 --imain=driftcorrected_DWI.nii --mask=my_fieldmap_mask_brain_pixAdjust --acqp=acqParams.txt --index=index.txt --bvecs=DWI.bvec --bvals=DWI.bval --topup=topup_results --niter=8 --fwhm=10,8,4,2,0,0,0,0 --repol --out=eddycorrected_driftcorrected_DWI --mporder=6 --slspec=my_slspec.txt --s2v_niter=5 --s2v_lambda=1 --s2v_interp=trilinear
-
-		# doesnotwork eddy_cuda9.1 --imain=sliceremoved_driftcorrected_DWI.nii --mask=my_fieldmap_mask_brain_pixAdjust --acqp=acqParams.txt --index=index.txt --bvecs=DWI.bvec --bvals=DWI.bval --topup=my_fieldmap_pixAdjust --niter=8 --fwhm=10,8,4,2,0,0,0,0 --repol --out=eddycorrected_driftcorrected_DWI --mporder=6 --json=DWI.json --s2v_niter=5 --s2v_lambda=1 --s2v_interp=trilinear
-		
-		#these work
-		# eddy_cuda9.1 --imain=driftcorrected_DWI --mask=my_fieldmap_mask_brain_pixAdjust --acqp=acqParams.txt --index=index.txt --bvecs=DWI.bvec --bvals=DWI.bval --out=eddycorrected_driftcorrected_DWI --repol
-
-		
-		#eddy_openmp --imain=driftcorrected_DWI.nii --mask=my_fieldmap_mask_brain_pixAdjust --acqp=acqParams.txt --index=index.txt --bvecs=DWI.bvec --bvals=DWI.bval --topup=topup_results --niter=8 --fwhm=10,8,4,2,0,0,0,0 --repol --out=eddycorrected_driftcorrected_DWI --mporder=6 --slspec=my_slspec.txt --s2v_niter=5 --s2v_lambda=1 --s2v_interp=trilinear
-
-		# EddyInputError:  Slice-to-vol is not yet implemented for the CPU version.
-		# Terminating program
-
-		# eddy_openmp --imain=driftcorrected_DWI.nii --mask=my_fieldmap_mask_brain_pixAdjust.nii --acqp=acqParams.txt --index=index.txt --bvecs=DWI.bvec --bvals=DWI.bval --topup=my_fieldmap --repol --out=eddycorrected_driftcorrected_DWI
-	
 		gunzip -f *nii.gz
 	fi
 
