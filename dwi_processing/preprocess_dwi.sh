@@ -174,17 +174,17 @@ for this_preprocessing_step in ${preprocessing_steps[@]};do
 		gunzip -f *nii.gz
 		
 		this_file_header_info=$(fslhd AP_PA_merged.nii )
-		this_file_number_of_slices=$(echo $this_file_header_info | grep -o dim3.* | tr -s ' ' | cut -d ' ' -f 2)
-		if [ $((this_file_number_of_slices%2)) -ne 0 ]; then
-			# removing a slice
-			fslroi AP_PA_merged AP_PA_merged 0 -1 0 -1 0 68 0 -1
+		# this_file_number_of_slices=$(echo $this_file_header_info | grep -o dim3.* | tr -s ' ' | cut -d ' ' -f 2)
+		# if [ $((this_file_number_of_slices%2)) -ne 0 ]; then
+		# 	# removing a slice
+		# 	fslroi AP_PA_merged AP_PA_merged 0 -1 0 -1 0 68 0 -1
 
-			# fslsplit AP_PA_merged.nii slice -z
-			# gunzip -f *nii.gz
-			# rm slice0000.nii
-			# fslmerge -z AP_PA_merged slice0*
-			# rm slice00*.nii
-		fi
+		# 	# fslsplit AP_PA_merged.nii slice -z
+		# 	# gunzip -f *nii.gz
+		# 	# rm slice0000.nii
+		# 	# fslmerge -z AP_PA_merged slice0*
+		# 	# rm slice00*.nii
+		# fi
 		gunzip -f *nii.gz
 
 		# just a dummy value to check whether ecoding direction is same between distmaps
@@ -211,7 +211,7 @@ for this_preprocessing_step in ${preprocessing_steps[@]};do
 			previous_encoding_direction=$encoding_direction
 		done
 	
-		topup --imain=AP_PA_merged.nii --datain=acqParams.txt --fout=my_fieldmap --config=b02b0.cnf --iout=se_epi_unwarped --out=topup_results
+		topup --imain=AP_PA_merged.nii --datain=acqParams.txt --fout=my_fieldmap --config=b02b0_1.cnf --iout=se_epi_unwarped --out=topup_results
 
 
 		fslmaths se_epi_unwarped -Tmean my_fieldmap_mask
@@ -246,32 +246,20 @@ for this_preprocessing_step in ${preprocessing_steps[@]};do
 		NVOL=`fslnvols driftcorrected_DWI.nii`
 		for ((i=1; i<=${NVOL}; i+=1)); do indx="$indx 1"; done; echo $indx > index.txt
 
-		# need to remove  a slice from DWI data
-        
-        # fslsplit driftcorrected_DWI.nii slice -z
-
-        # # Remove slice 0000 (remove the most inferior slice). Check what this slice looks like before you delete it!
-        # rm slice0000.nii.gz
-        # # Merge remaining slices
-        # fslmerge -z sliceremoved_driftcorrected_DWI.nii slice0*
-        # ## We're done with the remaining inidividual slices so delete them
-        # rm slice00*.nii.gz
-        # gunzip -f *nii.gz*
-
-
-
 		# need this?? only if fieldmap slice_removed!!	
 		rm eddycorrected_driftcorrected_DWI.*
 		rm my_fieldmap_mask_brain_pixAdjust.nii
 		rm Mean_driftcorrected_DWI.nii
+		
 		fslmaths driftcorrected_DWI -Tmean Mean_driftcorrected_DWI
-		flirt -in my_fieldmap_mask_brain.nii -ref Mean_driftcorrected_DWI.nii -out my_fieldmap_mask_brain_pixAdjust.nii
-		flirt -in my_fieldmap_mask_brain.nii -ref Mean_driftcorrected_DWI.nii -out my_fieldmap_pixAdjust.nii
 
-	 	eddy_cuda9.1 --imain=driftcorrected_DWI.nii --mask=my_fieldmap_mask_brain_pixAdjust --acqp=acqParams.txt --index=index.txt --bvecs=DWI.bvec --bvals=DWI.bval --niter=8 --fwhm=10,8,4,2,0,0,0,0 --repol --out=eddycorrected_driftcorrected_DWI --mporder=6 --json=DWI.json --s2v_niter=5 --s2v_lambda=1 --s2v_interp=trilinear --cnr_maps
+		flirt -in my_fieldmap_mask_brain.nii -ref Mean_driftcorrected_DWI.nii -out my_fieldmap_mask_brain_pixAdjust.nii
+		# flirt -in my_fieldmap_mask_brain.nii -ref Mean_driftcorrected_DWI.nii -out my_fieldmap_pixAdjust.nii
+
+	 	eddy_cuda9.1 --imain=driftcorrected_DWI.nii --mask=my_fieldmap_mask_brain_pixAdjust.nii --acqp=acqParams.txt --index=index.txt --bvecs=DWI.bvec --bvals=DWI.bval --niter=8 --fwhm=10,8,4,2,0,0,0,0 --repol --out=eddycorrected_driftcorrected_DWI --mporder=6 --json=DWI.json --s2v_niter=5 --s2v_lambda=1 --s2v_interp=trilinear --cnr_maps
 
 		rm -r eddycorrected_driftcorrected_DWI.qc
-		eddy_quad ${Subject_dir}/Processed/MRI_files/${dwi_folder_name}/eddycorrected_driftcorrected_DWI --eddyIdx index.txt --eddyParams acqParams.txt --mask my_fieldmap_mask_brain_pixAdjust --bvals DWI.bval --output-dir=eddycorrected_driftcorrected_DWI.qc 
+		eddy_quad ${Subject_dir}/Processed/MRI_files/${dwi_folder_name}/eddycorrected_driftcorrected_DWI --eddyIdx index.txt --eddyParams acqParams.txt --mask my_fieldmap_mask_brain --bvals DWI.bval --output-dir=eddycorrected_driftcorrected_DWI.qc
 		
 		gunzip -f *nii.gz
 	fi
