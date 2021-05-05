@@ -13,16 +13,15 @@
 #SBATCH --gpus=1
 #SBATCH --time=6:00:00 
 #SBATCH --output=batch_dwi_gpu.%A_%a.out 	# Standard output and error log
-#SBATCH --array=0						# array range
+#SBATCH --array=0-3						# array range
 pwd; hostname; date
 
 cd /blue/rachaelseidler/tfettrow/Crunch_Code/
 
 # subject_array=(1002 1004 2002 2007)
-subject_array=(1002)
-# subject_array=(1012 1011 1010 1013 2021 2015 2002 2018 2017 2012 2025 2020 2026 2023 2022 2007 2013 2008 2033 2034)
+subject_array=(1002 1004 2002 2007)
+# not running 1004
 
-# subject_array=(2052)
 
 subject=${subject_array[$SLURM_ARRAY_TASK_ID]}
 echo processing subject $subject
@@ -32,10 +31,10 @@ Shell_dir=/blue/rachaelseidler/tfettrow/Crunch_Code/Shell_Scripts
 Matlab_dir=/blue/rachaelseidler/tfettrow/Crunch_Code/Matlab_Scripts
 Template_dir=/blue/rachaelseidler/tfettrow/Crunch_Code/MR_Templates
 
-./Shell_Scripts/dwi_processing/preprocess_dwi.sh $Matlab_dir $Template_dir $Subject_dir eddy_correction
+./Shell_Scripts/dwi_processing/preprocess_dwi.sh $Matlab_dir $Template_dir $Subject_dir drift_correction fieldmap_dti eddy_correction
 
 ## steps vv ##
-# signal drift
+#drift_correction
 #fieldmap_dti
 #eddy_correction
 
