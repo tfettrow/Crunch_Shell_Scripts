@@ -13,13 +13,13 @@
 #SBATCH --gpus=1
 #SBATCH --time=6:00:00 
 #SBATCH --output=batch_dwi_gpu.%A_%a.out 	# Standard output and error log
-#SBATCH --array=0-3						# array range
+#SBATCH --array=0						# array range
 pwd; hostname; date
 
 cd /blue/rachaelseidler/tfettrow/Crunch_Code/
 
 # subject_array=(1002 1004 2002 2007)
-subject_array=(1002 1004 2002 2007)
+subject_array=(1002)
 # not running 1004
 
 
@@ -31,7 +31,8 @@ Shell_dir=/blue/rachaelseidler/tfettrow/Crunch_Code/Shell_Scripts
 Matlab_dir=/blue/rachaelseidler/tfettrow/Crunch_Code/Matlab_Scripts
 Template_dir=/blue/rachaelseidler/tfettrow/Crunch_Code/MR_Templates
 
-./Shell_Scripts/dwi_processing/preprocess_dwi.sh $Matlab_dir $Template_dir $Subject_dir drift_correction fieldmap_dti eddy_correction
+./Shell_Scripts/dwi_processing/preprocess_dwi.sh $Matlab_dir $Template_dir $Subject_dir eddy_correction 
+#fieldmap_dti eddy_correction
 
 ## steps vv ##
 #drift_correction

@@ -122,9 +122,6 @@ for this_preprocessing_step in ${preprocessing_steps[@]};do
 		if [ -e AP_PA_merged.nii ]; then 
 			rm AP_PA_merged.nii
 		fi
-		if [ -e Mean_AP_PA_merged.nii ]; then 
-			rm Mean_AP_PA_merged.nii
-		fi
 		if [ -e se_epi_unwarped.nii ]; then 
 			rm se_epi_unwarped.nii
 		fi 
@@ -143,26 +140,23 @@ for this_preprocessing_step in ${preprocessing_steps[@]};do
 	   	if [ -e my_fieldmap_mask.nii ]; then
 			rm my_fieldmap_mask.nii
 			rm my_fieldmap_rads.nii
-			rm my_fieldmap_mask_brain.nii
 		fi
 
 		# removing a slice
 		# TO DO: need to setup an automated check of the chosen volumes for fieldmap here..
-		fslroi DistMap_AP DistMap_AP1 0 1
+		# removing the use of DistMap_AP in place of the first vol of the DWI run
+		#fslroi DistMap_AP DistMap_AP1 0 1
 		fslroi DistMap_PA DistMap_PA1 0 1
+		fslroi ${Subject_dir}/Processed/MRI_files/${dwi_folder_name}/driftcorrected_DWI DistMap_AP1 0 1
 
-		fslmaths  ${Subject_dir}/Processed/MRI_files/${dwi_folder_name}/driftcorrected_DWI -Tmean ${Subject_dir}/Processed/MRI_files/${dwi_folder_name}/Mean_driftcorrected_DWI
-
-		flirt -in DistMap_AP1.nii -ref ${Subject_dir}/Processed/MRI_files/${dwi_folder_name}/Mean_driftcorrected_DWI.nii -out DistMap_AP1.nii
-		flirt -in DistMap_PA1.nii -ref ${Subject_dir}/Processed/MRI_files/${dwi_folder_name}/Mean_driftcorrected_DWI.nii -out DistMap_PA1.nii
-
-
+		flirt -in DistMap_PA1.nii -ref DistMap_AP1.nii -out DistMap_PA1.nii
+		gunzip -qf *nii.gz
 		fslmerge -t AP_PA_merged.nii DistMap_AP1.nii DistMap_PA1.nii
-		gunzip -f *nii.gz
+		gunzip -qf *nii.gz
 		
 		this_file_header_info=$(fslhd AP_PA_merged.nii)
 		
-		gunzip -f *nii.gz
+		gunzip -qf *nii.gz
 
 		# just a dummy value to check whether ecoding direction is same between distmaps
 		previous_encoding_direction=k
@@ -190,10 +184,9 @@ for this_preprocessing_step in ${preprocessing_steps[@]};do
 
 		topup --imain=AP_PA_merged.nii --datain=acqParams.txt --fout=my_fieldmap --config=b02b0_1.cnf --iout=se_epi_unwarped --out=topup_results
 
-
 		fslmaths se_epi_unwarped -Tmean my_fieldmap_mask
 		bet2 my_fieldmap_mask my_fieldmap_mask_brain -m
-		gunzip -f *nii.gz
+		gunzip -qf *nii.gz
    	fi
 
    	# TO DO:  [[ $this_preprocessing_step ==  "check_bet" ]]; then
@@ -222,10 +215,8 @@ for this_preprocessing_step in ${preprocessing_steps[@]};do
 
 		# need this?? only if fieldmap slice_removed!!	
 		rm eddycorrected_driftcorrected_DWI.*
-		rm my_fieldmap_mask_brain_pixAdjust.nii
-		rm Mean_driftcorrected_DWI.nii
 		
-		flirt -in my_fieldmap_mask_brain.nii -ref Mean_driftcorrected_DWI.nii -out my_fieldmap_mask_brain.nii
+		#flirt -in my_fieldmap_mask_brain.nii -ref Mean_driftcorrected_DWI.nii -out my_fieldmap_mask_brain.nii
 	 	
 	 	eddy_cuda9.1 --imain=driftcorrected_DWI.nii --mask=my_fieldmap_mask_brain.nii --topup=topup_results --acqp=acqParams.txt --index=index.txt --bvecs=DWI.bvec --bvals=DWI.bval --niter=8 --fwhm=10,8,4,2,0,0,0,0 --repol --out=eddycorrected_driftcorrected_DWI --mporder=6 --json=DWI.json --s2v_niter=5 --s2v_lambda=1 --s2v_interp=trilinear --cnr_maps
 
@@ -234,6 +225,9 @@ for this_preprocessing_step in ${preprocessing_steps[@]};do
 		
 		gunzip -f *nii.gz
 	fi
+
+
+	# fsl FA TBSS .. 4 different normalization procedures
 
 
 	# if [[ $this_preprocessing_step == "skull_strip" ]]; then
