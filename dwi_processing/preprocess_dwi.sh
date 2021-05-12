@@ -27,7 +27,8 @@ done
 	
 	export MATLABPATH=${Matlab_dir}/helper
 	ml matlab/2020a
-	ml gcc/5.2.0; ml ants ## ml gcc/9.3.0; ml ants/2.3.4
+	ml gcc/5.2.0
+	ml ants ## ml gcc/9.3.0; ml ants/2.3.4
 	ml fsl/6.0.3
 	
 	cd $Subject_dir
@@ -107,13 +108,6 @@ for this_preprocessing_step in ${preprocessing_steps[@]};do
 		matlab -nodesktop -nosplash -r "try; driftcorrect; catch; end; quit"
 	fi
 
-	# used for nasa but not KH UF data
-   	#if [[ ${preprocessing_steps[*]} =~ "rician_filter" ]]; then
-   		# MainDWIDenoising # # 
-   		# # arguments  to automate ?? X X
-   	#fi
-
-   	# TO DO: make sure dwi and fieldmap are registered
    	if [[ $this_preprocessing_step == "fieldmap_dti" ]]; then
    		fieldmap_folder_name=($dwi_fieldmap_processed_folder_name)
    		dwi_folder_name=($dwi_processed_folder_name)
@@ -142,16 +136,13 @@ for this_preprocessing_step in ${preprocessing_steps[@]};do
 			rm my_fieldmap_rads.nii
 		fi
 
-		# removing a slice
-		# TO DO: need to setup an automated check of the chosen volumes for fieldmap here..
-		# removing the use of DistMap_AP in place of the first vol of the DWI run
-		#fslroi DistMap_AP DistMap_AP1 0 1
+		fslroi DistMap_AP DistMap_AP1 0 1
 		fslroi DistMap_PA DistMap_PA1 0 1
-		fslroi ${Subject_dir}/Processed/MRI_files/${dwi_folder_name}/driftcorrected_DWI DistMap_AP1 0 1
+		fslroi ${Subject_dir}/Processed/MRI_files/${dwi_folder_name}/driftcorrected_DWI.nii DistMap_AP1 0 1
 
-		flirt -in DistMap_PA1.nii -ref DistMap_AP1.nii -out DistMap_PA1.nii
+		flirt -in DistMap_PA1.nii -ref DistMap_AP1.nii -out DistMap_PA1_reg.nii
 		gunzip -qf *nii.gz
-		fslmerge -t AP_PA_merged.nii DistMap_AP1.nii DistMap_PA1.nii
+		fslmerge -t AP_PA_merged.nii DistMap_AP1.nii DistMap_PA1_reg.nii
 		gunzip -qf *nii.gz
 		
 		this_file_header_info=$(fslhd AP_PA_merged.nii)
@@ -184,47 +175,38 @@ for this_preprocessing_step in ${preprocessing_steps[@]};do
 
 		topup --imain=AP_PA_merged.nii --datain=acqParams.txt --fout=my_fieldmap --config=b02b0_1.cnf --iout=se_epi_unwarped --out=topup_results
 
-		fslmaths se_epi_unwarped -Tmean my_fieldmap_mask
-		bet2 my_fieldmap_mask my_fieldmap_mask_brain -m
+		fslmaths se_epi_unwarped -Tmean se_epi_unwarped_mean
+		bet se_epi_unwarped_mean se_epi_unwarped_brain -m
 		gunzip -qf *nii.gz
    	fi
-
-   	# TO DO:  [[ $this_preprocessing_step ==  "check_bet" ]]; then
-   		#It may be a good idea to check this stage to ensure bet has done a good job of extracting the brain.
-
-
-
-   	# TO DO: where does motion correction occur?? do we need to code this? according to KH, HM made her own function? that doesnt seem right, this should be a standard step.
-   	# this happens in eddy below.. where does eddy_quad come in? look into different eddy checks
-   	# 1mm total movement threshold
 
    	if [[ $this_preprocessing_step ==  "eddy_correction" ]]; then
    		fieldmap_folder_name=($dwi_fieldmap_processed_folder_name)
    		dwi_folder_name=($dwi_processed_folder_name)
 
    		cd ${Subject_dir}/Processed/MRI_files/${fieldmap_folder_name}
-   		cp my_fieldmap_mask_brain.nii ${Subject_dir}/Processed/MRI_files/${dwi_folder_name}
+   		cp se_epi_unwarped_brain_mask.nii ${Subject_dir}/Processed/MRI_files/${dwi_folder_name}
 		cp my_fieldmap.nii ${Subject_dir}/Processed/MRI_files/${dwi_folder_name}
 		cp acqParams.txt ${Subject_dir}/Processed/MRI_files/${dwi_folder_name}
         cp topup_results* ${Subject_dir}/Processed/MRI_files/${dwi_folder_name}
         cd ${Subject_dir}/Processed/MRI_files/${dwi_folder_name}
         
-
 		NVOL=`fslnvols driftcorrected_DWI.nii`
 		for ((i=1; i<=${NVOL}; i+=1)); do indx="$indx 1"; done; echo $indx > index.txt
 
-		# need this?? only if fieldmap slice_removed!!	
 		rm eddycorrected_driftcorrected_DWI.*
 		
-		#flirt -in my_fieldmap_mask_brain.nii -ref Mean_driftcorrected_DWI.nii -out my_fieldmap_mask_brain.nii
-	 	
-	 	eddy_cuda9.1 --imain=driftcorrected_DWI.nii --mask=my_fieldmap_mask_brain.nii --topup=topup_results --acqp=acqParams.txt --index=index.txt --bvecs=DWI.bvec --bvals=DWI.bval --niter=8 --fwhm=10,8,4,2,0,0,0,0 --repol --out=eddycorrected_driftcorrected_DWI --mporder=6 --json=DWI.json --s2v_niter=5 --s2v_lambda=1 --s2v_interp=trilinear --cnr_maps
+	 	eddy_cuda9.1 --imain=driftcorrected_DWI.nii --mask=se_epi_unwarped_brain_mask.nii --topup=topup_results --acqp=acqParams.txt --index=index.txt --bvecs=DWI.bvec --bvals=DWI.bval --niter=8 --fwhm=10,8,4,2,0,0,0,0 --repol --out=eddycorrected_driftcorrected_DWI --mporder=16 --json=DWI.json --s2v_niter=8 --s2v_lambda=1 --s2v_interp=trilinear --cnr_maps
 
 		rm -r eddycorrected_driftcorrected_DWI.qc
-		eddy_quad ${Subject_dir}/Processed/MRI_files/${dwi_folder_name}/eddycorrected_driftcorrected_DWI --eddyIdx index.txt --eddyParams acqParams.txt --mask my_fieldmap_mask_brain --bvals DWI.bval --output-dir=eddycorrected_driftcorrected_DWI.qc
+		eddy_quad ${Subject_dir}/Processed/MRI_files/${dwi_folder_name}/eddycorrected_driftcorrected_DWI --eddyIdx index.txt --eddyParams acqParams.txt --mask se_epi_unwarped_brain_mask --bvals DWI.bval --output-dir=eddycorrected_driftcorrected_DWI.qc
 		
 		gunzip -f *nii.gz
 	fi
+
+
+# fsl_motion_outliers 
+
 
 
 	# fsl FA TBSS .. 4 different normalization procedures
@@ -234,7 +216,7 @@ for this_preprocessing_step in ${preprocessing_steps[@]};do
 	# 	cd /ufrc/rachaelseidler/share/FromExternal/Research_Projects_UF/CRUNCH/Pilot_Study_Data/${SUB}/Processed/MRI_files/08_DWI
 	# 	ml fsl
 	# 	bet2 eddy_corrected_data.nii eddy_corrected_Skullstripped.nii
-	# fi
+	# files
 
 	# if [[ $this_preprocessing_step == "check_dwi_ants" ]]; then
 	# 	data_folder_to_analyze=($restingstate_processed_folder_names)
