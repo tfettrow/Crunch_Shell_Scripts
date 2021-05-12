@@ -174,10 +174,13 @@ for this_preprocessing_step in ${preprocessing_steps[@]};do
 		done
 
 		topup --imain=AP_PA_merged.nii --datain=acqParams.txt --fout=my_fieldmap --config=b02b0_1.cnf --iout=se_epi_unwarped --out=topup_results
-
+		gunzip -qf *nii.gz
 		fslmaths se_epi_unwarped -Tmean se_epi_unwarped_mean
+		gunzip -qf *nii.gz
 		bet se_epi_unwarped_mean se_epi_unwarped_brain -m
 		gunzip -qf *nii.gz
+
+		echo topup finished for $Subject_dir
    	fi
 
    	if [[ $this_preprocessing_step ==  "eddy_correction" ]]; then
@@ -196,15 +199,23 @@ for this_preprocessing_step in ${preprocessing_steps[@]};do
 
 		rm eddycorrected_driftcorrected_DWI.*
 		
-	 	eddy_cuda9.1 --imain=driftcorrected_DWI.nii --mask=se_epi_unwarped_brain_mask.nii --topup=topup_results --acqp=acqParams.txt --index=index.txt --bvecs=DWI.bvec --bvals=DWI.bval --niter=8 --fwhm=10,8,4,2,0,0,0,0 --repol --out=eddycorrected_driftcorrected_DWI --mporder=16 --json=DWI.json --s2v_niter=8 --s2v_lambda=1 --s2v_interp=trilinear --cnr_maps
+		flirt -in se_epi_unwarped_brain_mask.nii -ref driftcorrected_DWI.nii -out se_epi_unwarped_brain_mask_pixelAdjusted.nii
+		gunzip -f *nii.gz
+	 	eddy_cuda9.1 --imain=driftcorrected_DWI.nii --mask=se_epi_unwarped_brain_mask_pixelAdjusted.nii --topup=topup_results --acqp=acqParams.txt --index=index.txt --bvecs=DWI.bvec --bvals=DWI.bval --niter=8 --fwhm=10,8,4,2,0,0,0,0 --repol --out=eddycorrected_driftcorrected_DWI --mporder=16 --json=DWI.json --s2v_niter=8 --s2v_lambda=1 --s2v_interp=trilinear --cnr_maps
 
 		rm -r eddycorrected_driftcorrected_DWI.qc
-		eddy_quad ${Subject_dir}/Processed/MRI_files/${dwi_folder_name}/eddycorrected_driftcorrected_DWI --eddyIdx index.txt --eddyParams acqParams.txt --mask se_epi_unwarped_brain_mask --bvals DWI.bval --output-dir=eddycorrected_driftcorrected_DWI.qc
+		eddy_quad ${Subject_dir}/Processed/MRI_files/${dwi_folder_name}/eddycorrected_driftcorrected_DWI --eddyIdx index.txt --eddyParams acqParams.txt --mask se_epi_unwarped_brain_mask_pixelAdjusted --bvals DWI.bval --output-dir=eddycorrected_driftcorrected_DWI.qc
 		
 		gunzip -f *nii.gz
 	fi
 
+	if [[ $this_preprocessing_step ==  "fit_tensors" ]]; then
+		dwi_folder_name=($dwi_processed_folder_name)
+		cd ${Subject_dir}/Processed/MRI_files/${dwi_folder_name}
 
+		dtifit -k eddycorrected_driftcorrected_DWI.nii -o tensorfit_eddycorrected_driftcorrected_DWI -m se_epi_unwarped_brain_mask_pixelAdjusted.nii -r DWI.bvec -b DWI.bval
+		gunzip -f *nii.gz
+	fi
 # fsl_motion_outliers 
 
 

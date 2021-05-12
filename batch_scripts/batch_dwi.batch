@@ -5,21 +5,23 @@
 #SBATCH --qos=rachaelseidler
 #SBATCH --ntasks=1                          # Run a single task
 #SBATCH --qos=rachaelseidler
-#SBATCH --mem=16000mb	                   	    # Memory limit
-##SBATCH --time=96:00:00               			# Time limit hrs:min:sec
-##SBATCH --output=batch_dwi.%A_%a.out 	# Standard output and error log
-##SBATCH --array=0						# array range
-#SBATCH --partition=gpu
-#SBATCH --gpus=1
-#SBATCH --time=6:00:00 
-#SBATCH --output=batch_dwi_gpu.%A_%a.out 	# Standard output and error log
+#SBATCH --mem=12000mb	                   	    # Memory limit
+#SBATCH --time=96:00:00               			# Time limit hrs:min:sec
+#SBATCH --output=batch_dwi.%A_%a.out 	# Standard output and error log
 #SBATCH --array=0						# array range
+##SBATCH --partition=gpu
+##SBATCH --gpus=1
+##SBATCH --time=6:00:00 
+##SBATCH --output=batch_dwi_gpu.%A_%a.out 	# Standard output and error log
+##SBATCH --array=0-10						# array range
 pwd; hostname; date
 
 cd /blue/rachaelseidler/tfettrow/Crunch_Code/
 
 # subject_array=(1002 1004 2002 2007)
+# subject_array=(1012 1010 1013 1009 1007 1020 1022 1027 1024 1026 1025)
 subject_array=(1002)
+
 # not running 1004
 
 
@@ -31,13 +33,14 @@ Shell_dir=/blue/rachaelseidler/tfettrow/Crunch_Code/Shell_Scripts
 Matlab_dir=/blue/rachaelseidler/tfettrow/Crunch_Code/Matlab_Scripts
 Template_dir=/blue/rachaelseidler/tfettrow/Crunch_Code/MR_Templates
 
-./Shell_Scripts/dwi_processing/preprocess_dwi.sh $Matlab_dir $Template_dir $Subject_dir eddy_correction 
+./Shell_Scripts/dwi_processing/preprocess_dwi.sh $Matlab_dir $Template_dir $Subject_dir fit_tensors
 #fieldmap_dti eddy_correction
 
 ## steps vv ##
 #drift_correction
 #fieldmap_dti
 #eddy_correction
+#fit_tensors
 
 
 # for this_subject in "${subject_array[@]}"; do
