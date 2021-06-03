@@ -136,20 +136,17 @@ for this_preprocessing_step in ${preprocessing_steps[@]};do
 			rm my_fieldmap_rads.nii
 		fi
 
-		fslroi DistMap_AP DistMap_AP1 0 1
 		fslroi DistMap_PA DistMap_PA1 0 1
 		fslroi ${Subject_dir}/Processed/MRI_files/${dwi_folder_name}/driftcorrected_DWI.nii DistMap_AP1 0 1
 
-		flirt -in DistMap_PA1.nii -ref DistMap_AP1.nii -out DistMap_PA1_reg.nii
-		gunzip -qf *nii.gz
-		fslmerge -t AP_PA_merged.nii DistMap_AP1.nii DistMap_PA1_reg.nii
+		fslmerge -t AP_PA_merged.nii DistMap_AP1.nii DistMap_PA1.nii
 		gunzip -qf *nii.gz
 		
 		this_file_header_info=$(fslhd AP_PA_merged.nii)
 		
 		gunzip -qf *nii.gz
 
-		# just a dummy value to check whether ecoding direction is same between distmaps
+		# just a dummy value to check whether ecoding direction is same between distmapss
 		previous_encoding_direction=k
 		# assuming only the DistMaps have .jsons in this folder
 		for this_json_file in *.json*; do
@@ -201,7 +198,8 @@ for this_preprocessing_step in ${preprocessing_steps[@]};do
 		
 		flirt -in se_epi_unwarped_brain_mask.nii -ref driftcorrected_DWI.nii -out se_epi_unwarped_brain_mask_pixelAdjusted.nii
 		gunzip -f *nii.gz
-	 	eddy_cuda9.1 --imain=driftcorrected_DWI.nii --mask=se_epi_unwarped_brain_mask_pixelAdjusted.nii --topup=topup_results --acqp=acqParams.txt --index=index.txt --bvecs=DWI.bvec --bvals=DWI.bval --niter=8 --fwhm=10,8,4,2,0,0,0,0 --repol --out=eddycorrected_driftcorrected_DWI --mporder=16 --json=DWI.json --s2v_niter=8 --s2v_lambda=1 --s2v_interp=trilinear --cnr_maps
+
+	 	eddy_cuda9.1 --imain=driftcorrected_DWI.nii --mask=se_epi_unwarped_brain_mask_pixelAdjusted.nii --topup=topup_results --acqp=acqParams.txt --index=index.txt --bvecs=DWI.bvec --bvals=DWI.bval --niter=8 --fwhm=10,8,4,2,0,0,0,0 --repol --slm=linear --out=eddycorrected_driftcorrected_DWI --mporder=16 --json=DWI.json --s2v_niter=8 --s2v_lambda=1 --s2v_interp=trilinear --estimate_move_by_susceptibility --cnr_maps --verbose
 
 		rm -r eddycorrected_driftcorrected_DWI.qc
 		eddy_quad ${Subject_dir}/Processed/MRI_files/${dwi_folder_name}/eddycorrected_driftcorrected_DWI --eddyIdx index.txt --eddyParams acqParams.txt --mask se_epi_unwarped_brain_mask_pixelAdjusted --bvals DWI.bval --output-dir=eddycorrected_driftcorrected_DWI.qc
@@ -213,7 +211,9 @@ for this_preprocessing_step in ${preprocessing_steps[@]};do
 		dwi_folder_name=($dwi_processed_folder_name)
 		cd ${Subject_dir}/Processed/MRI_files/${dwi_folder_name}
 
-		dtifit -k eddycorrected_driftcorrected_DWI.nii -o tensorfit_eddycorrected_driftcorrected_DWI -m se_epi_unwarped_brain_mask_pixelAdjusted.nii -r DWI.bvec -b DWI.bval
+		dtifit -k eddycorrected_driftcorrected_DWI.nii -o tensorfit_eddycorrected_driftcorrected_DWI -m se_epi_unwarped_brain_mask_pixelAdjusted.nii -r eddycorrected_driftcorrected_DWI.eddy_rotated_bvecs -b DWI.bval
+
+
 		gunzip -f *nii.gz
 	fi
 # fsl_motion_outliers 
