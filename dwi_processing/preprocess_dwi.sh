@@ -199,7 +199,26 @@ for this_preprocessing_step in ${preprocessing_steps[@]};do
 		flirt -in se_epi_unwarped_brain_mask.nii -ref driftcorrected_DWI.nii -out se_epi_unwarped_brain_mask_pixelAdjusted.nii
 		gunzip -f *nii.gz
 
-	 	eddy_cuda9.1 --imain=driftcorrected_DWI.nii --mask=se_epi_unwarped_brain_mask_pixelAdjusted.nii --topup=topup_results --acqp=acqParams.txt --index=index.txt --bvecs=DWI.bvec --bvals=DWI.bval --niter=8 --fwhm=10,8,4,2,0,0,0,0 --repol --slm=linear --out=eddycorrected_driftcorrected_DWI --mporder=16 --json=DWI.json --s2v_niter=8 --s2v_lambda=1 --s2v_interp=trilinear --estimate_move_by_susceptibility --cnr_maps --verbose
+	 	eddy_cuda9.1 --imain=driftcorrected_DWI.nii \
+		--mask=se_epi_unwarped_brain_mask_pixelAdjusted.nii \
+		--topup=topup_results \
+		--acqp=acqParams.txt \
+		--index=index.txt \
+		--bvecs=DWI.bvec \
+		--bvals=DWI.bval \
+		--niter=8 \
+		--fwhm=10,8,4,2,0,0,0,0 \
+		--repol \
+		--slm=linear \ #might not be needed since we have greater than 60 directions for EPI
+		--out=eddycorrected_driftcorrected_DWI \
+		--mporder=16 \
+		--json=DWI.json \
+		--s2v_niter=8 \
+		--s2v_lambda=1 \
+		--s2v_interp=trilinear \
+		--estimate_move_by_susceptibility \
+		--cnr_maps \
+		--verbose
 
 		rm -r eddycorrected_driftcorrected_DWI.qc
 		eddy_quad ${Subject_dir}/Processed/MRI_files/${dwi_folder_name}/eddycorrected_driftcorrected_DWI --eddyIdx index.txt --eddyParams acqParams.txt --mask se_epi_unwarped_brain_mask_pixelAdjusted --bvals DWI.bval --output-dir=eddycorrected_driftcorrected_DWI.qc
