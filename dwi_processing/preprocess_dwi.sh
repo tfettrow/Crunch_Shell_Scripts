@@ -270,20 +270,6 @@ for this_preprocessing_step in ${preprocessing_steps[@]};do
 		echo "finished fw_dti processing ${Subject_dir}"
 	fi
 
-	if [[ $this_preprocessing_step == "invert_warps" ]]; then
-		dwi_folder_name=($dwi_processed_folder_name)
-		t1_folder_name=($t1_processed_folder_name)
-		cd ${Subject_dir}/Processed/MRI_files/${dwi_folder_name}
-
-		# -mas se_epi_unwarped_brain_mask.nii
-		# consider only doing 
-		# invwarp --ref=target --warp=1002_tensorfit_eddycorrected_driftcorrected_DWI_FA_FA_to_target_warp --out=1002_tensorfit_eddycorrected_driftcorrected_DWI_FA_FA_to_target_warp_inv
-
-		# gunzip -f *nii.gz
-	fi
-
-	
-
 	if [[ $this_preprocessing_step == "copy_fa_for_tbss" ]]; then
 		dwi_folder_name=($dwi_processed_folder_name)
 		cd ${Subject_dir}
@@ -299,7 +285,19 @@ for this_preprocessing_step in ${preprocessing_steps[@]};do
 
 		cd $study_dir
 
-		cp ${Subject_dir}/Processed/MRI_files/${dwi_folder_name}/eddycorrected_FAt.nii ${study_dir}/TBSS_results/${this_subject_id}_tensorfit_eddycorrected_driftcorrected_DWI_FA.nii 
+		cp ${Subject_dir}/Processed/MRI_files/${dwi_folder_name}/eddycorrected_FAt.nii.gz ${study_dir}/TBSS_results/${this_subject_id}_eddycorrected_FAt.nii.gz 
+	fi
+
+	if [[ $this_preprocessing_step == "invert_warps" ]]; then
+		dwi_folder_name=($dwi_processed_folder_name)
+		t1_folder_name=($t1_processed_folder_name)
+		cd ${Subject_dir}/Processed/MRI_files/${dwi_folder_name}
+
+		# -mas se_epi_unwarped_brain_mask.nii
+		# consider only doing 
+		# invwarp --ref=target --warp=1002_tensorfit_eddycorrected_driftcorrected_DWI_FA_FA_to_target_warp --out=1002_tensorfit_eddycorrected_driftcorrected_DWI_FA_FA_to_target_warp_inv
+
+		# gunzip -f *nii.gz
 	fi
 
 	if [[ $this_preprocessing_step == "view_tensors" ]]; then
