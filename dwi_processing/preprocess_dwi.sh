@@ -26,7 +26,8 @@ done
 	echo $preprocessing_steps
 	
 	export MATLABPATH=${Matlab_dir}/helper
-	ml matlab/2020a
+	ml matlab/2020b
+	# module spider matlab
 	ml gcc/5.2.0
 	ml ants ## ml gcc/9.3.0; ml ants/2.3.4
 	ml fsl/6.0.3
@@ -196,11 +197,11 @@ for this_preprocessing_step in ${preprocessing_steps[@]};do
 
 		rm eddycorrected_driftcorrected_DWI.*
 		
-		flirt -in se_epi_unwarped_brain_mask.nii -ref driftcorrected_DWI.nii -out se_epi_unwarped_brain_mask_pixelAdjusted.nii
-		gunzip -f *nii.gz
+		# flirt -in se_epi_unwarped_brain_mask.nii -ref driftcorrected_DWI.nii -out se_epi_unwarped_brain_mask_pixelAdjusted.nii
+		# gunzip -f *nii.gz
 
-	 	eddy_cuda9.1 --imain=driftcorrected_DWI.nii \
-		--mask=se_epi_unwarped_brain_mask_pixelAdjusted.nii \
+		eddy_cuda9.1 --imain=driftcorrected_DWI.nii \
+		--mask=se_epi_unwarped_brain_mask.nii \
 		--topup=topup_results \
 		--acqp=acqParams.txt \
 		--index=index.txt \
@@ -209,7 +210,7 @@ for this_preprocessing_step in ${preprocessing_steps[@]};do
 		--niter=8 \
 		--fwhm=10,8,4,2,0,0,0,0 \
 		--repol \
-		--slm=linear \ #might not be needed since we have greater than 60 directions for EPI
+		--slm=linear \
 		--out=eddycorrected_driftcorrected_DWI \
 		--mporder=16 \
 		--json=DWI.json \
@@ -219,69 +220,95 @@ for this_preprocessing_step in ${preprocessing_steps[@]};do
 		--estimate_move_by_susceptibility \
 		--cnr_maps \
 		--verbose
+	fi
+
+	if [[ $this_preprocessing_step == "eddy_quad" ]]; then
+		dwi_folder_name=($dwi_processed_folder_name)
+		cd ${Subject_dir}/Processed/MRI_files/${dwi_folder_name}
 
 		rm -r eddycorrected_driftcorrected_DWI.qc
-		eddy_quad ${Subject_dir}/Processed/MRI_files/${dwi_folder_name}/eddycorrected_driftcorrected_DWI --eddyIdx index.txt --eddyParams acqParams.txt --mask se_epi_unwarped_brain_mask_pixelAdjusted --bvals DWI.bval --output-dir=eddycorrected_driftcorrected_DWI.qc
+		
+		eddy_quad ${Subject_dir}/Processed/MRI_files/${dwi_folder_name}/eddycorrected_driftcorrected_DWI \
+		--eddyIdx index.txt \
+		--eddyParams acqParams.txt \
+		--mask se_epi_unwarped_brain_mask \
+		--bvals DWI.bval \
+		--bvecs eddycorrected_driftcorrected_DWI.eddy_rotated_bvecs \
+		--slspec=my_slspec.txt \
+		--field my_fieldmap.nii \
+		--output-dir=eddycorrected_driftcorrected_DWI.qc
 		
 		gunzip -f *nii.gz
 	fi
 
-	if [[ $this_preprocessing_step ==  "fit_tensors" ]]; then
+	if [[ $this_preprocessing_step == "cleanup_dti" ]]; then
 		dwi_folder_name=($dwi_processed_folder_name)
 		cd ${Subject_dir}/Processed/MRI_files/${dwi_folder_name}
 
-		dtifit -k eddycorrected_driftcorrected_DWI.nii -o tensorfit_eddycorrected_driftcorrected_DWI -m se_epi_unwarped_brain_mask_pixelAdjusted.nii -r eddycorrected_driftcorrected_DWI.eddy_rotated_bvecs -b DWI.bval
-
-
-		gunzip -f *nii.gz
+		# rm tensorfit_eddycorrected_driftcorrected_DWI*
+		rm se_epi_unwarped_brain_mask_pixelAdjusted.nii
+		rm T1_warpedTo_*
+		rm MNI_warpedTo_*
+		rm MNI_1mm*
+		rm binary*
+		rm warpT1To_*
+		rm warpMNITo_*
+		rm mean_FA*
+		rm Mean_driftcorrected*
+		rm FMRIB58skeleton_*
+		rm FMRIB58_FA*
+		rm single_eddy*
+		rm FMRIB58*
+		rm eddy_warpedTo_biascorrected*
 	fi
-# fsl_motion_outliers 
 
+	if [[ $this_preprocessing_step == "freewater_correction" ]]; then
+		dwi_folder_name=($dwi_processed_folder_name)
+		cd ${Subject_dir}/Processed/MRI_files/${dwi_folder_name}
 
+		matlab -nodesktop -nosplash -r "try; run_MiM_FW; catch; end; quit"
+		echo "finished fw_dti processing ${Subject_dir}"
+	fi
 
-	# fsl FA TBSS .. 4 different normalization procedures
+	if [[ $this_preprocessing_step == "invert_warps" ]]; then
+		dwi_folder_name=($dwi_processed_folder_name)
+		t1_folder_name=($t1_processed_folder_name)
+		cd ${Subject_dir}/Processed/MRI_files/${dwi_folder_name}
 
+		# -mas se_epi_unwarped_brain_mask.nii
+		# consider only doing 
+		# invwarp --ref=target --warp=1002_tensorfit_eddycorrected_driftcorrected_DWI_FA_FA_to_target_warp --out=1002_tensorfit_eddycorrected_driftcorrected_DWI_FA_FA_to_target_warp_inv
 
-	# if [[ $this_preprocessing_step == "skull_strip" ]]; then
-	# 	cd /ufrc/rachaelseidler/share/FromExternal/Research_Projects_UF/CRUNCH/Pilot_Study_Data/${SUB}/Processed/MRI_files/08_DWI
-	# 	ml fsl
-	# 	bet2 eddy_corrected_data.nii eddy_corrected_Skullstripped.nii
-	# files
+		# gunzip -f *nii.gz
+	fi
 
-	# if [[ $this_preprocessing_step == "check_dwi_ants" ]]; then
-	# 	data_folder_to_analyze=($restingstate_processed_folder_names)
-	# 	for this_functional_run_folder in ${data_folder_to_analyze[@]}; do
-	# 		cd ${Subject_dir}/Processed/MRI_files/${this_functional_run_folder}/ANTS_Normalization
-	# 		ml fsl/6.0.1
-	# 		for this_functional_file in smoothed_warpedToMNI_unwarpedRealigned*.nii; do
-	# 			this_core_functional_file_name=$(echo $this_functional_file | cut -d. -f 1)
-	# 			echo saving jpeg of $this_core_functional_file_name for ${subject}
-				
+	
 
-	# 			# xvfb-run -s "-screen 0 640x480x24" fsleyes render --scene ortho --outfile ${Subject_dir}/Processed/MRI_files/${this_functional_run_folder}/ANTS_Normalization/check_MNI_ants_${this_core_functional_file_name} \
-	# 			# ${Subject_dir}/Processed/MRI_files/${this_functional_run_folder}/ANTS_Normalization/MNI_2mm.nii -cm red-yellow \
-	# 			# ${Subject_dir}/Processed/MRI_files/${this_functional_run_folder}/ANTS_Normalization/$this_functional_file --alpha 85
-	# 			# # echo "Created screenshot for": ${SUB}-${SSN};
-	# 			# display check_MNI_ants_${this_core_functional_file_name}.png
-	# 		done
-	# 	done
-	# 	# echo This step took $SECONDS seconds to execute
-	# 	# cd "${Subject_dir}"
-	# 	# echo "Smoothing ANTS files: $SECONDS sec" >> preprocessing_log.txt
-	# 	# SECONDS=0
-	# fi
+	if [[ $this_preprocessing_step == "copy_fa_for_tbss" ]]; then
+		dwi_folder_name=($dwi_processed_folder_name)
+		cd ${Subject_dir}
+		cd ../
+		study_dir=$(pwd)
+		echo $study_dir
+		this_subject_id=$(echo $Subject_dir | cut -d "/" -f9)
+		echo $this_subject_id
+		# 1) make a tbss_results folder in study folder if not already there
+		# 2) copy this subject's FA image over (force) after renaming subjectID_xxx.nii
+		
+		mkdir -p TBSS_results
 
-	## TO DO: eddy_quad or motion correction
+		cd $study_dir
 
-	#
+		cp ${Subject_dir}/Processed/MRI_files/${dwi_folder_name}/eddycorrected_FAt.nii ${study_dir}/TBSS_results/${this_subject_id}_tensorfit_eddycorrected_driftcorrected_DWI_FA.nii 
+	fi
 
-	## TO DO: dti_fit or motion correction
-		# should give you differet images
-	#
+	if [[ $this_preprocessing_step == "view_tensors" ]]; then
+		dwi_folder_name=($dwi_processed_folder_name)
+		cd ${Subject_dir}/Processed/MRI_files/${dwi_folder_name}
 
-	# XYZ == RGB
-	# 	Red = medial-lateral tracts
-	# green = anterior-posterior, you can see major tracts
-	#	 blue= up-down, you can see corticospinal tract in middle ish of the brain	
+		module load gui/2
+		gui start --module fsl/6.0.3 -e fsleyes -c 2 -m 8 -t 24
+	fi
+
 
 done

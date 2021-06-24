@@ -5,42 +5,55 @@
 #SBATCH --qos=rachaelseidler
 #SBATCH --ntasks=1                          # Run a single task
 #SBATCH --qos=rachaelseidler
-#SBATCH --mem=12000mb	                   	    # Memory limit
+#SBATCH --mem=8000mb	                   	    # Memory limit
 #SBATCH --time=96:00:00               			# Time limit hrs:min:sec
 #SBATCH --output=batch_dwi.%A_%a.out 	# Standard output and error log
-#SBATCH --array=0						# array range
+#SBATCH --array=0-1					# array range
 ##SBATCH --partition=gpu
 ##SBATCH --gpus=1
-##SBATCH --time=6:00:00 
+##SBATCH --time=24:00:00 
 ##SBATCH --output=batch_dwi_gpu.%A_%a.out 	# Standard output and error log
-##SBATCH --array=0-10						# array range
+##SBATCH --array=0-34					# array range
 pwd; hostname; date
 
 cd /blue/rachaelseidler/tfettrow/Crunch_Code/
 
+# subject_array=(1007 1009)
 # subject_array=(1002 1004 2002 2007)
-# subject_array=(1012 1010 1013 1009 1007 1020 1022 1027 1024 1026 1025)
-subject_array=(1002)
+# subject_array=(1004 2007)
+# subject_array=(2002 2007)
+# subject_array=(1002)
+#subject_array=(2021 2015 2002 2018 2017 2012 2025 2020 2026 2023 2022 2007 2013 2033 2034 2037 2052 2042)
+subject_array=(1002 1012 1004 1010 1013 1009 1007 1020 1022 1027 1024 1026 1025 2021 2015 2002 2018 2017 2012 2025 2020 2026 2023 2022 2007 2013 2033 2034 2037 2052 2042 3004 3007 3008 3021)
+# subject_array=(1002 1012 1004 1010 1013 1009 1007 1020 1022 1027 1024 1026 1025)
+# subject_array=(2012 2026 2022 2007 2042 3008) # running eddy on these now.. next need to run skull_strip and tensorfit.. tho skullstrip shouldnt be necessary if tensofit is masking.. hmm
+
+# subject_array=(1018 1019 1017 2021 2015 2002 2018 2017 2012 2025 2020 2026 2023 2022 2007 2013 2033 2034 2037 2052 2042 2027 2039 3004 3006 3007 3008 3021 3026 3027 3010 3036 3029)
 
 # not running 1004
 
-
 subject=${subject_array[$SLURM_ARRAY_TASK_ID]}
-echo processing subject $subject
+# subject=${subject_array[0]}
+# echo processing subject $subject
 
 Subject_dir=/blue/rachaelseidler/share/FromExternal/Research_Projects_UF/CRUNCH/MiM_Data/${subject}
 Shell_dir=/blue/rachaelseidler/tfettrow/Crunch_Code/Shell_Scripts
 Matlab_dir=/blue/rachaelseidler/tfettrow/Crunch_Code/Matlab_Scripts
 Template_dir=/blue/rachaelseidler/tfettrow/Crunch_Code/MR_Templates
 
-./Shell_Scripts/dwi_processing/preprocess_dwi.sh $Matlab_dir $Template_dir $Subject_dir fit_tensors
+# ./Shell_Scripts/dwi_processing/run_tbss.sh
+./Shell_Scripts/dwi_processing/preprocess_dwi.sh $Matlab_dir $Template_dir $Subject_dir cleanup_dti freewater_correction
+
+#skull_strip_eddycorrected_image register_mni_to_dti fit_tensors
 #fieldmap_dti eddy_correction
 
 ## steps vv ##
 #drift_correction
 #fieldmap_dti
 #eddy_correction
-#fit_tensors
+#cleanup_dti
+#freewater_correction
+#copy_fa_for_tbss
 
 
 # for this_subject in "${subject_array[@]}"; do
