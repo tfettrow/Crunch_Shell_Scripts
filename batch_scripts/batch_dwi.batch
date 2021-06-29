@@ -5,10 +5,10 @@
 #SBATCH --qos=rachaelseidler
 #SBATCH --ntasks=1                          # Run a single task
 #SBATCH --qos=rachaelseidler
-#SBATCH --mem=8000mb	                   	    # Memory limit
+#SBATCH --mem=16000mb	                   	    # Memory limit
 #SBATCH --time=96:00:00               			# Time limit hrs:min:sec
 #SBATCH --output=batch_dwi.%A_%a.out 	# Standard output and error log
-#SBATCH --array=0-1					# array range
+#SBATCH --array=0-34					# array range
 ##SBATCH --partition=gpu
 ##SBATCH --gpus=1
 ##SBATCH --time=24:00:00 
@@ -18,8 +18,8 @@ pwd; hostname; date
 
 cd /blue/rachaelseidler/tfettrow/Crunch_Code/
 
-# subject_array=(1007 1009)
-# subject_array=(1002 1004 2002 2007)
+# subject_array=(1002 1004 1007)
+# subject_array=(1002)
 # subject_array=(1004 2007)
 # subject_array=(2002 2007)
 # subject_array=(1002)
@@ -42,7 +42,8 @@ Matlab_dir=/blue/rachaelseidler/tfettrow/Crunch_Code/Matlab_Scripts
 Template_dir=/blue/rachaelseidler/tfettrow/Crunch_Code/MR_Templates
 
 # ./Shell_Scripts/dwi_processing/run_tbss.sh
-./Shell_Scripts/dwi_processing/preprocess_dwi.sh $Matlab_dir $Template_dir $Subject_dir cleanup_dti freewater_correction
+./Shell_Scripts/dwi_processing/preprocess_dwi.sh $Matlab_dir $Template_dir $Subject_dir copy_fa_for_tbss
+
 
 #skull_strip_eddycorrected_image register_mni_to_dti fit_tensors
 #fieldmap_dti eddy_correction
