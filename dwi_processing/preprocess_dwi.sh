@@ -268,6 +268,7 @@ for this_preprocessing_step in ${preprocessing_steps[@]};do
 
 		matlab -nodesktop -nosplash -r "try; run_MiM_FW; catch; end; quit"
 		echo "finished fw_dti processing ${Subject_dir}"
+		gunzip *.nii.gz
 	fi
 
 	if [[ $this_preprocessing_step == "copy_fa_for_tbss" ]]; then
@@ -278,14 +279,13 @@ for this_preprocessing_step in ${preprocessing_steps[@]};do
 		echo $study_dir
 		this_subject_id=$(echo $Subject_dir | cut -d "/" -f9)
 		echo $this_subject_id
-		# 1) make a tbss_results folder in study folder if not already there
-		# 2) copy this subject's FA image over (force) after renaming subjectID_xxx.nii
 		
+		# make the results folder (if it is already there then manually delete folders TF: should automate this)
 		mkdir -p TBSS_results
-
 		cd $study_dir
-
-		cp ${Subject_dir}/Processed/MRI_files/${dwi_folder_name}/eddycorrected_FAt.nii.gz ${study_dir}/TBSS_results/${this_subject_id}_eddycorrected_FAt.nii.gz 
+	
+		# cp ${Subject_dir}/Processed/MRI_files/${dwi_folder_name}/eddycorrected_FAt.nii ${study_dir}/TBSS_results/${this_subject_id}_eddycorrected_t_FA.nii
+		cp ${Subject_dir}/Processed/MRI_files/${dwi_folder_name}/tensorfit_eddycorrected_driftcorrected_DWI_FA.nii ${study_dir}/TBSS_results/${this_subject_id}_tensorfit_eddycorrected_driftcorrected_DWI_FA.nii
 	fi
 
 	if [[ $this_preprocessing_step == "invert_warps" ]]; then
