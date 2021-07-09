@@ -24,7 +24,7 @@ do
 	fi
 	
 	export MATLABPATH=${Matlab_dir}/helper
-	ml matlab/2020a
+	ml matlab/2020b
 	ml gcc/5.2.0; ml ants ## ml gcc/9.3.0; ml ants/2.3.4
 	ml fsl/6.0.1
 	
@@ -88,7 +88,6 @@ do
             if [ -e slicetimed_*.nii ]; then 
                 rm slicetimed_*.nii
             fi
-            ml matlab/2020a
             matlab -nodesktop -nosplash -r "try; slicetime_restingstate; catch; end; quit"
 
         	echo This step took $SECONDS seconds to execute
@@ -306,7 +305,7 @@ do
    			data_folder_to_copy_to=($restingstate_processed_folder_names)
    			cd ${Subject_dir}/Processed/MRI_files/${data_folder_to_copy_to}
 				
-			for this_rsfMRI_file in RestingState1*.nii; do
+			for this_rsfMRI_file in RestingState*.nii; do
 				this_core_functional_file_name=$(echo $this_rsfMRI_file | cut -d. -f 1)
 				read_out=$(cat vdm_defaults.m)
 				array[0]=$(echo $read_out | awk -F";" '{print $1}')
@@ -338,7 +337,6 @@ do
 	  			echo ${array[3]} >> vdm_defaults.m
 	  			echo ${array[4]} >> vdm_defaults.m
 	
-				ml matlab/2020a
 	    		matlab -nodesktop -nosplash -r "try; create_vdm_img('slicetimed_${this_core_functional_file_name}.nii'); catch; end; quit"
 	   			matlab -nodesktop -nosplash -r "try; realign_unwarp_single('slicetimed_${this_core_functional_file_name}.nii'); catch; end; quit"
 				
@@ -376,7 +374,6 @@ do
 			done
 
 			for this_functional_file in unwarpedRealigned*.nii; do
-				ml matlab/2020a
 				matlab -nodesktop -nosplash -r "try; art_restingstate('$this_functional_file'); catch; end; quit"
 	
 				rm T1.nii
@@ -445,9 +442,7 @@ do
 			
 							fslmerge -a $this_slicetimed_file vol*
 							rm vol*
-							gunzip -f *nii.gz
-							
-							ml matlab/2020a			
+							gunzip -f *nii.gz		
 			
 							matlab -nodesktop -nosplash -r "try; realign_unwarp_single('$this_slicetimed_file'); catch; end; quit"
 						
@@ -477,12 +472,37 @@ do
 			echo "Outlier Removal: $SECONDS sec" >> preprocessing_log.txt
 			SECONDS=0
 		fi
+
+		if [[ $this_preprocessing_step == "n4_bias_correct" ]]; then
+			this_t1_folder=($t1_processed_folder_names)
+			data_folder_to_copy_to=($restingstate_processed_folder_names)
+			cd ${Subject_dir}/Processed/MRI_files/${this_t1_folder}/
+			ml gcc/5.2.0; ml ants
+			N4BiasFieldCorrection -i T1.nii -o biascorrected_T1.nii
+			cp ${Subject_dir}/Processed/MRI_files/02_T1/* ${Subject_dir}/Processed/MRI_files/${data_folder_to_copy_to}/
+
+			data_folder_to_analyze=($restingstate_processed_folder_names)
+			cd ${Subject_dir}/Processed/MRI_files/${data_folder_to_analyze}
+			mkdir -p ${Subject_dir}/Processed/MRI_files/${data_folder_to_analyze}/ANTS_Normalization
+			cp biascorrected_T1.nii ${Subject_dir}/Processed/MRI_files/${data_folder_to_analyze}/ANTS_Normalization
+			cp ${Subject_dir}/Processed/MRI_files/${data_folder_to_analyze}/meanunwarpedRealigned*.nii ${Subject_dir}/Processed/MRI_files/${data_folder_to_analyze}/ANTS_Normalization
+	        cd ${Subject_dir}/Processed/MRI_files/${data_folder_to_analyze}/ANTS_Normalization
+			# for each run in this functional folder, bias correct and place in ANTS folder
+			ml gcc/5.2.0; ml ants
+			for this_func_file in meanunwarpedRealigned*.nii; do 
+				N4BiasFieldCorrection -i $this_func_file -o biascorrected_$this_func_file
+			done
+
+			echo This step took $SECONDS seconds to execute
+			cd "${Subject_dir}"
+			echo "Bias Corrected: $SECONDS sec" >> preprocessing_log.txt
+			SECONDS=0
+		fi
 		
 		if [[ $this_preprocessing_step == "skull_strip_t1_4_ants" ]]; then
 			this_t1_folder=($t1_processed_folder_names)
 			cp ${Template_dir}/TPM.nii ${Subject_dir}/Processed/MRI_files/${this_t1_folder}
 			cd ${Subject_dir}/Processed/MRI_files/${this_t1_folder}/
-			ml matlab/2020a
 			matlab -nodesktop -nosplash -r "try; segment_t1; catch; end; quit"
 			matlab -nodesktop -nosplash -r "try; skull_strip_t1; catch; end; quit"
 	
@@ -505,35 +525,6 @@ do
 			SECONDS=0
 		fi
 
-		# warp T1 as well?? where does this happen??
-
-		if [[ $this_preprocessing_step == "n4_bias_correct" ]]; then
-			this_t1_folder=($t1_processed_folder_names)
-			data_folder_to_copy_to=($restingstate_processed_folder_names)
-			cd ${Subject_dir}/Processed/MRI_files/${this_t1_folder}/
-			ml gcc/5.2.0; ml ants
-			N4BiasFieldCorrection -i SkullStripped_T1.nii -o biascorrected_SkullStripped_T1.nii
-			cp ${Subject_dir}/Processed/MRI_files/02_T1/* ${Subject_dir}/Processed/MRI_files/${data_folder_to_copy_to}/
-
-			data_folder_to_analyze=($restingstate_processed_folder_names)
-			cd ${Subject_dir}/Processed/MRI_files/${data_folder_to_analyze}
-			mkdir -p ${Subject_dir}/Processed/MRI_files/${data_folder_to_analyze}/ANTS_Normalization
-			cp biascorrected_SkullStripped_T1.nii ${Subject_dir}/Processed/MRI_files/${data_folder_to_analyze}/ANTS_Normalization
-			cp ${Subject_dir}/Processed/MRI_files/${data_folder_to_analyze}/meanunwarpedRealigned*.nii ${Subject_dir}/Processed/MRI_files/${data_folder_to_analyze}/ANTS_Normalization
-	        cd ${Subject_dir}/Processed/MRI_files/${data_folder_to_analyze}/ANTS_Normalization
-			# for each run in this functional folder, bias correct and place in ANTS folder
-			ml gcc/5.2.0; ml ants
-			for this_func_file in meanunwarpedRealigned*.nii; do 
-				N4BiasFieldCorrection -i $this_func_file -o biascorrected_$this_func_file
-			done
-
-			echo This step took $SECONDS seconds to execute
-			cd "${Subject_dir}"
-			echo "Bias Corrected: $SECONDS sec" >> preprocessing_log.txt
-			SECONDS=0
-		fi
-
-
 		if [[ $this_preprocessing_step == "ants_norm_restingstate" ]]; then
 			data_folder_to_analyze=($restingstate_processed_folder_names)
 	
@@ -548,7 +539,8 @@ do
             fi
 			
 			for this_mean_file in biascorrected_mean*.nii; do
-				T1_Template=biascorrected_SkullStripped_T1.nii
+				# T1_Template=biascorrected_SkullStripped_T1.nii
+				T1_Template=SkullStripped_biascorrected_T1.nii
 				Mean_Func=$this_mean_file
 				this_core_file_name=$(echo $this_mean_file | cut -d. -f 1)
 				echo 'registering' $Mean_Func 'to' $T1_Template
@@ -575,7 +567,7 @@ do
         	gunzip -f *nii.gz
 			for this_mean_file in biascorrected_mean*.nii; do
 				this_core_file_name=$(echo $this_mean_file | cut -d. -f 1)
-				antsApplyTransforms -d 3 -e 3 -i ${this_core_file_name}.nii -r biascorrected_SkullStripped_T1.nii \
+				antsApplyTransforms -d 3 -e 3 -i ${this_core_file_name}.nii -r SkullStripped_biascorrected_T1.nii \
 				-n BSpline -o warpedToT1_${this_core_file_name}.nii -t [warpToT1Params_${this_core_file_name}0GenericAffine.mat,0] -v 
 			done
 		
@@ -594,9 +586,9 @@ do
 			ml ants
 	
 			outputFolder=${Subject_dir}/Processed/MRI_files/${data_folder_to_analyze}/ANTS_Normalization
-			T1_Template=${Subject_dir}/Processed/MRI_files/${data_folder_to_analyze}/ANTS_Normalization/biascorrected_SkullStripped_T1.nii
+			T1_Template=${Subject_dir}/Processed/MRI_files/${data_folder_to_analyze}/ANTS_Normalization/SkullStripped_biascorrected_T1.nii
 			MNI_Template=${Template_dir}/MNI_1mm.nii
-			this_core_file_name=biascorrected_SkullStripped_T1
+			this_core_file_name=SkullStripped_biascorrected_T1
 			echo 'registering' $T1_Template 'to' $MNI_Template
 
 			antsRegistration --dimensionality 3 --float 0 \
@@ -631,18 +623,18 @@ do
 			ml gcc/5.2.0
 			ml ants
 			
-			this_core_file_name=biascorrected_SkullStripped_T1
+			this_core_file_name=SkullStripped_biascorrected_T1
 
 			antsApplyTransforms -d 3 -e 3 -i ${this_core_file_name}.nii -r MNI_2mm.nii \
 			-n BSpline -o warpedToMNI_${this_core_file_name}.nii -t [warpToMNIParams_${this_core_file_name}1Warp.nii] -t [warpToMNIParams_${this_core_file_name}0GenericAffine.mat,0] -v
 
-			antsApplyTransforms -d 3 -e 3 -i c1T1.nii -r MNI_2mm.nii \
+			antsApplyTransforms -d 3 -e 3 -i c1biascorrected_T1.nii -r MNI_2mm.nii \
 			-n BSpline -o warpedToMNI_c1T1.nii -t [warpToMNIParams_${this_core_file_name}1Warp.nii] -t [warpToMNIParams_${this_core_file_name}0GenericAffine.mat,0] -v
 			
-			antsApplyTransforms -d 3 -e 3 -i c2T1.nii -r MNI_2mm.nii \
+			antsApplyTransforms -d 3 -e 3 -i c2biascorrected_T1.nii -r MNI_2mm.nii \
 			-n BSpline -o warpedToMNI_c2T1.nii -t [warpToMNIParams_${this_core_file_name}1Warp.nii] -t [warpToMNIParams_${this_core_file_name}0GenericAffine.mat,0] -v
 			
-			antsApplyTransforms -d 3 -e 3 -i c3T1.nii -r MNI_2mm.nii \
+			antsApplyTransforms -d 3 -e 3 -i c3biascorrected_T1.nii -r MNI_2mm.nii \
 			-n BSpline -o warpedToMNI_c3T1.nii -t [warpToMNIParams_${this_core_file_name}1Warp.nii] -t [warpToMNIParams_${this_core_file_name}0GenericAffine.mat,0] -v
 
 			cp ${Subject_dir}/Processed/MRI_files/${data_folder_to_analyze}/unwarpedRealigned*.nii ${Subject_dir}/Processed/MRI_files/${data_folder_to_analyze}/ANTS_Normalization
@@ -655,7 +647,7 @@ do
 				this_file_number_of_volumes=$(echo $this_file_header_info | grep -o dim4.* | tr -s ' ' | cut -d ' ' -f 2)
 
 				this_func_core_file_name=$(echo $this_file_to_warp | cut -d. -f 1)
-				this_T1_core_file_name=biascorrected_SkullStripped_T1
+				this_T1_core_file_name=SkullStripped_biascorrected_T1
 			
 				ml gcc/5.2.0; ml ants
 				antsApplyTransforms -d 3 -e 3 -i $this_file_to_warp -r MNI_2mm.nii \
@@ -674,7 +666,6 @@ do
 				if [ -e smoothed_*.nii ]; then
                 	rm smoothed_*.nii
             	fi
-				ml matlab/2020a
 				matlab -nodesktop -nosplash -r "try; smooth_restingstate_ants; catch; end; quit"
 			echo This step took $SECONDS seconds to execute
 			cd "${Subject_dir}"
@@ -689,12 +680,16 @@ do
 				ml fsl/6.0.1
 				for this_functional_file in smoothed_warpedToMNI_unwarpedRealigned*.nii; do
 					this_core_functional_file_name=$(echo $this_functional_file | cut -d. -f 1)
-					echo saving jpeg of $this_core_functional_file_name for ${subject}
-					xvfb-run -s "-screen 0 640x480x24" fsleyes render --scene ortho --outfile ${Subject_dir}/Processed/MRI_files/${this_functional_run_folder}/ANTS_Normalization/check_MNI_ants_${this_core_functional_file_name} \
-					${Subject_dir}/Processed/MRI_files/${this_functional_run_folder}/ANTS_Normalization/MNI_2mm.nii -cm red-yellow \
-					${Subject_dir}/Processed/MRI_files/${this_functional_run_folder}/ANTS_Normalization/$this_functional_file --alpha 85
-					# echo "Created screenshot for": ${SUB}-${SSN};
-					display check_MNI_ants_${this_core_functional_file_name}.png
+					echo checking $this_core_functional_file_name for ${Subject_dir}
+					
+					ml itksnap
+					itksnap -g MNI_2mm.nii  -o $this_functional_file
+
+					# xvfb-run -s "-screen 0 640x480x24" fsleyes render --scene ortho --outfile ${Subject_dir}/Processed/MRI_files/${this_functional_run_folder}/ANTS_Normalization/check_MNI_ants_${this_core_functional_file_name} \
+					# ${Subject_dir}/Processed/MRI_files/${this_functional_run_folder}/ANTS_Normalization/MNI_2mm.nii -cm red-yellow \
+					# ${Subject_dir}/Processed/MRI_files/${this_functional_run_folder}/ANTS_Normalization/$this_functional_file --alpha 85
+					# # echo "Created screenshot for": ${SUB}-${SSN};
+					# display check_MNI_ants_${this_core_functional_file_name}.png
 				done
 			done
 			# echo This step took $SECONDS seconds to execute
@@ -705,8 +700,8 @@ do
 		if [[ $this_preprocessing_step == "copy_files_restingstate" ]]; then
 			data_folder_to_analyze=($restingstate_processed_folder_names)
 			cp ${Subject_dir}/Processed/MRI_files/${data_folder_to_analyze}/rp_* ${Subject_dir}/Processed/MRI_files/${data_folder_to_analyze}/ANTS_Normalization
-			# cp ${Subject_dir}/Processed/MRI_files/${data_folder_to_analyze}/art_regression_outliers_and_movement*.mat ${Subject_dir}/Processed/MRI_files/${data_folder_to_analyze}/ANTS_Normalization
-			# cp ${Subject_dir}/Processed/MRI_files/05_MotorImagery/ANTS_Normalization/warpedToMNI_biascorrected*.nii ${Subject_dir}/Processed/MRI_files/${data_folder_to_analyze}/ANTS_Normalization
+			cp ${Subject_dir}/Processed/MRI_files/${data_folder_to_analyze}/art_regression_outliers_and_movement*.mat ${Subject_dir}/Processed/MRI_files/${data_folder_to_analyze}/ANTS_Normalization
+			cp ${Subject_dir}/Processed/MRI_files/05_MotorImagery/ANTS_Normalization/warpedToMNI_biascorrected*.nii ${Subject_dir}/Processed/MRI_files/${data_folder_to_analyze}/ANTS_Normalization
 		fi
 
 	#done

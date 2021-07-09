@@ -26,7 +26,7 @@ for this_argument in "$@"; do
 	Subject_dir=$study_dir/$subject
 	# cd $study_dir
 	cd $Subject_dir
-	ml matlab/2020a
+	ml matlab/2020b
 	ml gcc/5.2.0; ml ants ## ml gcc/9.3.0; ml ants/2.3.4
 	ml fsl/6.0.1
 
@@ -137,23 +137,23 @@ for this_argument in "$@"; do
 				for this_func_run in unwarpedRealigned_*.nii; do
 					this_core_file_name=$(echo $this_func_run | cut -d. -f 1)
 
-					flirt -in biascorrected_SkullStripped_T1.nii -ref mean${this_func_run} -out dimMatch2Func_biascorrected_SkullStripped_T1.nii
+					flirt -in SkullStripped_biascorrected_T1.nii -ref mean${this_func_run} -out dimMatch2Func_SkullStripped_biascorrected_T1.nii
 					gunzip -f *nii.gz
 
 					# TO DO: if whole brain normalization procedure changes, adjust here...
-					antsApplyTransforms -d 3 -e 3 -i ${this_core_file_name}.nii --float 0 -r dimMatch2Func_biascorrected_SkullStripped_T1.nii \
+					antsApplyTransforms -d 3 -e 3 -i ${this_core_file_name}.nii --float 0 -r dimMatch2Func_SkullStripped_biascorrected_T1.nii \
 					-n BSpline -o coregToT1_${this_core_file_name}.nii -t [warpToT1Params_biascorrected_mean${this_core_file_name}0GenericAffine.mat,0] -v 
 
-					antsApplyTransforms -d 3 -e 3 -i native_tissue*.nii --float 0 -r dimMatch2Func_biascorrected_SkullStripped_T1.nii \
+					antsApplyTransforms -d 3 -e 3 -i native_tissue*.nii --float 0 -r dimMatch2Func_SkullStripped_biascorrected_T1.nii \
 					-n BSpline -o coregToT1_native_tissue_CB.nii -t [warpToT1Params_biascorrected_mean${this_core_file_name}0GenericAffine.mat,0] -v
 
-					antsApplyTransforms -d 3 -e 3 -i CB_mask.nii --float 0 -r dimMatch2Func_biascorrected_SkullStripped_T1.nii \
+					antsApplyTransforms -d 3 -e 3 -i CB_mask.nii --float 0 -r dimMatch2Func_SkullStripped_biascorrected_T1.nii \
 					-n BSpline -o coregToT1_CB_mask.nii -t [warpToT1Params_biascorrected_mean${this_core_file_name}0GenericAffine.mat,0] -v  					
 
-					antsApplyTransforms -d 3 -e 3 -i WM_mask.nii --float 0 -r dimMatch2Func_biascorrected_SkullStripped_T1.nii \
+					antsApplyTransforms -d 3 -e 3 -i WM_mask.nii --float 0 -r dimMatch2Func_SkullStripped_biascorrected_T1.nii \
 					-n BSpline -o coregToT1_WM_mask.nii -t [warpToT1Params_biascorrected_mean${this_core_file_name}0GenericAffine.mat,0] -v  					
 
-					antsApplyTransforms -d 3 -e 3 -i GM_mask.nii --float 0 -r dimMatch2Func_biascorrected_SkullStripped_T1.nii \
+					antsApplyTransforms -d 3 -e 3 -i GM_mask.nii --float 0 -r dimMatch2Func_SkullStripped_biascorrected_T1.nii \
 					-n BSpline -o coregToT1_GM_mask.nii -t [warpToT1Params_biascorrected_mean${this_core_file_name}0GenericAffine.mat,0] -v  					
 
 					fslmaths coregToT1_native_tissue_CB.nii -thr 0.5 -bin binary_coregToT1_native_tissue_CB
@@ -369,7 +369,7 @@ for this_argument in "$@"; do
 			cp ${Subject_dir}/Processed/MRI_files/${rs_folder}/ANTS_Normalization/warpedToSUIT_CB_mask.nii ${Subject_dir}/Processed/MRI_files/${struct_folder}/ANTS_Normalization
 			
 			# this is kind of out of place... only cp this bc of Eriks DeepBrainNet stuff... this should be redone to be 1x1 or FSL should take care of this
-			cp ${Subject_dir}/Processed/MRI_files/${rs_folder}/ANTS_Normalization/warpedToMNI_biascorrected_SkullStripped_T1.nii ${Subject_dir}/Processed/MRI_files/${struct_folder}/ANTS_Normalization
+			cp ${Subject_dir}/Processed/MRI_files/${rs_folder}/ANTS_Normalization/warpedToMNI_SkullStripped_biascorrected_T1.nii ${Subject_dir}/Processed/MRI_files/${struct_folder}/ANTS_Normalization
 
 			SUIT_Template_1mm=${Template_dir}/SUIT_Nobrainstem_1mm.nii
 			cp $SUIT_Template_1mm ${Subject_dir}/Processed/MRI_files/${struct_folder}/ANTS_Normalization
