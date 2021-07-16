@@ -16,33 +16,25 @@
 ##SBATCH --array=0-34					# array range
 pwd; hostname; date
 
-cd /blue/rachaelseidler/tfettrow/Crunch_Code/
+subject_array=(3028 3039 3040)
+#subject=${subject_array[$SLURM_ARRAY_TASK_ID]}
+#Subject_dir=/blue/rachaelseidler/share/FromExternal/Research_Projects_UF/CRUNCH/MiM_Data/${subject}
 
-# subject_array=(1002 1004 1007)
-# subject_array=(1002)
-# subject_array=(1004 2007)
-# subject_array=(2002 2007)
-# subject_array=(1002)
-#subject_array=(2021 2015 2002 2018 2017 2012 2025 2020 2026 2023 2022 2007 2013 2033 2034 2037 2052 2042)
-subject_array=(1002 1012 1004 1010 1013 1009 1007 1020 1022 1027 1024 1026 1025 2021 2015 2002 2018 2017 2012 2025 2020 2026 2023 2022 2007 2013 2033 2034 2037 2052 2042 3004 3007 3008 3021)
-# subject_array=(1002 1012 1004 1010 1013 1009 1007 1020 1022 1027 1024 1026 1025)
-# subject_array=(2012 2026 2022 2007 2042 3008) # running eddy on these now.. next need to run skull_strip and tensorfit.. tho skullstrip shouldnt be necessary if tensofit is masking.. hmm
-
-# subject_array=(1018 1019 1017 2021 2015 2002 2018 2017 2012 2025 2020 2026 2023 2022 2007 2013 2033 2034 2037 2052 2042 2027 2039 3004 3006 3007 3008 3021 3026 3027 3010 3036 3029)
-
-# not running 1004
-
-subject=${subject_array[$SLURM_ARRAY_TASK_ID]}
-# subject=${subject_array[0]}
-# echo processing subject $subject
-
-Subject_dir=/blue/rachaelseidler/share/FromExternal/Research_Projects_UF/CRUNCH/MiM_Data/${subject}
+######TYLER F Directory
+cd /blue/rachaelseidler/tfettrow/Crunch_Code
 Shell_dir=/blue/rachaelseidler/tfettrow/Crunch_Code/Shell_Scripts
 Matlab_dir=/blue/rachaelseidler/tfettrow/Crunch_Code/Matlab_Scripts
 Template_dir=/blue/rachaelseidler/tfettrow/Crunch_Code/MR_Templates
 
+######VALAY S Directory
+cd /blue/rachaelseidler/valay.shah
+Shell_dir=/blue/rachaelseidler/valay.shah/Shell_Scripts
+Matlab_dir=/blue/rachaelseidler/valay.shah/MiM_Matlab/MiM_Matlab
+Template_dir=/blue/rachaelseidler/valay.shah/MR_Templates
+
+
 # ./Shell_Scripts/dwi_processing/run_tbss.sh
-./Shell_Scripts/dwi_processing/preprocess_dwi.sh $Matlab_dir $Template_dir $Subject_dir copy_fa_for_tbss
+# ./Shell_Scripts/dwi_processing/preprocess_dwi.sh $Matlab_dir $Template_dir $Subject_dir drift_correction 
 
 
 #skull_strip_eddycorrected_image register_mni_to_dti fit_tensors
@@ -57,7 +49,7 @@ Template_dir=/blue/rachaelseidler/tfettrow/Crunch_Code/MR_Templates
 #copy_fa_for_tbss
 
 
-# for this_subject in "${subject_array[@]}"; do
-# 	Subject_dir=/blue/rachaelseidler/share/FromExternal/Research_Projects_UF/CRUNCH/MiM_Data/${this_subject}
-# 	./Shell_Scripts/dwi_processing/preprocess_dwi.sh $Matlab_dir $Template_dir $Subject_dir fieldmap_dti
-# done
+for this_subject in "${subject_array[@]}"; do
+	Subject_dir=/blue/rachaelseidler/share/FromExternal/Research_Projects_UF/CRUNCH/MiM_Data/${this_subject}
+	./Shell_Scripts/dwi_processing/preprocess_dwi.sh $Matlab_dir $Template_dir $Subject_dir fieldmap_dti
+done
