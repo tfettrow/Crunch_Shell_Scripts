@@ -10,7 +10,6 @@
 #SBATCH --array=0-46						# array range
 pwd; hostname; date
 
-
 ##### BATCH FILE INFO ######
 # 1) specify the anticipated memory for the job (>25% more than what it will actually use)
 # 2) specify the array (0-N) vector.. must be size of the subject_array.. starts with 0
@@ -19,20 +18,31 @@ pwd; hostname; date
 # 5) uncomment the step you would like to process for each subject specified in subject_array
 
 
-subject_array=(1012 1004 1011 1002 1010 1013 1009 1007 1020 1022 1027 1024 1026 1025 1018 1019 1017 2021 2015 2002 2018 2017 2012 2025 2020 2026 2023 2022 2007 2013 2008 2033 2034 2037 2052 2042 2027 2039 2038 3024 3029 3004 3006 3007 3008 3021 3023)
+#subject_array=(1012 1004 1011 1002 1010 1013 1009 1007 1020 1022 1027 1024 1026 1025 1018 1019 1017 2021 2015 2002 2018 2017 2012 2025 2020 2026 2023 2022 2007 2013 2008 2033 2034 2037 2052 2042 2027 2039 2038 3024 3029 3004 3006 3007 3008 3021 3023)
 # subject=${subject_array[0]}
-subject=${subject_array[$SLURM_ARRAY_TASK_ID]}
-Subject_dir=/blue/rachaelseidler/share/FromExternal/Research_Projects_UF/CRUNCH/MiM_Data/${subject}
+subject_array=(3028 3034 3039 3040)
+# subject=${subject_array[$SLURM_ARRAY_TASK_ID]}
+# Subject_dir=/blue/rachaelseidler/share/FromExternal/Research_Projects_UF/CRUNCH/MiM_Data/${subject}
+
+######TYLER F Directory
+cd /blue/rachaelseidler/tfettrow/Crunch_Code
 Shell_dir=/blue/rachaelseidler/tfettrow/Crunch_Code/Shell_Scripts
 Matlab_dir=/blue/rachaelseidler/tfettrow/Crunch_Code/Matlab_Scripts
 Template_dir=/blue/rachaelseidler/tfettrow/Crunch_Code/MR_Templates
+
+######VALAY S Directory
+cd /blue/rachaelseidler/valay.shah
+Shell_dir=/blue/rachaelseidler/valay.shah/Shell_Scripts
+Matlab_dir=/blue/rachaelseidler/valay.shah/MiM_Matlab/MiM_Matlab
+Template_dir=/blue/rachaelseidler/valay.shah/MR_Templates
 
 cd $Shell_dir
 
 # ./file_organization/file_organize.sh $Subject_dir
 # ./file_organization/save_subject_info.sh $Subject_dir $Matlab_dir
-./misc/biascorrect_and_skullstrip.sh $Matlab_dir $Template_dir $Subject_dir n4_bias_correction skull_strip_t1_4_ants
+#./misc/biascorrect_and_skullstrip.sh $Matlab_dir $Template_dir $Subject_dir n4_bias_correction skull_strip_t1_4_ants
 
+###########################################################################################
 # steps within biascorrect_and_skullstrip.sh
 # n4_bias_correction
 # skull_strip_t1_4_ants
@@ -45,7 +55,7 @@ cd $Shell_dir
 
 
 
-# for this_subject in "${subject_array[@]}"; do
-# 	Subject_dir=/blue/rachaelseidler/share/FromExternal/Research_Projects_UF/CRUNCH/MiM_Data/${this_subject}
-# 	./misc/biascorrect_and_skullstrip.sh $Matlab_dir $Template_dir $Subject_dir check_skullstrip
-# done
+for this_subject in "${subject_array[@]}"; do
+	Subject_dir=/blue/rachaelseidler/share/FromExternal/Research_Projects_UF/CRUNCH/MiM_Data/${this_subject}
+    ./file_organization/save_subject_info.sh $Subject_dir $Matlab_dir
+done

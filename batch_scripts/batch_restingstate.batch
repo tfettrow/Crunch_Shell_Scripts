@@ -22,9 +22,17 @@ subject_array=(1022 1027 1024 2042)
 subject=${subject_array[$SLURM_ARRAY_TASK_ID]}
 
 Subject_dir=/blue/rachaelseidler/share/FromExternal/Research_Projects_UF/CRUNCH/MiM_Data/${subject}
+######TYLER F Directory
+cd /blue/rachaelseidler/tfettrow/Crunch_Code
 Shell_dir=/blue/rachaelseidler/tfettrow/Crunch_Code/Shell_Scripts
 Matlab_dir=/blue/rachaelseidler/tfettrow/Crunch_Code/Matlab_Scripts
 Template_dir=/blue/rachaelseidler/tfettrow/Crunch_Code/MR_Templates
+
+######VALAY S Directory
+cd /blue/rachaelseidler/valay.shah
+Shell_dir=/blue/rachaelseidler/valay.shah/Shell_Scripts
+Matlab_dir=/blue/rachaelseidler/valay.shah/MiM_Matlab/MiM_Matlab
+Template_dir=/blue/rachaelseidler/valay.shah/MR_Templates
 
 cd $Shell_dir
 
