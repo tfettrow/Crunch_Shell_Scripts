@@ -34,7 +34,7 @@ Template_dir=/blue/rachaelseidler/valay.shah/MR_Templates
 
 
 # ./Shell_Scripts/dwi_processing/run_tbss.sh
-# ./Shell_Scripts/dwi_processing/preprocess_dwi.sh $Matlab_dir $Template_dir $Subject_dir drift_correction 
+./Shell_Scripts/dwi_processing/preprocess_dwi.sh $Matlab_dir $Template_dir $Subject_dir eddy_correction_noFM
 
 
 #skull_strip_eddycorrected_image register_mni_to_dti fit_tensors
@@ -44,9 +44,11 @@ Template_dir=/blue/rachaelseidler/valay.shah/MR_Templates
 #drift_correction
 #fieldmap_dti
 #eddy_correction
+#eddy_correction_noFM
 #cleanup_dti
 #freewater_correction
 #copy_fa_for_tbss
+
 
 
 for this_subject in "${subject_array[@]}"; do

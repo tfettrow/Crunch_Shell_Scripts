@@ -250,7 +250,7 @@ for this_preprocessing_step in ${preprocessing_steps[@]};do
 		cd ${Subject_dir}/Processed/MRI_files/${dwi_folder_name}
 
 		rm acqParams.txt
-		echo 0 1 0 0.0355597 >> acqParams.txt
+		echo 0 -1 0 0.0355597 >> acqParams.txt
 		#echo 0 1 0 0.0355597 >> acqParams.txt
 		
 		NVOL=`fslnvols driftcorrected_DWI.nii`
