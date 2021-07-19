@@ -18,8 +18,10 @@ for this_argument in "$@"; do
 	elif [[ $argument_counter == 2 ]]; then
     	subject=$this_argument
 	else
-		this_ceres_processing_step="$this_argument"
+		processing_steps[argument_counter]="$this_argument"
 	fi
+	(( argument_counter++ ))	
+done
 		
 	export MATLABPATH=${Matlab_dir}/helper
 	study_dir=/blue/rachaelseidler/share/FromExternal/Research_Projects_UF/CRUNCH/MiM_Data
@@ -29,7 +31,7 @@ for this_argument in "$@"; do
 	ml matlab/2020b
 	ml gcc/5.2.0; ml ants ## ml gcc/9.3.0; ml ants/2.3.4
 	ml fsl/6.0.1
-
+	ml itksnap 
 ########### determine which functional files you would like to ceres process (resting state and fmri) ############################
 	lines_to_ignore=$(awk '/#/{print NR}' file_settings.txt) # file_settings dictates which folders are Processed
 
@@ -95,7 +97,7 @@ for this_argument in "$@"; do
 	restingstate_processed_folder_names=$(echo "${restingstate_processed_folder_name_array[@]}" | tr ' ' '\n' | sort -u | tr '\n' ' ')
 	t1_processed_folder_names=$(echo "${t1_processed_folder_name_array[@]}" | tr ' ' '\n' | sort -u | tr '\n' ' ')
 
-	# for this_ceres_processing_step in "${ceres_processing_steps[@]}"; do
+	for this_ceres_processing_step in "${processing_steps[@]}"; do
 ###################################################################################
 
 ########### move and unzip raw ceres files ############################
@@ -315,15 +317,7 @@ for this_argument in "$@"; do
 			data_folder_to_analyze=($fmri_processed_folder_names)
 			for this_functional_run_folder in ${fmri_processed_folder_names[@]}; do
 				cd ${Subject_dir}/Processed/MRI_files/${this_functional_run_folder}/ANTS_Normalization
-				# grab TR from json file
-				# TO DO: this is not working properly so hardcoded level_one_stats.m
-				# for this_functional_run_file in *.json; do
-				# 		TR_from_json=$(grep "RepetitionTime" ${this_functional_run_file} | tr -dc '0.00-9.00')
-				# 		echo $TR_from_json
-  				# 		done
-
-    			# matlab -nodesktop -nosplash -r "try; level_one_stats(1, '$TR_from_json'); catch; end; quit"
-    			matlab -nodesktop -nosplash -r "try; level_one_stats(1, 1.5, 'smoothed_warpedToSUIT', 'Level1_Ceres'); catch; end; quit"
+    			matlab -nodesktop -nosplash -r "try; level_one_stats_cb_fmri; catch; end; quit"
     		done
     		echo This step took $SECONDS seconds to execute
     		cd "${Subject_dir}"
@@ -335,26 +329,17 @@ for this_argument in "$@"; do
 			for this_functional_run_folder in ${restingstate_processed_folder_names[@]}; do #in ${fmri_processed_folder_names[@]} ${restingstate_processed_folder_names[@]}; do
 				cd ${Subject_dir}/Processed/MRI_files/${this_functional_run_folder}/ANTS_Normalization
 
-				gunzip smoothed_warpedToSUIT_CBmasked_*
-				gunzip SUIT_Nobrainstem_2mm.nii.gz
+				# gunzip smoothed_warpedToSUIT_CBmasked_*
+				# gunzip SUIT_Nobrainstem_2mm.nii.gz
 				for this_functional_file in smoothed_warpedToSUIT_CBmasked_*; do
 					this_core_functional_file_name=$(echo $this_functional_file | cut -d. -f 1)
-					echo saving jpeg of $this_core_functional_file_name for $subject
+					echo checking $this_core_functional_file_name for ${Subject_dir}
 					
-					ml itksnap 
-					itksnap -g SUIT_Nobrainstem_2mm.nii -o $this_functional_file
+					stat $this_functional_file
 					
-					# xvfb-run -s "-screen 0 640x480x24" fsleyes render --scene ortho --outfile ${Subject_dir}/Processed/MRI_files/${this_functional_run_folder}/ANTS_Normalization/check_SUIT_ants_${this_core_functional_file_name} \
-					# ${Subject_dir}/Processed/MRI_files/${this_functional_run_folder}/ANTS_Normalization/SUIT_Nobrainstem_2mm.nii -cm red-yellow \
-					# ${Subject_dir}/Processed/MRI_files/${this_functional_run_folder}/ANTS_Normalization/$this_functional_file --alpha 85
-					# # echo "Created screenshot for": ${SUB}-${SSN};
-					# display check_SUIT_ants_${this_core_functional_file_name}.png
+					# itksnap -g SUIT_Nobrainstem_2mm.nii -o $this_functional_file					
 				done
 			done
-			# echo This step took $SECONDS seconds to execute
-			# cd "${Subject_dir}"
-			# echo "Smoothing ANTS files: $SECONDS sec" >> preprocessing_log.txt
-			# SECONDS=0
 		fi
 
 		if [[ $this_ceres_processing_step ==  "ceres_structural_norm"  ]]; then
@@ -407,6 +392,4 @@ for this_argument in "$@"; do
 			# display check_SUIT_ants_${this_core_structural_file_name}.png
 			# done
 		fi
-	# done
-	(( argument_counter++ ))
 done
