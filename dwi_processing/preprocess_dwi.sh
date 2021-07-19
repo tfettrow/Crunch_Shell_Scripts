@@ -104,6 +104,7 @@ for this_preprocessing_step in ${preprocessing_steps[@]};do
 	if [[ $this_preprocessing_step == "drift_correction" ]]; then
 		dwi_folder_name=($dwi_processed_folder_name)
         cd ${Subject_dir}/Processed/MRI_files/${dwi_folder_name}
+        # ./create_bmat_text
         matlab -nodesktop -nosplash -r "try; create_bmat_text; catch; end; quit"
 		matlab -nodesktop -nosplash -r "try; flip_or_permute; catch; end; quit"
 		matlab -nodesktop -nosplash -r "try; driftcorrect; catch; end; quit"
@@ -241,6 +242,60 @@ for this_preprocessing_step in ${preprocessing_steps[@]};do
 		gunzip -f *nii.gz
 	fi
 
+	if [[ $this_preprocessing_step ==  "eddy_correction_noFM" ]]; then
+		dwi_folder_name=($dwi_processed_folder_name)
+		t1_folder_name=($t1_processed_folder_name)
+
+		cp ${Subject_dir}/Processed/MRI_files/${t1_folder_name}/SkullStripped_biascorrected_T1.nii ${Subject_dir}/Processed/MRI_files/${dwi_folder_name}
+		cd ${Subject_dir}/Processed/MRI_files/${dwi_folder_name}
+
+		rm acqParams.txt
+		echo 0 1 0 0.0355597 >> acqParams.txt
+		#echo 0 1 0 0.0355597 >> acqParams.txt
+		
+		NVOL=`fslnvols driftcorrected_DWI.nii`
+		for ((i=1; i<=${NVOL}; i+=1)); do indx="$indx 1"; done; echo $indx > index.txt
+
+		rm eddycorrected_driftcorrected_DWI.*
+
+		flirt -in SkullStripped_biascorrected_T1.nii -ref driftcorrected_DWI.nii -out SkullStripped_biascorrected_T1_matched2DWI.nii
+		gunzip -f *nii.gz
+		fslmaths SkullStripped_biascorrected_T1_matched2DWI.nii -bin se_epi_unwarped_brain_mask.nii
+		gunzip -f *nii.gz
+
+		eddy_cuda9.1 --imain=driftcorrected_DWI.nii \
+		--mask=se_epi_unwarped_brain_mask.nii \
+		--index=index.txt \
+		--acqp=acqParams.txt \
+		--bvecs=DWI.bvec \
+		--bvals=DWI.bval \
+		--niter=8 \
+		--fwhm=10,8,4,2,0,0,0,0 \
+		--repol \
+		--slm=linear \
+		--out=eddycorrected_driftcorrected_DWI \
+		--mporder=16 \
+		--json=DWI.json \
+		--s2v_niter=8 \
+		--s2v_lambda=1 \
+		--s2v_interp=trilinear \
+		--estimate_move_by_susceptibility \
+		--cnr_maps \
+		--verbose
+
+		# eddy_quad ${Subject_dir}/Processed/MRI_files/${dwi_folder_name}/eddycorrected_driftcorrected_DWI \
+		# --eddyIdx index.txt \
+		# --eddyParams acqParams.txt \
+		# --mask se_epi_unwarped_brain_mask \
+		# --bvals DWI.bval \
+		# --bvecs eddycorrected_driftcorrected_DWI.eddy_rotated_bvecs \
+		# --slspec=my_slspec.txt \
+		# --field my_fieldmap.nii \
+		# --output-dir=eddycorrected_driftcorrected_DWI.qc
+		
+		# gunzip -f *nii.gz
+	fi
+
 	if [[ $this_preprocessing_step == "cleanup_dti" ]]; then
 		dwi_folder_name=($dwi_processed_folder_name)
 		cd ${Subject_dir}/Processed/MRI_files/${dwi_folder_name}
@@ -280,25 +335,27 @@ for this_preprocessing_step in ${preprocessing_steps[@]};do
 		this_subject_id=$(echo $Subject_dir | cut -d "/" -f9)
 		echo $this_subject_id
 		
-		# make the results folder (if it is already there then manually delete folders TF: should automate this)
-		mkdir -p TBSS_results
+		mkdir -p TBSS_results/FW
 		cd $study_dir
 	
-		# cp ${Subject_dir}/Processed/MRI_files/${dwi_folder_name}/eddycorrected_FAt.nii ${study_dir}/TBSS_results/${this_subject_id}_eddycorrected_t_FA.nii
+		cp ${Subject_dir}/Processed/MRI_files/${dwi_folder_name}/eddycorrected_FAt.nii ${study_dir}/TBSS_results/FW/${this_subject_id}_tensorfit_eddycorrected_driftcorrected_DWI_FA.nii
 		cp ${Subject_dir}/Processed/MRI_files/${dwi_folder_name}/tensorfit_eddycorrected_driftcorrected_DWI_FA.nii ${study_dir}/TBSS_results/${this_subject_id}_tensorfit_eddycorrected_driftcorrected_DWI_FA.nii
 	fi
 
-	if [[ $this_preprocessing_step == "invert_warps" ]]; then
-		dwi_folder_name=($dwi_processed_folder_name)
-		t1_folder_name=($t1_processed_folder_name)
-		cd ${Subject_dir}/Processed/MRI_files/${dwi_folder_name}
+	# if [[ $this_preprocessing_step == "invert_warps" ]]; then
+	# 	dwi_folder_name=($dwi_processed_folder_name)
+	# 	t1_folder_name=($t1_processed_folder_name)
+	# 	cd $study_dir/TBSS_results/FW
 
-		# -mas se_epi_unwarped_brain_mask.nii
-		# consider only doing 
-		# invwarp --ref=target --warp=1002_tensorfit_eddycorrected_driftcorrected_DWI_FA_FA_to_target_warp --out=1002_tensorfit_eddycorrected_driftcorrected_DWI_FA_FA_to_target_warp_inv
+	# 	# -mas se_epi_unwarped_brain_mask.nii
+	# 	# consider only doing 
+	# 	this_subject_id=$(echo $Subject_dir | cut -d "/" -f9)
+	# 	echo $this_subject_id
 
-		# gunzip -f *nii.gz
-	fi
+	# 	invwarp --ref=target --warp=1002_tensorfit_eddycorrected_driftcorrected_DWI_FA_FA_to_target_warp --out=1002_tensorfit_eddycorrected_driftcorrected_DWI_FA_FA_to_target_warp_inv
+
+	# 	# gunzip -f *nii.gz
+	# fi
 
 	if [[ $this_preprocessing_step == "view_tensors" ]]; then
 		dwi_folder_name=($dwi_processed_folder_name)
