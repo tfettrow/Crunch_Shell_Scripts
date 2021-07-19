@@ -223,25 +223,6 @@ for this_preprocessing_step in ${preprocessing_steps[@]};do
 		--verbose
 	fi
 
-	if [[ $this_preprocessing_step == "eddy_quad" ]]; then
-		dwi_folder_name=($dwi_processed_folder_name)
-		cd ${Subject_dir}/Processed/MRI_files/${dwi_folder_name}
-
-		rm -r eddycorrected_driftcorrected_DWI.qc
-		
-		eddy_quad ${Subject_dir}/Processed/MRI_files/${dwi_folder_name}/eddycorrected_driftcorrected_DWI \
-		--eddyIdx index.txt \
-		--eddyParams acqParams.txt \
-		--mask se_epi_unwarped_brain_mask \
-		--bvals DWI.bval \
-		--bvecs eddycorrected_driftcorrected_DWI.eddy_rotated_bvecs \
-		--slspec=my_slspec.txt \
-		--field my_fieldmap.nii \
-		--output-dir=eddycorrected_driftcorrected_DWI.qc
-		
-		gunzip -f *nii.gz
-	fi
-
 	if [[ $this_preprocessing_step ==  "eddy_correction_noFM" ]]; then
 		dwi_folder_name=($dwi_processed_folder_name)
 		t1_folder_name=($t1_processed_folder_name)
@@ -251,7 +232,7 @@ for this_preprocessing_step in ${preprocessing_steps[@]};do
 
 		rm acqParams.txt
 		echo 0 -1 0 0.0355597 >> acqParams.txt
-		#echo 0 1 0 0.0355597 >> acqParams.txt
+		echo 0 1 0 0.0355597 >> acqParams.txt
 		
 		NVOL=`fslnvols driftcorrected_DWI.nii`
 		for ((i=1; i<=${NVOL}; i+=1)); do indx="$indx 1"; done; echo $indx > index.txt
@@ -282,20 +263,28 @@ for this_preprocessing_step in ${preprocessing_steps[@]};do
 		--estimate_move_by_susceptibility \
 		--cnr_maps \
 		--verbose
-
-		# eddy_quad ${Subject_dir}/Processed/MRI_files/${dwi_folder_name}/eddycorrected_driftcorrected_DWI \
-		# --eddyIdx index.txt \
-		# --eddyParams acqParams.txt \
-		# --mask se_epi_unwarped_brain_mask \
-		# --bvals DWI.bval \
-		# --bvecs eddycorrected_driftcorrected_DWI.eddy_rotated_bvecs \
-		# --slspec=my_slspec.txt \
-		# --field my_fieldmap.nii \
-		# --output-dir=eddycorrected_driftcorrected_DWI.qc
 		
-		# gunzip -f *nii.gz
+		gunzip -f *nii.gz
 	fi
+	
+	if [[ $this_preprocessing_step == "eddy_quad" ]]; then
+		dwi_folder_name=($dwi_processed_folder_name)
+		cd ${Subject_dir}/Processed/MRI_files/${dwi_folder_name}
 
+		rm -r eddycorrected_driftcorrected_DWI.qc
+		
+		eddy_quad ${Subject_dir}/Processed/MRI_files/${dwi_folder_name}/eddycorrected_driftcorrected_DWI \
+		--eddyIdx index.txt \
+		--eddyParams acqParams.txt \
+		--mask se_epi_unwarped_brain_mask \
+		--bvals DWI.bval \
+		--bvecs eddycorrected_driftcorrected_DWI.eddy_rotated_bvecs \
+		--field my_fieldmap.nii \
+		--output-dir=eddycorrected_driftcorrected_DWI.qc
+		
+		gunzip -f *nii.gz
+	fi
+	
 	if [[ $this_preprocessing_step == "cleanup_dti" ]]; then
 		dwi_folder_name=($dwi_processed_folder_name)
 		cd ${Subject_dir}/Processed/MRI_files/${dwi_folder_name}
