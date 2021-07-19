@@ -531,7 +531,7 @@ for this_preprocessing_step in ${preprocessing_steps[@]}; do
 			cd ${Subject_dir}/Processed/MRI_files/${this_functional_run_folder}/ANTS_Normalization
 			cp ${Subject_dir}/Processed/MRI_files/${this_functional_run_folder}/unwarpedRealigned*.nii ${Subject_dir}/Processed/MRI_files/${this_functional_run_folder}/ANTS_Normalization
 			cp ${Subject_dir}/Processed/MRI_files/${this_t1_folder}/c1biascorrected_T1.nii ${Subject_dir}/Processed/MRI_files/${this_functional_run_folder}/ANTS_Normalization
-			cp ${Subject_dir}/Processed/MRI_files/${this_t1_folder}/c2Tbiascorrected_T1.nii ${Subject_dir}/Processed/MRI_files/${this_functional_run_folder}/ANTS_Normalization
+			cp ${Subject_dir}/Processed/MRI_files/${this_t1_folder}/c2biascorrected_T1.nii ${Subject_dir}/Processed/MRI_files/${this_functional_run_folder}/ANTS_Normalization
 			cp ${Subject_dir}/Processed/MRI_files/${this_t1_folder}/c3biascorrected_T1.nii ${Subject_dir}/Processed/MRI_files/${this_functional_run_folder}/ANTS_Normalization
 			cp ${Template_dir}/MNI_2mm.nii ${Subject_dir}/Processed/MRI_files/${this_functional_run_folder}/ANTS_Normalization
 			gunzip -f *nii.gz
@@ -549,7 +549,7 @@ for this_preprocessing_step in ${preprocessing_steps[@]}; do
 				this_file_header_info=$(fslhd $this_file_to_warp)
 				this_file_number_of_volumes=$(echo $this_file_header_info | grep -o dim4.* | tr -s ' ' | cut -d ' ' -f 2)
 
-				c2Tbiascorrected_1
+				this_func_core_file_name=$(echo $this_file_to_warp | cut -d. -f 1)
 				this_T1_core_file_name=SkullStripped_biascorrected_T1
 			
 				antsApplyTransforms -d 3 -e 3 -i $this_file_to_warp -r MNI_2mm.nii \
