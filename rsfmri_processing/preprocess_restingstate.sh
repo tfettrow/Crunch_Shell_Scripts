@@ -10,7 +10,6 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 argument_counter=0
-step_counter=0
 for this_argument in "$@"
 do
 	if	[[ $argument_counter == 0 ]]; then
@@ -20,13 +19,15 @@ do
 	elif [[ $argument_counter == 2 ]]; then
     	Subject_dir=$this_argument
 	else
-		this_preprocessing_step="$this_argument"
+		preprocessing_steps[argument_counter]="$this_argument"
 	fi
-	
+	(( argument_counter++ ))	
+done
 	export MATLABPATH=${Matlab_dir}/helper
 	ml matlab/2020b
 	ml gcc/5.2.0; ml ants ## ml gcc/9.3.0; ml ants/2.3.4
 	ml fsl/6.0.1
+	ml itksnap
 	
 	cd $Subject_dir
 
@@ -78,8 +79,8 @@ do
 	
 	restingstate_processed_folder_names=$(echo "${restingstate_processed_folder_name_array[@]}" | tr ' ' '\n' | sort -u | tr '\n' ' ')
 	t1_processed_folder_names=$(echo "${t1_processed_folder_name_array[@]}" | tr ' ' '\n' | sort -u | tr '\n' ' ')
-	# echo $restingstate_processed_folder_names
-	#for this_preprocessing_step in "${preprocessing_step[@]}"; do
+
+for this_preprocessing_step in ${preprocessing_steps[@]}; do
 		if [[ $this_preprocessing_step == "slicetime_restingstate" ]]; then
 		    data_folder_to_analyze=($restingstate_processed_folder_names)
         	#cd $Subject_dir/Processed/MRI_files
@@ -99,7 +100,7 @@ do
 		if [[ $this_preprocessing_step == "create_fieldmap_restingstate" ]]; then
 
 			data_folder_to_copy_to=($restingstate_processed_folder_names)
-			####  this section was for hcp 1200 rsfMRI data ... what i learned.. need to make this more universal 
+			####  this section was for hcp 1200 rsfMRI data ... what TF learned.. need to make this more universal 
 			# cd "${Subject_dir}/Processed/MRI_files/03_Fieldmaps/04_rsfMRI"
 			#    	# just cleaning up in case this is being rerun
 			#    	if [ -e my_fieldmap_nifti.nii ]; then
@@ -474,21 +475,12 @@ do
 		fi
 
 		if [[ $this_preprocessing_step == "n4_bias_correct" ]]; then
-			this_t1_folder=($t1_processed_folder_names)
-			data_folder_to_copy_to=($restingstate_processed_folder_names)
-			cd ${Subject_dir}/Processed/MRI_files/${this_t1_folder}/
-			ml gcc/5.2.0; ml ants
-			N4BiasFieldCorrection -i T1.nii -o biascorrected_T1.nii
-			cp ${Subject_dir}/Processed/MRI_files/02_T1/* ${Subject_dir}/Processed/MRI_files/${data_folder_to_copy_to}/
-
 			data_folder_to_analyze=($restingstate_processed_folder_names)
 			cd ${Subject_dir}/Processed/MRI_files/${data_folder_to_analyze}
 			mkdir -p ${Subject_dir}/Processed/MRI_files/${data_folder_to_analyze}/ANTS_Normalization
-			cp biascorrected_T1.nii ${Subject_dir}/Processed/MRI_files/${data_folder_to_analyze}/ANTS_Normalization
 			cp ${Subject_dir}/Processed/MRI_files/${data_folder_to_analyze}/meanunwarpedRealigned*.nii ${Subject_dir}/Processed/MRI_files/${data_folder_to_analyze}/ANTS_Normalization
 	        cd ${Subject_dir}/Processed/MRI_files/${data_folder_to_analyze}/ANTS_Normalization
 			# for each run in this functional folder, bias correct and place in ANTS folder
-			ml gcc/5.2.0; ml ants
 			for this_func_file in meanunwarpedRealigned*.nii; do 
 				N4BiasFieldCorrection -i $this_func_file -o biascorrected_$this_func_file
 			done
@@ -499,30 +491,19 @@ do
 			SECONDS=0
 		fi
 		
-		if [[ $this_preprocessing_step == "skull_strip_t1_4_ants" ]]; then
-			this_t1_folder=($t1_processed_folder_names)
-			cp ${Template_dir}/TPM.nii ${Subject_dir}/Processed/MRI_files/${this_t1_folder}
-			cd ${Subject_dir}/Processed/MRI_files/${this_t1_folder}/
-			matlab -nodesktop -nosplash -r "try; segment_t1; catch; end; quit"
-			matlab -nodesktop -nosplash -r "try; skull_strip_t1; catch; end; quit"
-	
-			echo This step took $SECONDS seconds to execute
-			cd "${Subject_dir}"
-			echo "Skull Strip T1: $SECONDS sec" >> preprocessing_log.txt
-			SECONDS=0
-		fi
-
-		# run this if MiM and want to copy from when processed fmri
 		if [[ $this_preprocessing_step == "copy_skullstripped_biascorrected_t1_4_ants" ]]; then
-			# hard coded to go in and copy segmented T1
+			this_t1_folder=($t1_processed_folder_names)
 			data_folder_to_copy_to=($restingstate_processed_folder_names)
-			cp ${Subject_dir}/Processed/MRI_files/02_T1/* ${Subject_dir}/Processed/MRI_files/${data_folder_to_copy_to}/
-			# mkdir -p ${Subject_dir}/Processed/MRI_files/${data_folder_to_copy_to}/ANTS_Normalization
-			
-			echo This step took $SECONDS seconds to execute
-			cd "${Subject_dir}"
-			echo "Skull Strip T1: $SECONDS sec" >> preprocessing_log.txt
-			SECONDS=0
+			cd ${Subject_dir}/Processed/MRI_files/${this_t1_folder}
+			pwd
+			# echo ${this_t1_folder}
+			# echo ${data_folder_to_copy_to}
+			cp SkullStripped_biascorrected_T1.nii ${Subject_dir}/Processed/MRI_files/${data_folder_to_copy_to}/ANTS_Normalization/
+			cp c1biascorrected_T1.nii ${Subject_dir}/Processed/MRI_files/${data_folder_to_copy_to}/ANTS_Normalization/
+			cp c2biascorrected_T1.nii ${Subject_dir}/Processed/MRI_files/${data_folder_to_copy_to}/ANTS_Normalization/
+			cp c3biascorrected_T1.nii ${Subject_dir}/Processed/MRI_files/${data_folder_to_copy_to}/ANTS_Normalization/
+			cp c4biascorrected_T1.nii ${Subject_dir}/Processed/MRI_files/${data_folder_to_copy_to}/ANTS_Normalization/
+			cp c5biascorrected_T1.nii ${Subject_dir}/Processed/MRI_files/${data_folder_to_copy_to}/ANTS_Normalization/
 		fi
 
 		if [[ $this_preprocessing_step == "ants_norm_restingstate" ]]; then
@@ -578,9 +559,6 @@ do
         	    rm warpToMNIParams_*.mat
         	    rm warpToMNIEstimate_*.nii
         	    rm warpedToMNI_*.nii
-        	    rm c1*
-        	    rm c2*
-        	    rm c3*
         	fi
 			ml gcc/5.2.0
 			ml ants
@@ -614,9 +592,9 @@ do
         	--smoothing-sigmas 3x2x1x0vox
       
 			cd ${Subject_dir}/Processed/MRI_files/${data_folder_to_analyze}/ANTS_Normalization
-			cp ${Subject_dir}/Processed/MRI_files/${data_folder_to_analyze}/c1T1.nii ${Subject_dir}/Processed/MRI_files/${data_folder_to_analyze}/ANTS_Normalization
-			cp ${Subject_dir}/Processed/MRI_files/${data_folder_to_analyze}/c2T1.nii ${Subject_dir}/Processed/MRI_files/${data_folder_to_analyze}/ANTS_Normalization
-			cp ${Subject_dir}/Processed/MRI_files/${data_folder_to_analyze}/c3T1.nii ${Subject_dir}/Processed/MRI_files/${data_folder_to_analyze}/ANTS_Normalization
+			# cp ${Subject_dir}/Processed/MRI_files/${data_folder_to_analyze}/c1T1.nii ${Subject_dir}/Processed/MRI_files/${data_folder_to_analyze}/ANTS_Normalization
+			# cp ${Subject_dir}/Processed/MRI_files/${data_folder_to_analyze}/c2T1.nii ${Subject_dir}/Processed/MRI_files/${data_folder_to_analyze}/ANTS_Normalization
+			# cp ${Subject_dir}/Processed/MRI_files/${data_folder_to_analyze}/c3T1.nii ${Subject_dir}/Processed/MRI_files/${data_folder_to_analyze}/ANTS_Normalization
 			cp ${Template_dir}/MNI_2mm.nii ${Subject_dir}/Processed/MRI_files/${data_folder_to_analyze}/ANTS_Normalization
 							
         	gunzip -f *nii.gz
@@ -662,11 +640,11 @@ do
 	
 		if [[ $this_preprocessing_step == "smooth_restingstate_ants" ]]; then
 			data_folder_to_analyze=($restingstate_processed_folder_names)
-				cd ${Subject_dir}/Processed/MRI_files/${data_folder_to_analyze}/ANTS_Normalization
-				if [ -e smoothed_*.nii ]; then
-                	rm smoothed_*.nii
-            	fi
-				matlab -nodesktop -nosplash -r "try; smooth_restingstate_ants; catch; end; quit"
+			cd ${Subject_dir}/Processed/MRI_files/${data_folder_to_analyze}/ANTS_Normalization
+			if [ -e smoothed_*.nii ]; then
+               	rm smoothed_*.nii
+            fi
+			matlab -nodesktop -nosplash -r "try; smooth_restingstate_ants; catch; end; quit"
 			echo This step took $SECONDS seconds to execute
 			cd "${Subject_dir}"
 			echo "Smoothing ANTS files: $SECONDS sec" >> preprocessing_log.txt
@@ -674,7 +652,7 @@ do
 		fi
 
 		if [[ $this_preprocessing_step == "check_restingstate_ants" ]]; then
-		data_folder_to_analyze=($restingstate_processed_folder_names)
+			data_folder_to_analyze=($restingstate_processed_folder_names)
 			for this_functional_run_folder in ${data_folder_to_analyze[@]}; do
 				cd ${Subject_dir}/Processed/MRI_files/${this_functional_run_folder}/ANTS_Normalization
 				ml fsl/6.0.1
@@ -682,29 +660,17 @@ do
 					this_core_functional_file_name=$(echo $this_functional_file | cut -d. -f 1)
 					echo checking $this_core_functional_file_name for ${Subject_dir}
 					
-					ml itksnap
-					itksnap -g MNI_2mm.nii  -o $this_functional_file
-
-					# xvfb-run -s "-screen 0 640x480x24" fsleyes render --scene ortho --outfile ${Subject_dir}/Processed/MRI_files/${this_functional_run_folder}/ANTS_Normalization/check_MNI_ants_${this_core_functional_file_name} \
-					# ${Subject_dir}/Processed/MRI_files/${this_functional_run_folder}/ANTS_Normalization/MNI_2mm.nii -cm red-yellow \
-					# ${Subject_dir}/Processed/MRI_files/${this_functional_run_folder}/ANTS_Normalization/$this_functional_file --alpha 85
-					# # echo "Created screenshot for": ${SUB}-${SSN};
-					# display check_MNI_ants_${this_core_functional_file_name}.png
+					stat $this_functional_file
+					# itksnap -g MNI_2mm.nii  -o $this_functional_file
+					# fslview_deprecated MNI_2mm.nii $this_functional_file
 				done
 			done
-			# echo This step took $SECONDS seconds to execute
-			# cd "${Subject_dir}"
-			# echo "Smoothing ANTS files: $SECONDS sec" >> preprocessing_log.txt
-			# SECONDS=0
 		fi
 		if [[ $this_preprocessing_step == "copy_files_restingstate" ]]; then
 			data_folder_to_analyze=($restingstate_processed_folder_names)
+			echo copying files ${Subject_dir}
 			cp ${Subject_dir}/Processed/MRI_files/${data_folder_to_analyze}/rp_* ${Subject_dir}/Processed/MRI_files/${data_folder_to_analyze}/ANTS_Normalization
 			cp ${Subject_dir}/Processed/MRI_files/${data_folder_to_analyze}/art_regression_outliers_and_movement*.mat ${Subject_dir}/Processed/MRI_files/${data_folder_to_analyze}/ANTS_Normalization
-			cp ${Subject_dir}/Processed/MRI_files/05_MotorImagery/ANTS_Normalization/warpedToMNI_biascorrected*.nii ${Subject_dir}/Processed/MRI_files/${data_folder_to_analyze}/ANTS_Normalization
+			#cp ${Subject_dir}/Processed/MRI_files/05_MotorImagery/ANTS_Normalization/warpedToMNI_biascorrected*.nii ${Subject_dir}/Processed/MRI_files/${data_folder_to_analyze}/ANTS_Normalization
 		fi
-
-	#done
-	(( step_counter++ ))
-	(( argument_counter++ ))		
 done
