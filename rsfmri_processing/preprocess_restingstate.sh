@@ -84,7 +84,7 @@ for this_preprocessing_step in ${preprocessing_steps[@]}; do
 		if [[ $this_preprocessing_step == "slicetime_restingstate" ]]; then
 		    data_folder_to_analyze=($restingstate_processed_folder_names)
         	#cd $Subject_dir/Processed/MRI_files
-            cd "${Subject_dir}/Processed/MRI_files/${data_folder_to_analyze}/"
+            cd ${Subject_dir}/Processed/MRI_files/${data_folder_to_analyze}/
             
             if [ -e slicetimed_*.nii ]; then 
                 rm slicetimed_*.nii
@@ -92,7 +92,7 @@ for this_preprocessing_step in ${preprocessing_steps[@]}; do
             matlab -nodesktop -nosplash -r "try; slicetime_restingstate; catch; end; quit"
 
         	echo This step took $SECONDS seconds to execute
-        	cd "${Subject_dir}"
+        	cd ${Subject_dir}
         	echo "slicetime_restingstate: $SECONDS sec" >> preprocessing_log.txt
         	SECONDS=0
 		fi
@@ -193,6 +193,7 @@ for this_preprocessing_step in ${preprocessing_steps[@]}; do
 
    			# This really needs to be reworked.. for all scripts
    			# WARNING: this logic is specific to MiM until decide on better method
+			subject=$(echo ${Subject_dir} | egrep -o '[[:digit:]]{4}' | head -n1)
    			subject_level=$(echo $subject | cut -c1-1)
    			echo $subject_level
 
@@ -200,7 +201,7 @@ for this_preprocessing_step in ${preprocessing_steps[@]}; do
    			# if not, then copy fieldmaps for restingstate from task fmri folder
    			if [[ $subject_level == 3 ]]; then
 
-   				cd "${Subject_dir}/Processed/MRI_files/03_Fieldmaps"
+   				cd ${Subject_dir}/Processed/MRI_files/03_Fieldmaps
 				# just cleaning up in case this is being rerun
 				if [ -e AP_PA_merged.nii ]; then 
 					rm AP_PA_merged.nii
@@ -235,10 +236,10 @@ for this_preprocessing_step in ${preprocessing_steps[@]}; do
 				fslmaths AP_PA_merged.nii -Tmean Mean_AP_PA_merged.nii
 				gunzip -f *nii.gz
 	
-				cp Mean_AP_PA_merged.nii "${Subject_dir}/Processed/MRI_files/${data_folder_to_copy_to}"
+				cp Mean_AP_PA_merged.nii ${Subject_dir}/Processed/MRI_files/${data_folder_to_copy_to}
 			
 			   	echo creating fieldmap...
-			   	cd "${Subject_dir}/Processed/MRI_files/03_Fieldmaps"
+			   	cd ${Subject_dir}/Processed/MRI_files/03_Fieldmaps
 			   	# just cleaning up in case this is being rerun
 			   	if [ -e my_fieldmap_nifti.nii ]; then
 			   		rm my_fieldmap_nifti.nii
@@ -288,7 +289,7 @@ for this_preprocessing_step in ${preprocessing_steps[@]}; do
 				gunzip -f *nii.gz
    			else
    				# WARNING: hard coded to imagery since this is closest in time to restingstate (assuming preprocess_fmri has already been run)				
-				cd "${Subject_dir}/Processed/MRI_files/03_Fieldmaps/Fieldmap_imagery"
+				cd ${Subject_dir}/Processed/MRI_files/03_Fieldmaps/Fieldmap_imagery
 				
     	    	cp fpm_my_fieldmap.hdr ${Subject_dir}/Processed/MRI_files/${data_folder_to_copy_to}
     	    	cp fpm_my_fieldmap.img ${Subject_dir}/Processed/MRI_files/${data_folder_to_copy_to}
@@ -297,7 +298,7 @@ for this_preprocessing_step in ${preprocessing_steps[@]}; do
 		
 			fi
 			echo This step took $SECONDS seconds to execute
-			cd "${Subject_dir}"
+			cd ${Subject_dir}
 			echo "create_fieldmap_restingstate : $SECONDS sec" >> preprocessing_log.txt
 			SECONDS=0
 		fi
@@ -352,7 +353,7 @@ for this_preprocessing_step in ${preprocessing_steps[@]}; do
 				done
 			done
 			echo This step took $SECONDS seconds to execute
-			cd "${Subject_dir}"
+			cd ${Subject_dir}
 			echo "create_fieldmap_restingstate : $SECONDS sec" >> preprocessing_log.txt
 			SECONDS=0
 		fi
@@ -384,7 +385,7 @@ for this_preprocessing_step in ${preprocessing_steps[@]}; do
     			rm art_mask.img
 			done
 			echo This step took $SECONDS seconds to execute
-			cd "${Subject_dir}"
+			cd ${Subject_dir}
 			echo "Artifact Regression Tool: $SECONDS sec" >> preprocessing_log.txt
 			SECONDS=0
 		fi
@@ -403,7 +404,7 @@ for this_preprocessing_step in ${preprocessing_steps[@]}; do
 					processed_folder_names=$(echo "${processed_folder_name_array[@]}" | tr '' '\n' )
 
 					for this_processed_folder in $processed_folder_names; do
-						cd "${Subject_dir}/Processed/MRI_files/${this_processed_folder}"
+						cd ${Subject_dir}/Processed/MRI_files/${this_processed_folder}
 		
 						this_slicetimed_file=slicetimed_RestingState.nii						
 						ml fsl/6.0.1
@@ -466,10 +467,10 @@ for this_preprocessing_step in ${preprocessing_steps[@]}; do
     					fi
 					done
 				fi
-				cd "${Subject_dir}"
+				cd ${Subject_dir}
 			done
 			echo This step took $SECONDS seconds to execute
-			cd "${Subject_dir}"
+			cd ${Subject_dir}
 			echo "Outlier Removal: $SECONDS sec" >> preprocessing_log.txt
 			SECONDS=0
 		fi

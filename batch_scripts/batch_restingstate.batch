@@ -17,7 +17,7 @@ pwd; hostname; date
 # 4) make sure the directories are set to your repositories
 # 5) uncomment the step you would like to process for each subject specified in subject_array
 
-subject_array=(3034 3039 3040)
+subject_array=(3040)
 # subject=${subject_array[0]}
 
 
@@ -74,6 +74,6 @@ cd $Shell_dir
 
 for this_subject in "${subject_array[@]}"; do
     Subject_dir=/blue/rachaelseidler/share/FromExternal/Research_Projects_UF/CRUNCH/MiM_Data/${this_subject}
-    ./rsfmri_processing/preprocess_restingstate.sh $Matlab_dir $Template_dir $Subject_dir slicetime_restingstate
+    ./rsfmri_processing/preprocess_restingstate.sh $Matlab_dir $Template_dir $Subject_dir create_fieldmap_restingstate
 	# ./rsfmri_processing/preprocess_restingstate.sh $this_subject 
 done
