@@ -203,7 +203,7 @@ for this_preprocessing_step in ${preprocessing_steps[@]}; do
 			   
    				cd ${Subject_dir}/Processed/MRI_files/03_Fieldmaps
 				# just cleaning up in case this is being rerun
-				if [[-d Fieldmap_imagery]]; then
+				if [[ -d Fieldmap_imagery ]]; then
 				cd Fieldmap_imagery
 				
     	    	cp fpm_my_fieldmap.hdr ${Subject_dir}/Processed/MRI_files/${data_folder_to_copy_to}
@@ -503,8 +503,9 @@ for this_preprocessing_step in ${preprocessing_steps[@]}; do
 		if [[ $this_preprocessing_step == "copy_skullstripped_biascorrected_t1_4_ants" ]]; then
 			this_t1_folder=($t1_processed_folder_names)
 			data_folder_to_copy_to=($restingstate_processed_folder_names)
-			mkdir -p ${Subject_dir}/Processed/MRI_files/${data_folder_to_copy_to}/ANTS_Normalization
 			cd ${Subject_dir}/Processed/MRI_files/${this_t1_folder}
+			mkdir -p ${Subject_dir}/Processed/MRI_files/${data_folder_to_copy_to}/ANTS_Normalization
+
 
 			pwd
 			# echo ${this_t1_folder}
