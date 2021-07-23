@@ -200,93 +200,102 @@ for this_preprocessing_step in ${preprocessing_steps[@]}; do
    			# This logic says if MiM subject id starts with 3 (harmonized) then go ahead and process fieldmaps..
    			# if not, then copy fieldmaps for restingstate from task fmri folder
    			if [[ $subject_level == 3 ]]; then
-
+			   
    				cd ${Subject_dir}/Processed/MRI_files/03_Fieldmaps
 				# just cleaning up in case this is being rerun
-				if [ -e AP_PA_merged.nii ]; then 
-					rm AP_PA_merged.nii
-				fi
-				if [ -e Mean_AP_PA_merged.nii ]; then 
-					rm Mean_AP_PA_merged.nii
-				fi
-				if [ -e se_epi_unwarped.nii ]; then 
-					rm se_epi_unwarped.nii
-				fi
-				if [ -e topup_results_fieldcoef.nii ]; then 
-					rm topup_results_fieldcoef.nii
-				fi
-				if [ -e topup_results_movpar.txt ]; then 
-					rm topup_results_movpar.txt
-				fi
+				if [[-d Fieldmap_imagery]]; then
+				cd Fieldmap_imagery
 				
-				ml fsl
-				fslmerge -t AP_PA_merged.nii DistMap_AP.nii DistMap_PA.nii
-		
-				this_file_header_info=$(fslhd AP_PA_merged.nii )
-				this_file_number_of_slices=$(echo $this_file_header_info | grep -o dim3.* | tr -s ' ' | cut -d ' ' -f 2)
-	
-				if [ $((this_file_number_of_slices%2)) -ne 0 ]; then
-					fslsplit AP_PA_merged.nii slice -z
-					gunzip -f *nii.gz
-					rm slice0000.nii
-					fslmerge -z AP_PA_merged slice0*
-					rm slice00*.nii
-				fi
-	
-				fslmaths AP_PA_merged.nii -Tmean Mean_AP_PA_merged.nii
-				gunzip -f *nii.gz
-	
-				cp Mean_AP_PA_merged.nii ${Subject_dir}/Processed/MRI_files/${data_folder_to_copy_to}
-			
-			   	echo creating fieldmap...
-			   	cd ${Subject_dir}/Processed/MRI_files/03_Fieldmaps
-			   	# just cleaning up in case this is being rerun
-			   	if [ -e my_fieldmap_nifti.nii ]; then
-			   		rm my_fieldmap_nifti.nii
-			   	fi
-			   	if [ -e acqParams.txt ]; then
-			   		rm acqParams.txt
-			   	fi
-			   	if [ -e my_fieldmap_mag.nii ]; then
-					rm my_fieldmap_mag.nii
-				fi
+    	    	cp fpm_my_fieldmap.hdr ${Subject_dir}/Processed/MRI_files/${data_folder_to_copy_to}
+    	    	cp fpm_my_fieldmap.img ${Subject_dir}/Processed/MRI_files/${data_folder_to_copy_to}
+    	    	cp ${Matlab_dir}/helper/vdm_defaults.m ${Subject_dir}/Processed/MRI_files/${data_folder_to_copy_to}
+				cp se_epi_unwarped.nii ${Subject_dir}/Processed/MRI_files/${data_folder_to_copy_to}
+				else
+					if [ -e AP_PA_merged.nii ]; then 
+						rm AP_PA_merged.nii
+					fi
+					if [ -e Mean_AP_PA_merged.nii ]; then 
+						rm Mean_AP_PA_merged.nii
+					fi
+					if [ -e se_epi_unwarped.nii ]; then 
+						rm se_epi_unwarped.nii
+					fi
+					if [ -e topup_results_fieldcoef.nii ]; then 
+						rm topup_results_fieldcoef.nii
+					fi
+					if [ -e topup_results_movpar.txt ]; then 
+						rm topup_results_movpar.txt
+					fi
 					
-				# just a dummy value to check whether ecoding direction is same between distmaps
-				previous_encoding_direction=k
-				# assuming only the DistMaps have .jsons in this folder
-				for this_json_file in *.json*; do
-											
-					total_readout=$(grep "TotalReadoutTime" ${this_json_file} | tr -dc '0.00-9.00')
-					encoding_direction=$(grep "PhaseEncodingDirection" ${this_json_file} | cut -d: -f 2 | head -1 | tr -d '"' |  tr -d ',')
-
-					this_file_name=$(echo $this_json_file | cut -d. -f 1)
-					ml fsl/6.0.1
-					this_file_header_info=$(fslhd $this_file_name.nii)
-					this_file_number_of_volumes=$(echo $this_file_header_info | grep -o dim4.* | tr -s ' ' | cut -d ' ' -f 2)
-	
-					for (( this_volume=1; this_volume<=$this_file_number_of_volumes; this_volume++ )); do
-						if [[ $encoding_direction =~ j- ]]; then
-							echo 0 -1 0 ${total_readout} >> acqParams.txt
-						else
-							echo 0 1 0 ${total_readout} >> acqParams.txt
-						fi
-						if [[ $encoding_direction == $previous_encoding_direction ]]; then
-							echo WARNING: the phase encoding directions appear to be the same between distmaps!!!
-						fi
-					done
-					previous_encoding_direction=$encoding_direction
-				done
+					ml fsl
+					fslmerge -t AP_PA_merged.nii DistMap_AP.nii DistMap_PA.nii
+			
+					this_file_header_info=$(fslhd AP_PA_merged.nii )
+					this_file_number_of_slices=$(echo $this_file_header_info | grep -o dim3.* | tr -s ' ' | cut -d ' ' -f 2)
 		
-				ml fsl/6.0.1
-	
-				topup --imain=AP_PA_merged.nii --datain=acqParams.txt --fout=my_fieldmap_nifti --config=b02b0.cnf --iout=se_epi_unwarped --out=topup_results
-	
-				fslmaths se_epi_unwarped -Tmean my_fieldmap_mag
-	
-				ml fsl/5.0.8
-				fslchfiletype ANALYZE my_fieldmap_nifti.nii fpm_my_fieldmap
-	
-				gunzip -f *nii.gz
+					if [ $((this_file_number_of_slices%2)) -ne 0 ]; then
+						fslsplit AP_PA_merged.nii slice -z
+						gunzip -f *nii.gz
+						rm slice0000.nii
+						fslmerge -z AP_PA_merged slice0*
+						rm slice00*.nii
+					fi
+		
+					fslmaths AP_PA_merged.nii -Tmean Mean_AP_PA_merged.nii
+					gunzip -f *nii.gz
+		
+					cp Mean_AP_PA_merged.nii ${Subject_dir}/Processed/MRI_files/${data_folder_to_copy_to}
+				
+					echo creating fieldmap...
+					cd ${Subject_dir}/Processed/MRI_files/03_Fieldmaps
+					# just cleaning up in case this is being rerun
+					if [ -e my_fieldmap_nifti.nii ]; then
+						rm my_fieldmap_nifti.nii
+					fi
+					if [ -e acqParams.txt ]; then
+						rm acqParams.txt
+					fi
+					if [ -e my_fieldmap_mag.nii ]; then
+						rm my_fieldmap_mag.nii
+					fi
+						
+					# just a dummy value to check whether ecoding direction is same between distmaps
+					previous_encoding_direction=k
+					# assuming only the DistMaps have .jsons in this folder
+					for this_json_file in *.json*; do
+												
+						total_readout=$(grep "TotalReadoutTime" ${this_json_file} | tr -dc '0.00-9.00')
+						encoding_direction=$(grep "PhaseEncodingDirection" ${this_json_file} | cut -d: -f 2 | head -1 | tr -d '"' |  tr -d ',')
+
+						this_file_name=$(echo $this_json_file | cut -d. -f 1)
+						ml fsl/6.0.1
+						this_file_header_info=$(fslhd $this_file_name.nii)
+						this_file_number_of_volumes=$(echo $this_file_header_info | grep -o dim4.* | tr -s ' ' | cut -d ' ' -f 2)
+		
+						for (( this_volume=1; this_volume<=$this_file_number_of_volumes; this_volume++ )); do
+							if [[ $encoding_direction =~ j- ]]; then
+								echo 0 -1 0 ${total_readout} >> acqParams.txt
+							else
+								echo 0 1 0 ${total_readout} >> acqParams.txt
+							fi
+							if [[ $encoding_direction == $previous_encoding_direction ]]; then
+								echo WARNING: the phase encoding directions appear to be the same between distmaps!!!
+							fi
+						done
+						previous_encoding_direction=$encoding_direction
+					done
+			
+					ml fsl/6.0.1
+		
+					topup --imain=AP_PA_merged.nii --datain=acqParams.txt --fout=my_fieldmap_nifti --config=b02b0.cnf --iout=se_epi_unwarped --out=topup_results
+		
+					fslmaths se_epi_unwarped -Tmean my_fieldmap_mag
+		
+					ml fsl/5.0.8
+					fslchfiletype ANALYZE my_fieldmap_nifti.nii fpm_my_fieldmap
+		
+					gunzip -f *nii.gz
+				fi
    			else
    				# WARNING: hard coded to imagery since this is closest in time to restingstate (assuming preprocess_fmri has already been run)				
 				cd ${Subject_dir}/Processed/MRI_files/03_Fieldmaps/Fieldmap_imagery
@@ -381,8 +390,8 @@ for this_preprocessing_step in ${preprocessing_steps[@]}; do
 				rm T1.nii
 				rm -rf Conn_Art_Folder_Stuff
     			rm Conn_Art_Folder_Stuff.mat
-    			rm art_mask.hdr
-    			rm art_mask.img
+    			#rm art_mask.hdr
+    			#rm art_mask.img
 			done
 			echo This step took $SECONDS seconds to execute
 			cd ${Subject_dir}
@@ -478,7 +487,6 @@ for this_preprocessing_step in ${preprocessing_steps[@]}; do
 		if [[ $this_preprocessing_step == "n4_bias_correct" ]]; then
 			data_folder_to_analyze=($restingstate_processed_folder_names)
 			cd ${Subject_dir}/Processed/MRI_files/${data_folder_to_analyze}
-			mkdir -p ${Subject_dir}/Processed/MRI_files/${data_folder_to_analyze}/ANTS_Normalization
 			cp ${Subject_dir}/Processed/MRI_files/${data_folder_to_analyze}/meanunwarpedRealigned*.nii ${Subject_dir}/Processed/MRI_files/${data_folder_to_analyze}/ANTS_Normalization
 	        cd ${Subject_dir}/Processed/MRI_files/${data_folder_to_analyze}/ANTS_Normalization
 			# for each run in this functional folder, bias correct and place in ANTS folder
@@ -495,7 +503,9 @@ for this_preprocessing_step in ${preprocessing_steps[@]}; do
 		if [[ $this_preprocessing_step == "copy_skullstripped_biascorrected_t1_4_ants" ]]; then
 			this_t1_folder=($t1_processed_folder_names)
 			data_folder_to_copy_to=($restingstate_processed_folder_names)
+			mkdir -p ${Subject_dir}/Processed/MRI_files/${data_folder_to_copy_to}/ANTS_Normalization
 			cd ${Subject_dir}/Processed/MRI_files/${this_t1_folder}
+
 			pwd
 			# echo ${this_t1_folder}
 			# echo ${data_folder_to_copy_to}

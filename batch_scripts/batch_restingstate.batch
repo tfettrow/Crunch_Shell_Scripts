@@ -17,7 +17,7 @@ pwd; hostname; date
 # 4) make sure the directories are set to your repositories
 # 5) uncomment the step you would like to process for each subject specified in subject_array
 
-subject_array=(3040)
+subject_array=(3028 3039 3040)
 # subject=${subject_array[0]}
 
 
@@ -56,10 +56,9 @@ cd $Shell_dir
 
 #slicetime_restingstate
 #create_fieldmap_restingstate
-#unwarp_restingstate
+#realign_unwarp_restingstate
 #art_restingstate
 #remove_outlier_volumes
-#art_restingstate
 #skull_strip_t1_4_ants (if running before fmri)
 #copy_skullstripped_biascorrected_t1_4_ants (if running after fmri)
 #n4_bias_correct
@@ -74,6 +73,6 @@ cd $Shell_dir
 
 for this_subject in "${subject_array[@]}"; do
     Subject_dir=/blue/rachaelseidler/share/FromExternal/Research_Projects_UF/CRUNCH/MiM_Data/${this_subject}
-    ./rsfmri_processing/preprocess_restingstate.sh $Matlab_dir $Template_dir $Subject_dir create_fieldmap_restingstate
+    ./rsfmri_processing/preprocess_restingstate.sh $Matlab_dir $Template_dir $Subject_dir ants_norm_restingstate
 	# ./rsfmri_processing/preprocess_restingstate.sh $this_subject 
 done
