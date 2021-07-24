@@ -1,13 +1,13 @@
 #!/bin/bash
 #SBATCH --job-name=batch_start					# Job name
 #SBATCH --mail-type=END,FAIL          			# Mail events (NONE, BEGIN, END, FAIL, ALL)
-#SBATCH --mail-user=<tfettrow@ufl.edu>  		# Where to send mail	
+#SBATCH --mail-user=<valay.shah@ufl.edu>  		# Where to send mail	
 #SBATCH --ntasks=1                    			# Run a single task
-#SBATCH --mem=6000mb	                   	    # Memory limit
+#SBATCH --mem=8000mb	                   	    # Memory limit
 #SBATCH --qos=rachaelseidler
 #SBATCH --time=96:00:00               			# Time limit hrs:min:sec
 #SBATCH --output=batch_misc.%A_%a.out 	# Standard output and error log
-#SBATCH --array=0-46						# array range
+#SBATCH --array=0-12						# array range
 pwd; hostname; date
 
 ##### BATCH FILE INFO ######
@@ -20,15 +20,15 @@ pwd; hostname; date
 
 #subject_array=(1012 1004 1011 1002 1010 1013 1009 1007 1020 1022 1027 1024 1026 1025 1018 1019 1017 2021 2015 2002 2018 2017 2012 2025 2020 2026 2023 2022 2007 2013 2008 2033 2034 2037 2052 2042 2027 2039 2038 3024 3029 3004 3006 3007 3008 3021 3023)
 # subject=${subject_array[0]}
-subject_array=(3028 3034 3039 3040)
-# subject=${subject_array[$SLURM_ARRAY_TASK_ID]}
-# Subject_dir=/blue/rachaelseidler/share/FromExternal/Research_Projects_UF/CRUNCH/MiM_Data/${subject}
+subject_array=(3004 3006 3007 3008 3010 3021 3023 3025 3026 3028 3030 3036 3040)
+subject=${subject_array[$SLURM_ARRAY_TASK_ID]}
+Subject_dir=/blue/rachaelseidler/share/FromExternal/Research_Projects_UF/CRUNCH/MiM_Data/${subject}
 
 ######TYLER F Directory
-cd /blue/rachaelseidler/tfettrow/Crunch_Code
-Shell_dir=/blue/rachaelseidler/tfettrow/Crunch_Code/Shell_Scripts
-Matlab_dir=/blue/rachaelseidler/tfettrow/Crunch_Code/Matlab_Scripts
-Template_dir=/blue/rachaelseidler/tfettrow/Crunch_Code/MR_Templates
+#cd /blue/rachaelseidler/tfettrow/Crunch_Code
+#Shell_dir=/blue/rachaelseidler/tfettrow/Crunch_Code/Shell_Scripts
+#Matlab_dir=/blue/rachaelseidler/tfettrow/Crunch_Code/Matlab_Scripts
+#Template_dir=/blue/rachaelseidler/tfettrow/Crunch_Code/MR_Templates
 
 ######VALAY S Directory
 cd /blue/rachaelseidler/valay.shah
@@ -38,7 +38,7 @@ Template_dir=/blue/rachaelseidler/valay.shah/MR_Templates
 
 cd $Shell_dir
 
-# ./file_organization/file_organize.sh $Subject_dir
+./file_organization/file_organize.sh $Subject_dir
 # ./file_organization/save_subject_info.sh $Subject_dir $Matlab_dir
 #./misc/biascorrect_and_skullstrip.sh $Matlab_dir $Template_dir $Subject_dir n4_bias_correction skull_strip_t1_4_ants
 
@@ -55,7 +55,7 @@ cd $Shell_dir
 
 
 
-for this_subject in "${subject_array[@]}"; do
-	Subject_dir=/blue/rachaelseidler/share/FromExternal/Research_Projects_UF/CRUNCH/MiM_Data/${this_subject}
-    ./file_organization/save_subject_info.sh $Subject_dir $Matlab_dir
-done
+#for this_subject in "${subject_array[@]}"; do
+#	Subject_dir=/blue/rachaelseidler/share/FromExternal/Research_Projects_UF/CRUNCH/MiM_Data/${this_subject}
+#    ./file_organization/save_subject_info.sh $Subject_dir $Matlab_dir
+#done

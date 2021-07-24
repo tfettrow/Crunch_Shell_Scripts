@@ -295,6 +295,10 @@ for this_preprocessing_step in ${preprocessing_steps[@]}; do
 					fslchfiletype ANALYZE my_fieldmap_nifti.nii fpm_my_fieldmap
 		
 					gunzip -f *nii.gz
+					cp fpm_my_fieldmap.hdr ${Subject_dir}/Processed/MRI_files/${data_folder_to_copy_to}
+    	    		cp fpm_my_fieldmap.img ${Subject_dir}/Processed/MRI_files/${data_folder_to_copy_to}
+    	    		cp ${Matlab_dir}/helper/vdm_defaults.m ${Subject_dir}/Processed/MRI_files/${data_folder_to_copy_to}
+				c	p se_epi_unwarped.nii ${Subject_dir}/Processed/MRI_files/${data_folder_to_copy_to}
 				fi
    			else
    				# WARNING: hard coded to imagery since this is closest in time to restingstate (assuming preprocess_fmri has already been run)				

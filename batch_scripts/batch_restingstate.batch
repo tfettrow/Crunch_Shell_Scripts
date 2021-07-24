@@ -1,13 +1,12 @@
 #!/bin/bash
 #SBATCH --job-name=batch_restingstate     			# Job name
 #SBATCH --mail-type=END,FAIL          			# Mail events (NONE, BEGIN, END, FAIL, ALL)
-#SBATCH --mail-user=<tfettrow@ufl.edu>  		# Where to send mail	
-#SBATCH --ntasks=1                    			# Run a single task
-#SBATCH --mem=8000mb	                   	    # Memory limit
+#SBATCH --mail-user=<valay.shah@ufl.edu>  		# Where to send mail	
+#SBATCH --ntasks=1                   			# Run a single task
+#SBATCH --mem=16000mb	                   	    # Memory limit
 #SBATCH --qos=rachaelseidler
 #SBATCH --time=96:00:00               			# Time limit hrs:min:sec
-#SBATCH --output=batch_restingstate.%A_%a.out 	# Standard output and error log
-#SBATCH --array=0-3								# array range
+#SBATCH --array=0-12								# array range
 pwd; hostname; date
 
 ##### BATCH FILE INFO ######
@@ -16,12 +15,12 @@ pwd; hostname; date
 # 3) specify the subject_array
 # 4) make sure the directories are set to your repositories
 # 5) uncomment the step you would like to process for each subject specified in subject_array
-
-subject_array=(3028 3039 3040)
+#subject_array=(3004 3006 3007)
+subject_array=(3004 3006 3007 3008 3010 3021 3023 3025 3026 3028 3030 3036 3040)
 # subject=${subject_array[0]}
 
 
-# subject=${subject_array[$SLURM_ARRAY_TASK_ID]}
+subject=${subject_array[$SLURM_ARRAY_TASK_ID]}
 
 Subject_dir=/blue/rachaelseidler/share/FromExternal/Research_Projects_UF/CRUNCH/MiM_Data/${subject}
 # ######TYLER F Directory
@@ -38,10 +37,11 @@ Template_dir=/blue/rachaelseidler/valay.shah/MR_Templates
 
 cd $Shell_dir
 
+# ./rsfmri_processing/cleanupfieldmap.sh $Subject_dir
 
 ################################ restingstate preprocessing #######################################
 # ./preprocess_restingstate.sh $subject slicetime_restingstate
-#./preprocess_restingstate.sh $subject create_fieldmap_restingstate
+./rsfmri_processing/preprocess_restingstate.sh $Matlab_dir $Template_dir $Subject_dir create_fieldmap_restingstate
 # ./rsfmri_processing/preprocess_restingstate.sh $Matlab_dir $Template_dir $Subject_dir slicetime_restingstate create_fieldmap_restingstate realign_unwarp_restingstate art_restingstate
 # ./preprocess_restingstate.sh $subject unwarp_restingstate art_restingstate
 
@@ -49,7 +49,7 @@ cd $Shell_dir
 # ./rsfmri_processing/preprocess_restingstate.sh $Matlab_dir $Template_dir $Subject_dir copy_skullstripped_biascorrected_t1_4_ants n4_bias_correct ants_norm_restingstate smooth_restingstate_ants
 # ./rsfmri_processing/preprocess_restingstate.sh $subject ants_norm_restingstate
 # ./rsfmri_processing/preprocess_restingstate.sh $subject smooth_restingstate_ants
-# ./rsfmri_processing/preprocess_restingstate.sh $subject ants_norm_restingstate smooth_restingstate_ants
+# ./rsfmri_processing/preprocess_restingstate.sh $Matlab_dir $Template_dir $Subject_dir ants_norm_restingstate
 #./rsfmri_processing/preprocess_restingstate.sh $subject copy_files_restingstate
 # ./preprocess_restingstate.sh $subject art_restingstate
 # ./preprocess_restingstate.sh $subject check_restingstate_ants
@@ -71,8 +71,8 @@ cd $Shell_dir
 #./conn_network.sh
 
 
-for this_subject in "${subject_array[@]}"; do
-    Subject_dir=/blue/rachaelseidler/share/FromExternal/Research_Projects_UF/CRUNCH/MiM_Data/${this_subject}
-    ./rsfmri_processing/preprocess_restingstate.sh $Matlab_dir $Template_dir $Subject_dir ants_norm_restingstate
-	# ./rsfmri_processing/preprocess_restingstate.sh $this_subject 
-done
+# for this_subject in "${subject_array[@]}"; do
+#     Subject_dir=/blue/rachaelseidler/share/FromExternal/Research_Projects_UF/CRUNCH/MiM_Data/${this_subject}
+#     ./rsfmri_processing/preprocess_restingstate.sh $Matlab_dir $Template_dir $Subject_dir ants_norm_restingstate
+# 	# ./rsfmri_processing/preprocess_restingstate.sh $this_subject 
+# done
