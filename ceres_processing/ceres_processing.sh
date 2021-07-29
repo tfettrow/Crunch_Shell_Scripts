@@ -16,7 +16,7 @@ for this_argument in "$@"; do
 	elif [[ $argument_counter == 1 ]]; then
 		Template_dir=$this_argument
 	elif [[ $argument_counter == 2 ]]; then
-    	subject=$this_argument
+    	Subject_dir=$this_argument
 	else
 		processing_steps[argument_counter]="$this_argument"
 	fi
@@ -25,9 +25,11 @@ done
 		
 	export MATLABPATH=${Matlab_dir}/helper
 	study_dir=/blue/rachaelseidler/share/FromExternal/Research_Projects_UF/CRUNCH/MiM_Data
-	Subject_dir=$study_dir/$subject
+	subject=$(echo ${Subject_dir} | egrep -o [[:digit:]]{4} )
+	echo $subject
 	# cd $study_dir
 	cd $Subject_dir
+	pwd;
 	ml matlab/2020b
 	ml gcc/5.2.0; ml ants ## ml gcc/9.3.0; ml ants/2.3.4
 	ml fsl/6.0.1
@@ -104,7 +106,7 @@ done
 		if [[ $this_ceres_processing_step ==  "ceres_unzip" ]]; then
 			
 			cd $Subject_dir/Processed/MRI_files/
-			mkdir 01_Ceres
+			mkdir -p 01_Ceres
 			cd 01_Ceres
 			rm *
 			cd $study_dir/Ceres_Output_Native
@@ -335,9 +337,9 @@ done
 					this_core_functional_file_name=$(echo $this_functional_file | cut -d. -f 1)
 					echo checking $this_core_functional_file_name for ${Subject_dir}
 					
-					stat $this_functional_file
+					# stat $this_functional_file
 					
-					# itksnap -g SUIT_Nobrainstem_2mm.nii -o $this_functional_file					
+					itksnap -g SUIT_Nobrainstem_2mm.nii -o $this_functional_file					
 				done
 			done
 		fi
