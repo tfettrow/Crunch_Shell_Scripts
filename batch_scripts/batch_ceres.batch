@@ -1,13 +1,13 @@
 #!/bin/bash
 #SBATCH --job-name=batch_ceres					# Job name
 #SBATCH --mail-type=END,FAIL          			# Mail events (NONE, BEGIN, END, FAIL, ALL)
-#SBATCH --mail-user=<tfettrow@ufl.edu>  		# Where to send mail	
+#SBATCH --mail-user=<valay.shah@ufl.edu>  		# Where to send mail	
 #SBATCH --ntasks=1                    			# Run a single task
-#SBATCH --mem=8000mb	                   	    # Memory limit
+#SBATCH --mem=16000mb	                   	    # Memory limit
 #SBATCH --qos=rachaelseidler
 #SBATCH --time=96:00:00               			# Time limit hrs:min:sec
 #SBATCH --output=batch_ceres.%A_%a.out 	# Standard output and error log
-#SBATCH --array=0-3							# array range
+#SBATCH --array=0-14							# array range
 pwd; hostname; date
 
 
@@ -26,16 +26,16 @@ pwd; hostname; date
 
 # subject_array=(2018 2017 2012 2025 2020 2026 2023 2022 2007 2013 2008 2033) 
 
-subject_array=(1022 1027 1024 2042)
+subject_array=(3004 3006 3007 3008 3010 3021 3023 3025 3026 3030 3036 3040 3034 3039 3028)
 
-subject=${subject_array[$SLURM_ARRAY_TASK_ID]}
+# subject=${subject_array[$SLURM_ARRAY_TASK_ID]}
 
-Subject_dir=/blue/rachaelseidler/share/FromExternal/Research_Projects_UF/CRUNCH/MiM_Data/${subject}
+# Subject_dir=/blue/rachaelseidler/share/FromExternal/Research_Projects_UF/CRUNCH/MiM_Data/${subject}
 ######TYLER F Directory
-cd /blue/rachaelseidler/tfettrow/Crunch_Code
-Shell_dir=/blue/rachaelseidler/tfettrow/Crunch_Code/Shell_Scripts
-Matlab_dir=/blue/rachaelseidler/tfettrow/Crunch_Code/Matlab_Scripts
-Template_dir=/blue/rachaelseidler/tfettrow/Crunch_Code/MR_Templates
+# cd /blue/rachaelseidler/tfettrow/Crunch_Code
+# Shell_dir=/blue/rachaelseidler/tfettrow/Crunch_Code/Shell_Scripts
+# Matlab_dir=/blue/rachaelseidler/tfettrow/Crunch_Code/Matlab_Scripts
+# Template_dir=/blue/rachaelseidler/tfettrow/Crunch_Code/MR_Templates
 
 ######VALAY S Directory
 cd /blue/rachaelseidler/valay.shah
@@ -46,7 +46,7 @@ Template_dir=/blue/rachaelseidler/valay.shah/MR_Templates
 cd $Shell_dir
 
 
-./ceres_processing/ceres_processing.sh $Matlab_dir $Template_dir $Subject_dir ceres_unzip coreg_func_to_ceresT1 ceres_cb_mask_ants_norm ceres_smooth_ants_norm
+# ./ceres_processing/ceres_processing.sh $Matlab_dir $Template_dir $Subject_dir check_ceres_ants_func
 #ceres_cb_mask_ants_norm ceres_smooth_ants_norm
 # ./Shell_Scripts/ceres_processing.sh $subject check_ceres_ants
 
@@ -56,9 +56,10 @@ cd $Shell_dir
 # ceres_smooth_spm_norm
 # ceres_cb_mask_ants_norm
 # ceres_smooth_ants_norm
-# check_ceres_ants
+# check_ceres_ants_func
 
 
-# for this_subject in "${subject_array[@]}"; do
-# 	./Shell_Scripts/ceres_processing/ceres_processing.sh $this_subject check_ceres_ants
-# done
+for this_subject in "${subject_array[@]}"; do
+    Subject_dir=/blue/rachaelseidler/share/FromExternal/Research_Projects_UF/CRUNCH/MiM_Data/${this_subject}
+    ./ceres_processing/ceres_processing.sh $Matlab_dir $Template_dir $Subject_dir check_ceres_ants_func
+done
