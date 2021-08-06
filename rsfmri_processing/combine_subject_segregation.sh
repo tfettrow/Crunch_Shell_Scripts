@@ -13,7 +13,7 @@
 
 
 # this script requires arguments... use the batch_fmri.batch to call this shell script
-# example >> combine_subject_segregation.sh '1002,1004,1007,1009,1010,1011,1013,1020,1022,1024,1027,2002,2007,2008,2012,2013,2015,2017,2018,2020,2021,2022,2023,2025,2026,2033,2034,2037,2042,2052' 04_rsfMRI 
+# example >> combine_subject_segregation.sh '1002,1004,1007,1009,1010,1011,1013,1020,1022,1024,1026,1027,2002,2007,2008,2012,2013,2015,2017,2018,2020,2021,2022,2023,2025,2026,2027,2033,2034,2037,2042,2052,3004,3006,3007,3008,3021,3023' 04_rsfMRI 
 
 argument_counter=0
 for this_argument in "$@"; do
@@ -28,7 +28,7 @@ done
 Study_dir=/blue/rachaelseidler/share/FromExternal/Research_Projects_UF/CRUNCH/MiM_Data
 
 #####################################################################################################################################################
-ml fsl/6.0.1
+ml fsl/6.0.3
 
 subject_index=0
 outfile=${rsfmri_processed_folder_name}_rsfmri_segregation_all.csv
@@ -36,7 +36,7 @@ if [ -e ${rsfmri_processed_folder_name}_rsfmri_segregation_all.csv ]; then
 	rm ${rsfmri_processed_folder_name}_rsfmri_segregation_all.csv
 fi
 while IFS=',' read -ra subject_list; do
-   	   for this_subject in "${subject_list[@]}"; do
+   	for this_subject in "${subject_list[@]}"; do
    	   	cd ${Study_dir}/$this_subject/Processed/MRI_files/${rsfmri_processed_folder_name}/ANTS_Normalization/Level1
    	   	this_subject_header=$(cat ${this_subject}_rsfmri_segregation.csv | sed -n 1p)
    	   	this_subject_data=$(cat ${this_subject}_rsfmri_segregation.csv | sed -n 2p)
