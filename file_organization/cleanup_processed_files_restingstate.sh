@@ -12,7 +12,7 @@
 subject=$1
 
 
-Subject_dir=/ufrc/rachaelseidler/share/FromExternal/Research_Projects_UF/CRUNCH/MiM_Data/${subject}
+Subject_dir=/blue/rachaelseidler/share/FromExternal/Research_Projects_UF/CRUNCH/MiM_Data/${subject}
 cd "${Subject_dir}"
 
 lines_to_ignore=$(awk '/#/{print NR}' file_settings.txt)
@@ -45,31 +45,20 @@ fmri_processed_folder_names=$(echo "${fmri_processed_folder_name_array[@]}" | tr
 	
 data_folder_to_analyze=($fmri_processed_folder_names)
 #cd $Subject_dir/Processed/MRI_files
-GLOBIGNORE=Condition_Onsets*:slicetimed*.nii:*.json:rp_*:art_*:*.jpeg:warpedToMNI*:warpedToT1*:unwarpedRealigned*:smoothed_warpedToMNI*:biascorrected*:MNI_2mm*:meanunwarpedRealigned_*:RestingState*:coregToT1*
 
 for this_functional_run_folder in ${data_folder_to_analyze[@]}; do
 	cd ${Subject_dir}/Processed/MRI_files/${this_functional_run_folder}
-	#zip processed_files.zip *
-	#rm !(art_*|ARTscreenshot*|Condition_Onsets*|smoothed*|fMRI_Run*|*.json)
-	# shopt -s extglob
-	# rm !(Condition_Onsets*|slicetimed*|fMRI_Run*|*.json)
-	# find . -type f -not \(-name 'Condition_Onsets*' -or -name 'slicetimed*' -or -name 'fMRI_Run*' -or -name '*.json' \) -delete
-	#wait
-	rm -r Level1_Results
+	GLOBIGNORE=*.json:rp_*:art_*:*.jpeg:unwarpedRealigned*:*biascorrected_T1.nii:meanunwarpedRealigned_*:RestingState*
 	rm -v *
-
+	unset GLOBIGNORE
+	gzip *.nii
 	
 ################################################################
 	cd ${Subject_dir}/Processed/MRI_files/${this_functional_run_folder}/ANTS_Normalization
-	rm -r Level1_Results
+	GLOBIGNORE=*.json:rp_*:art_*:*.jpeg:unwarpedRealigned*:*biascorrected_T1.nii:meanunwarpedRealigned_*:RestingState*:ewarpedToMNI*:warpedToMNI_*:warpToMNIParams*:warpToT1Params_*:smoothed_warpedToMNI_*:warpedToSUIT_*:smoothed_warpedToSUIT_*:warpToSUITParams*:SUIT_Nobrainstem_1mm.nii:SUIT_Nobrainstem_2mm.nii:CBmasked_coregToT1*:coregToT1_*:
 	rm -v *
-
-	#zip ants_processed_files.zip *
-	#wait
-
-	# rm !(art_*|ARTscreenshot*|Condition_Onsets*|smoothed*|warpedToMNI_biascorrected*|fMRI_Run*|*.json|ANTs_*)
-	# rm !(Condition_Onsets*|fMRI_Run*|*.json)
-	
+	unset GLOBIGNORE
+	gzip *.nii
 
 done
 unset GLOBIGNORE
