@@ -10,7 +10,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 # this script requires arguments... use the batch_fmri.batch to call this shell script
-# example >> combine_subject_gmv.sh '1002,1004,1007,1009,1010,1011,1013,1020,1022,1024,1027,2002,2007,2008,2012,2013,2015,2017,2018,2020,2021,2022,2023,2025,2026,2033,2034,2037,2042,2052,3004,3008,3006,3007' 02_T1 
+# example >> combine_subject_gmv.sh '1002,1004,1007,1009,1010,1011,1012,1013,1017,1018,1019,1020,1022,1024,1025,1026,1027,2002,2007,2008,2012,2013,2015,2017,2018,2020,2021,2022,2023,2025,2026,2027,2033,2034,2037,2038,2039,2042,2052,3024,3029,3004,3006,3007,3008,3010,3021,3023,3025,3026,3030,3036' 02_T1 
 
 argument_counter=0
 for this_argument in "$@"; do
@@ -18,10 +18,6 @@ for this_argument in "$@"; do
 		subjects=$this_argument
 	elif [[ $argument_counter == 1 ]]; then
 		struct_processed_folder_name=$this_argument
-	# elif [[ $argument_counter == 2 ]]; then
-	# 	in_ext=$this_argument
-	# elif [[ $argument_counter == 3 ]]; then
-	# 	out_ext=$this_argument
 	fi
 	(( argument_counter++ ))
 done
@@ -39,8 +35,8 @@ subject_index=0
 while IFS=',' read -ra subject_list; do
     for this_subject in "${subject_list[@]}"; do
        	cd ${Study_dir}/$this_subject/Processed/MRI_files/${struct_processed_folder_name}/CAT12_Analysis/mri
-       	this_subject_header=$(cat ${this_subject}_gmv_roi_vols.csv | sed -n 1p)
-       	this_subject_data=$(cat ${this_subject}_gmv_roi_vols.csv | sed -n 2p)
+       	this_subject_header=$(cat subj_${this_subject}_gmv_roi_volumes.csv | sed -n 1p)
+       	this_subject_data=$(cat subj_${this_subject}_gmv_roi_volumes.csv | sed -n 2p)
 		
 		cd ${Study_dir}
        	this_subject_header_outfile=$(cat $outfile | sed 1d)
