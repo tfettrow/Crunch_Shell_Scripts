@@ -13,7 +13,9 @@ Subject_dir=$1
 
 cd ${Subject_dir}/Raw/MRI_files
 
+if [[ ! -e *.zip ]]; then
 zip -r MRI_files.zip *
+fi
 
 shopt -s extglob
 rm -r !(MRI_files.zip)
