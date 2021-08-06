@@ -10,14 +10,14 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 # this script requires arguments... use the batch_fmri.batch to call this shell script
-# example >> combine_subject_mri_redcap.sh '1002,1004,1007,1009,1010,1011,1013,2021,2015,2002,2018,2017,2012,2025,2020,2026,2023,2022,2007,2013,2008,2033,2034,2037' 05_MotorImagery 
+# example >> combine_subject_mri_roi.sh '1002,1004,1007,1009,1010,1011,1013,1020,1022,1024,1026,1027,2002,2007,2008,2012,2013,2015,2017,2018,2020,2021,2022,2023,2025,2026,2027,2033,2034,2037,2042,2052,3004,3008,3006,3007' 05_MotorImagery fmri_roi_betas.csv fmri_redcap.csv
 
 argument_counter=0
 for this_argument in "$@"; do
 	if	[[ $argument_counter == 0 ]]; then
 		subjects=$this_argument
 	elif [[ $argument_counter == 1 ]]; then
-		fmri_processed_folder_names=$this_argument
+		this_functional_run_folder=$this_argument
 	elif [[ $argument_counter == 2 ]]; then
 		in_ext=$this_argument
 	elif [[ $argument_counter == 3 ]]; then
@@ -26,39 +26,33 @@ for this_argument in "$@"; do
 	(( argument_counter++ ))
 done
 
-#for SUB in ${subjects[@]}; do
 Study_dir=/blue/rachaelseidler/share/FromExternal/Research_Projects_UF/CRUNCH/MiM_Data
 cd $Study_dir
-echo "CD set"
-for this_functional_run_folder in ${fmri_processed_folder_names[@]}; do # only doing one task folder at a time so this for loop not necessary
-	ml fsl
-	subject_index=0
 
-	outfile=${fmri_processed_folder_names}_${out_ext}
-	if [ -e ${fmri_processed_folder_names}_${out_ext} ]; then
-		rm ${fmri_processed_folder_names}_${out_ext}
-	fi
+ml fsl/6.0.1
+outfile=${this_functional_run_folder}_${out_ext}
+if [ -e ${this_functional_run_folder}_${out_ext} ]; then
+	rm ${this_functional_run_folder}_${out_ext}
+fi
 
-	while IFS=',' read -ra subject_list; do
-   	    for this_subject in "${subject_list[@]}"; do
-   	    	cd ${Study_dir}/$this_subject/Processed/MRI_files/${this_functional_run_folder}/ANTS_Normalization/Level1_WholeBrain
-
-   	    	this_subject_header=$(cat ${this_subject}_${in_ext} | sed -n 1p)
-   	    	this_subject_data=$(cat ${this_subject}_${in_ext} | sed -n 2p)
-			
-			cd ${Study_dir}
-   	    	this_subject_header_outfile=$(cat $outfile | sed 1d)
-
-   			row1=$this_subject_header
-			existing_section=$this_subject_header_outfile
-			new_row=$this_subject_data
-			if [[ subject_index == 0 ]]; then
-				echo -e "$row1\n$new_row" >> "$outfile"
-			else
-				rm $outfile
-				echo -e "$row1\n$existing_section\n$new_row" >> "$outfile"
-			fi
-			(( subject_index++ ))
-		done
- 	done <<< "$subjects"
-done
+subject_index=0
+while IFS=',' read -ra subject_list; do
+    for this_subject in "${subject_list[@]}"; do
+       	cd ${Study_dir}/$this_subject/Processed/MRI_files/${this_functional_run_folder}/ANTS_Normalization/Level1_WholeBrain
+       	this_subject_header=$(cat ${this_subject}_${in_ext} | sed -n 1p)
+       	this_subject_data=$(cat ${this_subject}_${in_ext} | sed -n 2p)
+		
+		cd ${Study_dir}
+       	this_subject_header_outfile=$(cat $outfile | sed 1d)
+   		row1=$this_subject_header
+		existing_section=$this_subject_header_outfile
+		new_row=$this_subject_data
+		if [[ subject_index == 0 ]]; then
+			echo -e "$row1\n$new_row" >> "$outfile"
+		else
+			rm $outfile
+			echo -e "$row1\n$existing_section\n$new_row" >> "$outfile"
+		fi
+		(( subject_index++ ))
+	done
+ done <<< "$subjects"

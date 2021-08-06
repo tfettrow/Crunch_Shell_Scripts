@@ -227,43 +227,58 @@ for this_preprocessing_step in ${preprocessing_steps[@]};do
 		dwi_folder_name=($dwi_processed_folder_name)
 		t1_folder_name=($t1_processed_folder_name)
 
-		cp ${Subject_dir}/Processed/MRI_files/${t1_folder_name}/SkullStripped_biascorrected_T1.nii ${Subject_dir}/Processed/MRI_files/${dwi_folder_name}
+		# cp ${Subject_dir}/Processed/MRI_files/${t1_folder_name}/SkullStripped_biascorrected_T1.nii ${Subject_dir}/Processed/MRI_files/${dwi_folder_name}
 		cd ${Subject_dir}/Processed/MRI_files/${dwi_folder_name}
 
-		rm acqParams.txt
+		# rm acqParams.txt
 		echo 0 -1 0 0.0355597 >> acqParams.txt
-		echo 0 1 0 0.0355597 >> acqParams.txt
+		# echo 0 1 0 0.0355597 >> acqParams.txt
 		
 		NVOL=`fslnvols driftcorrected_DWI.nii`
 		for ((i=1; i<=${NVOL}; i+=1)); do indx="$indx 1"; done; echo $indx > index.txt
 
-		rm eddycorrected_driftcorrected_DWI.*
+		# rm eddycorrected_driftcorrected_DWI.*
 
-		flirt -in SkullStripped_biascorrected_T1.nii -ref driftcorrected_DWI.nii -out SkullStripped_biascorrected_T1_matched2DWI.nii
+		# flirt -in SkullStripped_biascorrected_T1.nii -ref driftcorrected_DWI.nii -out SkullStripped_biascorrected_T1_matched2DWI.nii
+		# rm SkullStripped_biascorrected_T1_matched2DWI.nii
+		# gunzip -f *nii.gz
+		# fslmaths SkullStripped_biascorrected_T1.nii -bin se_epi_unwarped_brain_mask.nii
+		rm se_epi_unwarped_brain_mask* 
+		fslroi driftcorrected_DWI.nii driftcorrected_DWI1 0 1
 		gunzip -f *nii.gz
-		fslmaths SkullStripped_biascorrected_T1_matched2DWI.nii -bin se_epi_unwarped_brain_mask.nii
+		bet driftcorrected_DWI1.nii se_epi_unwarped_brain_mask -m
 		gunzip -f *nii.gz
 
-		eddy_cuda9.1 --imain=driftcorrected_DWI.nii \
-		--mask=se_epi_unwarped_brain_mask.nii \
-		--index=index.txt \
-		--acqp=acqParams.txt \
-		--bvecs=DWI.bvec \
-		--bvals=DWI.bval \
-		--niter=8 \
-		--fwhm=10,8,4,2,0,0,0,0 \
-		--repol \
-		--slm=linear \
-		--out=eddycorrected_driftcorrected_DWI \
-		--mporder=16 \
-		--json=DWI.json \
-		--s2v_niter=8 \
-		--s2v_lambda=1 \
-		--s2v_interp=trilinear \
-		--estimate_move_by_susceptibility \
-		--cnr_maps \
-		--verbose
+		# eddy_cuda9.1 --imain=driftcorrected_DWI.nii \
+		# --mask=se_epi_unwarped_brain_mask.nii \
+		# --index=index.txt \
+		# --acqp=acqParams.txt \
+		# --bvecs=DWI.bvec \
+		# --bvals=DWI.bval \
+		# --niter=8 \
+		# --fwhm=10,8,4,2,0,0,0,0 \
+		# --repol \
+		# --slm=linear \
+		# --out=eddycorrected_driftcorrected_DWI \
+		# --mporder=16 \
+		# --json=DWI.json \
+		# --s2v_niter=8 \
+		# --s2v_lambda=1 \
+		# --s2v_interp=trilinear \
+		# --estimate_move_by_susceptibility \
+		# --cnr_maps \
+		# --verbose
 		
+		eddy --imain=driftcorrected_DWI.nii \
+		  --mask=se_epi_unwarped_brain_mask.nii \
+		  --acqp=acqParams.txt \
+		  --index=index.txt \
+		  --bvecs=DWI.bvec \
+		  --bvals=DWI.bval \
+		  --repol \
+		  --out=eddycorrected_driftcorrected_DWI \
+		  --verbose
+
 		gunzip -f *nii.gz
 	fi
 	
@@ -279,7 +294,6 @@ for this_preprocessing_step in ${preprocessing_steps[@]};do
 		--mask se_epi_unwarped_brain_mask \
 		--bvals DWI.bval \
 		--bvecs eddycorrected_driftcorrected_DWI.eddy_rotated_bvecs \
-		--field my_fieldmap.nii \
 		--output-dir=eddycorrected_driftcorrected_DWI.qc
 		
 		gunzip -f *nii.gz
@@ -324,11 +338,14 @@ for this_preprocessing_step in ${preprocessing_steps[@]};do
 		this_subject_id=$(echo $Subject_dir | cut -d "/" -f9)
 		echo $this_subject_id
 		
-		mkdir -p TBSS_results/FW
+		# mkdir -p TBSS_results_timeCheck/FW
+		mkdir -p TBSS_results_NoFMcheck/FW
 		cd $study_dir
-	
-		cp ${Subject_dir}/Processed/MRI_files/${dwi_folder_name}/eddycorrected_FAt.nii ${study_dir}/TBSS_results/FW/${this_subject_id}_tensorfit_eddycorrected_driftcorrected_DWI_FA.nii
-		cp ${Subject_dir}/Processed/MRI_files/${dwi_folder_name}/tensorfit_eddycorrected_driftcorrected_DWI_FA.nii ${study_dir}/TBSS_results/${this_subject_id}_tensorfit_eddycorrected_driftcorrected_DWI_FA.nii
+		cp ${Subject_dir}/Processed/MRI_files/${dwi_folder_name}/eddycorrected_FAt.nii ${study_dir}/TBSS_results_NoFMcheck/FW/${this_subject_id}_eddycorrected_FA.nii
+		cp ${Subject_dir}/Processed/MRI_files/${dwi_folder_name}/eddycorrected_FA.nii ${study_dir}/TBSS_results_NoFMcheck/${this_subject_id}_eddycorrected_FA.nii
+		# cp ${Subject_dir}/Processed/MRI_files/${dwi_folder_name}/eddycorrected_FAt.nii ${study_dir}/TBSS_results_timeCheck/FW/${this_subject_id}_eddycorrected_FA.nii
+		# cp ${Subject_dir}/Processed/MRI_files/${dwi_folder_name}/eddycorrected_FA.nii ${study_dir}/TBSS_results_timeCheck/${this_subject_id}_eddycorrected_FA.nii
+		# cp ${Subject_dir}/Processed/MRI_files/${dwi_folder_name}/tensorfit_eddycorrected_driftcorrected_DWI_FA.nii ${study_dir}/TBSS_results_origCheck/${this_subject_id}_tensorfit_eddycorrected_driftcorrected_DWI_FA.nii
 	fi
 
 	# if [[ $this_preprocessing_step == "invert_warps" ]]; then
