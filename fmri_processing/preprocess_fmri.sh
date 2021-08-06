@@ -435,7 +435,6 @@ for this_preprocessing_step in ${preprocessing_steps[@]}; do
 		for this_functional_run_folder in ${data_folder_to_analyze[@]}; do
 			cd ${Subject_dir}/Processed/MRI_files/${this_functional_run_folder}/ANTS_Normalization
 			
-			ml gcc/9.3.0; ml ants
 			if [[ -e warpToT1Params_*.nii ]]; then 
        	        rm warpToT1Params_*.nii
        	        rm warpToT1Params_*.mat
@@ -583,7 +582,6 @@ for this_preprocessing_step in ${preprocessing_steps[@]}; do
 		data_folder_to_analyze=($fmri_processed_folder_names)
 		for this_functional_run_folder in ${data_folder_to_analyze[@]}; do
 			cd ${Subject_dir}/Processed/MRI_files/${this_functional_run_folder}/ANTS_Normalization
-			ml fsl/6.0.1
 			for this_functional_file in smoothed_warpedToMNI_unwarpedRealigned*.nii; do
 				this_core_functional_file_name=$(echo $this_functional_file | cut -d. -f 1)
 				echo checking $this_core_functional_file_name for ${Subject_dir}
