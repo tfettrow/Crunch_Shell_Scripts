@@ -16,7 +16,7 @@ Matlab_dir=$2
 
 export MATLABPATH=${Matlab_dir}/helper
 
-ml matlab/2020a
+ml matlab/2020b
 
 cd ${Subject_dir}/Raw/MRI_files/T1_MPRAGE_SAG_ISO_8MM_0006
 matlab -nodesktop -nosplash -r "try; save_subject_info; catch; end; quit"
