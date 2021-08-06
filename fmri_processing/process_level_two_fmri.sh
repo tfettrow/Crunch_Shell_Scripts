@@ -16,8 +16,8 @@
 #group_name=(youngAdult)
 # group_name=(oldAdult)
 
-fmri_processed_folder_names=('05_MotorImagery')
-#fmri_processed_folder_names=('06_Nback')
+# fmri_processed_folder_names=('05_MotorImagery')
+fmri_processed_folder_names=('06_Nback')
 
 ####### find roi locations ##############################
 #roi_analysis_steps=("level_two_stats_withinGroup")
@@ -70,8 +70,8 @@ for this_roi_analysis_step in "${roi_analysis_steps[@]}"; do
 			# echo $group_name
 			# echo ${subjects[@]}
 			# mkdir -p "${Study_dir}/withinGroup_Results/MRI_files/${this_functional_run_folder}/${group_name}"
-			ml matlab
-   			matlab -nodesktop -nosplash -r "try; level_two_stats_3Fac_swe; catch; end; quit"
+			ml matlab/2020a
+   			matlab -nodesktop -nosplash -r "try; level_two_stats_fmri_3FacSWE; catch; end; quit"
    		done
 
    		
