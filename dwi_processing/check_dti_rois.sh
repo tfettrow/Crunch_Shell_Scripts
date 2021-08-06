@@ -13,7 +13,7 @@
 
 # example >> check_dti_rois.sh '1002,1004,1007,1009,1010,1011,1013,1020,1022,1024,1026,1027,2002,2007,2008,2012,2013,2015,2017,2018,2020,2021,2022,2023,2025,2026,2027,2033,2034,2037,2042,2052,3004,3006,3007,3008,3021,3023' 08_DWI ROI_settings_MiMRedcap_wfuMasked.txt
 # check_dti_rois.sh '1002' 08_DWI ROI_settings_MiMRedcap_wfuMasked.txt
-
+# check_dti_rois.sh '3023,3023_orig,3025,3025_orig,3036,3036_orig' 08_DWI ROI_settings_MiMRedcap_wfuMasked.txt
 
 ##################################################
 
