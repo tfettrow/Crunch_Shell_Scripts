@@ -194,14 +194,15 @@ for this_preprocessing_step in ${preprocessing_steps[@]}; do
 				done
 				previous_encoding_direction=$encoding_direction
 			done
-
+			
+			ml fsl/6.0.1
 			topup --imain=AP_PA_merged.nii --datain=acqParams.txt --fout=my_fieldmap_nifti --config=b02b0.cnf --iout=se_epi_unwarped --out=topup_results
 
 			fslmaths se_epi_unwarped -Tmean my_fieldmap_mag
 
 			ml fsl/5.0.8
 			fslchfiletype ANALYZE my_fieldmap_nifti.nii fpm_my_fieldmap
-			ml fsl/6.0.1
+			
 			gunzip -f *nii.gz
 		done
 		echo This step took $SECONDS seconds to execute
