@@ -33,6 +33,7 @@ done
 	ml fsl/6.0.3
 	
 	cd $Subject_dir
+	pwd
 
 	lines_to_ignore=$(awk '/#/{print NR}' file_settings.txt)
 
@@ -137,14 +138,11 @@ for this_preprocessing_step in ${preprocessing_steps[@]};do
 			rm my_fieldmap_mask.nii
 			rm my_fieldmap_rads.nii
 		fi
-
+		
 		fslroi DistMap_PA DistMap_PA1 0 1
 		fslroi ${Subject_dir}/Processed/MRI_files/${dwi_folder_name}/driftcorrected_DWI.nii DistMap_AP1 0 1
 
 		fslmerge -t AP_PA_merged.nii DistMap_AP1.nii DistMap_PA1.nii
-		gunzip -qf *nii.gz
-		
-		this_file_header_info=$(fslhd AP_PA_merged.nii)
 		
 		gunzip -qf *nii.gz
 
@@ -179,7 +177,7 @@ for this_preprocessing_step in ${preprocessing_steps[@]};do
 		bet se_epi_unwarped_mean se_epi_unwarped_brain -m
 		gunzip -qf *nii.gz
 
-		echo topup finished for $Subject_dir
+		echo "topup finished for $Subject_dir"
    	fi
 
    	if [[ $this_preprocessing_step ==  "eddy_correction" ]]; then
@@ -221,6 +219,9 @@ for this_preprocessing_step in ${preprocessing_steps[@]};do
 		--estimate_move_by_susceptibility \
 		--cnr_maps \
 		--verbose
+		
+		echo "eddy done for $Subject_dir"
+		gunzip -f *nii.gz
 	fi
 
 	if [[ $this_preprocessing_step ==  "eddy_correction_noFM" ]]; then
@@ -297,6 +298,7 @@ for this_preprocessing_step in ${preprocessing_steps[@]};do
 		--output-dir=eddycorrected_driftcorrected_DWI.qc
 		
 		gunzip -f *nii.gz
+		echo "eddy quad done for $Subject_dir"
 	fi
 	
 	if [[ $this_preprocessing_step == "cleanup_dti" ]]; then

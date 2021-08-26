@@ -1,13 +1,14 @@
 #!/bin/bash
-#SBATCH --job-name=batch_fmri		     			# Job name
+#SBATCH --job-name=batch_fmri					# Job name
 #SBATCH --mail-type=END,FAIL          			# Mail events (NONE, BEGIN, END, FAIL, ALL)
-#SBATCH --mail-user=<tfettrow@ufl.edu>  		# Where to send mail	
+#SBATCH --mail-user=<valay.shah@ufl.edu>  		# Where to send mail	
+#SBATCH --cpus-per-task=2
 #SBATCH --ntasks=1                    			# Run a single task
 #SBATCH --mem=8000mb	                   	    # Memory limit
 #SBATCH --qos=rachaelseidler
 #SBATCH --time=96:00:00               			# Time limit hrs:min:sec
-#output=$j.log 	 	  							# Standard output and error log
-#SBATCH --array=0							# array range
+#SBATCH --output=batch_misc.%A_%a.out 	# Standard output and error log
+#SBATCH --array=0				# array range
 pwd; hostname; date
 
 ##### BATCH FILE INFO ######
@@ -22,11 +23,13 @@ pwd; hostname; date
 # subject_array=(1012 1004 1011 1002 1010 1013 2021 2015 2002 2018 2017 2012 2025 2020 2026 2023 2022 2007 2013 2008 2033 2034)
 # subject_array=(1012 1011 1010 1013 2021 2015 2002 2018 2017 2012 2025 2020 2026 2023 2022 2007 2013 2008 2033 2034)
 
-subject_array=(3039)
+subject_array=(2059)
 
-subject=${subject_array[0]}
-#subject=${subject_array[$SLURM_ARRAY_TASK_ID]}
+# subject=${subject_array[0]}
+
+subject=${subject_array[$SLURM_ARRAY_TASK_ID]}
 Subject_dir=/blue/rachaelseidler/share/FromExternal/Research_Projects_UF/CRUNCH/MiM_Data/${subject}
+
 # ######TYLER F Directory
 # cd /blue/rachaelseidler/tfettrow/Crunch_Code
 # Shell_dir=/blue/rachaelseidler/tfettrow/Crunch_Code/Shell_Scripts

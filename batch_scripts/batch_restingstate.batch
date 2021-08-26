@@ -1,12 +1,14 @@
 #!/bin/bash
-#SBATCH --job-name=batch_restingstate     			# Job name
+#SBATCH --job-name=batch_rsfmri					# Job name
 #SBATCH --mail-type=END,FAIL          			# Mail events (NONE, BEGIN, END, FAIL, ALL)
 #SBATCH --mail-user=<valay.shah@ufl.edu>  		# Where to send mail	
-#SBATCH --ntasks=1                   			# Run a single task
+#SBATCH --cpus-per-task=2
+#SBATCH --ntasks=1                    			# Run a single task
 #SBATCH --mem=16000mb	                   	    # Memory limit
 #SBATCH --qos=rachaelseidler
 #SBATCH --time=96:00:00               			# Time limit hrs:min:sec
-#SBATCH --array=0-12								# array range
+#SBATCH --output=batch_rsfmri.%A_%a.out 	# Standard output and error log
+#SBATCH --array=0				# array range
 pwd; hostname; date
 
 ##### BATCH FILE INFO ######
@@ -16,7 +18,7 @@ pwd; hostname; date
 # 4) make sure the directories are set to your repositories
 # 5) uncomment the step you would like to process for each subject specified in subject_array
 #subject_array=(3004 3006 3007)
-subject_array=(3004 3006 3007 3008 3010 3021 3023 3025 3026 3028 3030 3036 3040)
+subject_array=(2059)
 # subject=${subject_array[0]}
 
 
@@ -41,12 +43,12 @@ cd $Shell_dir
 
 ################################ restingstate preprocessing #######################################
 # ./preprocess_restingstate.sh $subject slicetime_restingstate
-./rsfmri_processing/preprocess_restingstate.sh $Matlab_dir $Template_dir $Subject_dir create_fieldmap_restingstate
-# ./rsfmri_processing/preprocess_restingstate.sh $Matlab_dir $Template_dir $Subject_dir slicetime_restingstate create_fieldmap_restingstate realign_unwarp_restingstate art_restingstate
+# ./rsfmri_processing/preprocess_restingstate.sh $Matlab_dir $Template_dir $Subject_dir create_fieldmap_restingstate
+./rsfmri_processing/preprocess_restingstate.sh $Matlab_dir $Template_dir $Subject_dir slicetime_restingstate create_fieldmap_restingstate realign_unwarp_restingstate art_restingstate copy_skullstripped_biascorrected_t1_4_ants
 # ./preprocess_restingstate.sh $subject unwarp_restingstate art_restingstate
 
 #./preprocess_restingstate.sh $subject remove_outlier_volumes
-# ./rsfmri_processing/preprocess_restingstate.sh $Matlab_dir $Template_dir $Subject_dir copy_skullstripped_biascorrected_t1_4_ants n4_bias_correct ants_norm_restingstate smooth_restingstate_ants
+./rsfmri_processing/preprocess_restingstate.sh $Matlab_dir $Template_dir $Subject_dir n4_bias_correct ants_norm_restingstate smooth_restingstate_ants
 # ./rsfmri_processing/preprocess_restingstate.sh $subject ants_norm_restingstate
 # ./rsfmri_processing/preprocess_restingstate.sh $subject smooth_restingstate_ants
 # ./rsfmri_processing/preprocess_restingstate.sh $Matlab_dir $Template_dir $Subject_dir ants_norm_restingstate

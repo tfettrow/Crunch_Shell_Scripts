@@ -2,12 +2,13 @@
 #SBATCH --job-name=batch_ceres					# Job name
 #SBATCH --mail-type=END,FAIL          			# Mail events (NONE, BEGIN, END, FAIL, ALL)
 #SBATCH --mail-user=<valay.shah@ufl.edu>  		# Where to send mail	
+#SBATCH --cpus-per-task=2
 #SBATCH --ntasks=1                    			# Run a single task
 #SBATCH --mem=16000mb	                   	    # Memory limit
 #SBATCH --qos=rachaelseidler
 #SBATCH --time=96:00:00               			# Time limit hrs:min:sec
 #SBATCH --output=batch_ceres.%A_%a.out 	# Standard output and error log
-#SBATCH --array=0-14							# array range
+#SBATCH --array=0						# array range
 pwd; hostname; date
 
 
@@ -18,19 +19,11 @@ pwd; hostname; date
 # 4) make sure the directories are set to your repositories
 # 5) uncomment the step you would like to process for each subject specified in subject_array
 
+subject_array=(2059)
 
-# subject_array=(1007 2015 2025 2020 2007 2013 2033 2034 2037) 
-# subject_array=(3004 3006 3007 3008)
-# subject_array=(2015 2025 2020 2007 2013) 
-# subject_array=(1007 2021 2015 2002 2018 2017 2012 2025 2020 2026 2023 2022 2007 2013 2008 2033 2034 2037 3004 3006 3007 3008)
+subject=${subject_array[$SLURM_ARRAY_TASK_ID]}
 
-# subject_array=(2018 2017 2012 2025 2020 2026 2023 2022 2007 2013 2008 2033) 
-
-subject_array=(3004 3006 3007 3008 3010 3021 3023 3025 3026 3030 3036 3040 3034 3039 3028)
-
-# subject=${subject_array[$SLURM_ARRAY_TASK_ID]}
-
-# Subject_dir=/blue/rachaelseidler/share/FromExternal/Research_Projects_UF/CRUNCH/MiM_Data/${subject}
+Subject_dir=/blue/rachaelseidler/share/FromExternal/Research_Projects_UF/CRUNCH/MiM_Data/${subject}
 ######TYLER F Directory
 # cd /blue/rachaelseidler/tfettrow/Crunch_Code
 # Shell_dir=/blue/rachaelseidler/tfettrow/Crunch_Code/Shell_Scripts
@@ -46,7 +39,7 @@ Template_dir=/blue/rachaelseidler/valay.shah/MR_Templates
 cd $Shell_dir
 
 
-# ./ceres_processing/ceres_processing.sh $Matlab_dir $Template_dir $Subject_dir check_ceres_ants_func
+./ceres_processing/ceres_processing.sh $Matlab_dir $Template_dir $Subject_dir ceres_unzip coreg_func_to_ceresT1 ceres_cb_mask_ants_norm ceres_smooth_ants_norm
 #ceres_cb_mask_ants_norm ceres_smooth_ants_norm
 # ./Shell_Scripts/ceres_processing.sh $subject check_ceres_ants
 
@@ -59,7 +52,7 @@ cd $Shell_dir
 # check_ceres_ants_func
 
 
-for this_subject in "${subject_array[@]}"; do
-    Subject_dir=/blue/rachaelseidler/share/FromExternal/Research_Projects_UF/CRUNCH/MiM_Data/${this_subject}
-    ./ceres_processing/ceres_processing.sh $Matlab_dir $Template_dir $Subject_dir check_ceres_ants_func
-done
+# for this_subject in "${subject_array[@]}"; do
+#     Subject_dir=/blue/rachaelseidler/share/FromExternal/Research_Projects_UF/CRUNCH/MiM_Data/${this_subject}
+#     ./ceres_processing/ceres_processing.sh $Matlab_dir $Template_dir $Subject_dir check_ceres_ants_func
+# done

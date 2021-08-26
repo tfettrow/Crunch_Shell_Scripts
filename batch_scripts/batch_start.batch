@@ -1,13 +1,14 @@
 #!/bin/bash
 #SBATCH --job-name=batch_start					# Job name
 #SBATCH --mail-type=END,FAIL          			# Mail events (NONE, BEGIN, END, FAIL, ALL)
-#SBATCH --mail-user=<valay.shah@ufl.edu>  		# Where to send mail	
+#SBATCH --mail-user=<valay.shah@ufl.edu>  		# Where to send mail
+#SBATCH --cpus-per-task=2	
 #SBATCH --ntasks=1                    			# Run a single task
 #SBATCH --mem=8000mb	                   	    # Memory limit
 #SBATCH --qos=rachaelseidler
 #SBATCH --time=96:00:00               			# Time limit hrs:min:sec
 #SBATCH --output=batch_misc.%A_%a.out 	# Standard output and error log
-#SBATCH --array=0-52						# array range
+#SBATCH --array=0				# array range
 pwd; hostname; date
 
 ##### BATCH FILE INFO ######
@@ -18,8 +19,8 @@ pwd; hostname; date
 # 5) uncomment the step you would like to process for each subject specified in subject_array
 
 
-subject_array=(1002 1004 1007 1009 1010 1011 1013 1017 1018 1019 1020 1022 1024 1025 1026 1027 2002 2007 2008 2012 2013 2015 2017 2018 2020 2021 2022 2023 2025 2026 2033 2034 2037 2038 2039 2042 2052 2027 3004 3006 3007 3008 3010 3021 3023 3024 3025 3026 3028 3029 3030 3036 3039 3040)
-# subject_array=(1002)
+# subject_array=(1002 1004 1007 1009 1010 1011 1013 1017 1018 1019 1020 1022 1024 1025 1026 1027 2002 2007 2008 2012 2013 2015 2017 2018 2020 2021 2022 2023 2025 2026 2033 2034 2037 2038 2039 2042 2052 2027 3004 3006 3007 3008 3010 3021 3023 3024 3025 3026 3028 3029 3030 3036 3039 3040)
+subject_array=(3046)
 # subject_array=(3004 3006 3007 3008 3010 3021 3023 3025 3026 3028 3030 3036 3040)
 subject=${subject_array[$SLURM_ARRAY_TASK_ID]}
 Subject_dir=/blue/rachaelseidler/share/FromExternal/Research_Projects_UF/CRUNCH/MiM_Data/${subject}
@@ -38,9 +39,9 @@ Template_dir=/blue/rachaelseidler/valay.shah/MR_Templates
 
 cd $Shell_dir
 
-# ./file_organization/file_organize.sh $Subject_dir
+./file_organization/file_organize.sh $Subject_dir
 # ./file_organization/save_subject_info.sh $Subject_dir $Matlab_dir
-#./misc/biascorrect_and_skullstrip.sh $Matlab_dir $Template_dir $Subject_dir n4_bias_correction skull_strip_t1_4_ants
+# ./misc/biascorrect_and_skullstrip.sh $Matlab_dir $Template_dir $Subject_dir n4_bias_correction skull_strip_t1_4_ants
 
 ###########################################################################################
 # steps within biascorrect_and_skullstrip.sh
@@ -48,7 +49,7 @@ cd $Shell_dir
 # skull_strip_t1_4_ants
 # check_skullstrip (have to run outside of batch (run for loop below if "batching"))
 
-./file_organization/zip_raw_files.sh $Subject_dir
+# ./file_organization/zip_raw_files.sh $Subject_dir
 
 # ./misc/check_roi_boundaries.sh $subject 04_rsfMRI/ANTS_Normalization smoothed_warpedToMNI_unwarpedRealigned_slicetimed_RestingState.nii ROI_settings_conn_wu120_all_wb_cb.txt
 # ./misc/check_roi_boundaries.sh $subject 04_rsfMRI/ANTS_Normalization smoothed_warpedToSUIT_CBmasked_coregToT1_unwarpedRealigned_slicetimed_RestingState.nii ROI_settings_conn_wu120_all_cb.txt
