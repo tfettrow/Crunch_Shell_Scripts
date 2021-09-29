@@ -26,11 +26,11 @@ convertDICOM(){
 	mkdir -p "${Subject_dir}/Processed/MRI_files/${this_processed_folder_name}"
 
 	cd ${Subject_dir}/Raw/MRI_files/$this_raw_folder_name
-	if [ -e *.nii ]; then 
+	if [[ -e *.nii ]]; then 
 		rm *.nii*
 		rm *.json*
 	fi 
-	if [ -e *.nii.gz ]; then 
+	if [[ -e *.nii.gz ]]; then 
 		rm *.nii.gz*
 	fi
 	dcm2niix -ba n ${Subject_dir}/Raw/MRI_files/$this_raw_folder_name

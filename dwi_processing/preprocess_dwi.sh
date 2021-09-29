@@ -33,6 +33,7 @@ done
 	ml fsl/6.0.3
 	
 	cd $Subject_dir
+	pwd
 
 	lines_to_ignore=$(awk '/#/{print NR}' file_settings.txt)
 
@@ -137,14 +138,11 @@ for this_preprocessing_step in ${preprocessing_steps[@]};do
 			rm my_fieldmap_mask.nii
 			rm my_fieldmap_rads.nii
 		fi
-
+		
 		fslroi DistMap_PA DistMap_PA1 0 1
 		fslroi ${Subject_dir}/Processed/MRI_files/${dwi_folder_name}/driftcorrected_DWI.nii DistMap_AP1 0 1
 
 		fslmerge -t AP_PA_merged.nii DistMap_AP1.nii DistMap_PA1.nii
-		gunzip -qf *nii.gz
-		
-		this_file_header_info=$(fslhd AP_PA_merged.nii)
 		
 		gunzip -qf *nii.gz
 
@@ -179,7 +177,7 @@ for this_preprocessing_step in ${preprocessing_steps[@]};do
 		bet se_epi_unwarped_mean se_epi_unwarped_brain -m
 		gunzip -qf *nii.gz
 
-		echo topup finished for $Subject_dir
+		echo "topup finished for $Subject_dir"
    	fi
 
    	if [[ $this_preprocessing_step ==  "eddy_correction" ]]; then
@@ -221,6 +219,9 @@ for this_preprocessing_step in ${preprocessing_steps[@]};do
 		--estimate_move_by_susceptibility \
 		--cnr_maps \
 		--verbose
+		
+		echo "eddy done for $Subject_dir"
+		gunzip -f *nii.gz
 	fi
 
 	if [[ $this_preprocessing_step ==  "eddy_correction_noFM" ]]; then
@@ -291,12 +292,13 @@ for this_preprocessing_step in ${preprocessing_steps[@]};do
 		eddy_quad ${Subject_dir}/Processed/MRI_files/${dwi_folder_name}/eddycorrected_driftcorrected_DWI \
 		--eddyIdx index.txt \
 		--eddyParams acqParams.txt \
-		--mask se_epi_unwarped_brain_mask \
+		--mask ${Subject_dir}/Processed/MRI_files/03_Fieldmaps/Fieldmap_dti/se_epi_unwarped_brain_mask \
 		--bvals DWI.bval \
 		--bvecs eddycorrected_driftcorrected_DWI.eddy_rotated_bvecs \
 		--output-dir=eddycorrected_driftcorrected_DWI.qc
 		
 		gunzip -f *nii.gz
+		echo "eddy quad done for $Subject_dir"
 	fi
 	
 	if [[ $this_preprocessing_step == "cleanup_dti" ]]; then
@@ -331,18 +333,25 @@ for this_preprocessing_step in ${preprocessing_steps[@]};do
 
 	if [[ $this_preprocessing_step == "copy_fa_for_tbss" ]]; then
 		dwi_folder_name=($dwi_processed_folder_name)
-		cd ${Subject_dir}
-		cd ../
-		study_dir=$(pwd)
-		echo $study_dir
-		this_subject_id=$(echo $Subject_dir | cut -d "/" -f9)
-		echo $this_subject_id
+		cd ${Subject_dir}/Processed/MRI_files/${dwi_folder_name}
+		subjectid=$(echo ${Subject_dir} | egrep -o '[[:digit:]]{4}' | head -n1)
+		if [[ -e eddycorrected_FA.nii ]]; then
+			cp eddycorrected_FA.nii /blue/rachaelseidler/share/FromExternal/Research_Projects_UF/CRUNCH/MiM_Data/TBSS_accel/${subjectid}_eddycorrected_FA.nii
+		else
+			echo "fa doesnt exist"
+		fi
+
+		# cd ../
+		# study_dir=$(pwd)
+		# echo $study_dir
+		# this_subject_id=$(echo $Subject_dir | cut -d "/" -f9)
+		# echo $this_subject_id
 		
-		# mkdir -p TBSS_results_timeCheck/FW
-		mkdir -p TBSS_results_NoFMcheck/FW
-		cd $study_dir
-		cp ${Subject_dir}/Processed/MRI_files/${dwi_folder_name}/eddycorrected_FAt.nii ${study_dir}/TBSS_results_NoFMcheck/FW/${this_subject_id}_eddycorrected_FA.nii
-		cp ${Subject_dir}/Processed/MRI_files/${dwi_folder_name}/eddycorrected_FA.nii ${study_dir}/TBSS_results_NoFMcheck/${this_subject_id}_eddycorrected_FA.nii
+		# # mkdir -p TBSS_results_timeCheck/FW
+		# #mkdir -p TBSS_results_NoFMcheck/FW
+		# cd $study_dir
+		# cp ${Subject_dir}/Processed/MRI_files/${dwi_folder_name}/eddycorrected_FAt.nii ${study_dir}/TBSS_results_NoFMcheck/FW/${this_subject_id}_eddycorrected_FA.nii
+		# cp ${Subject_dir}/Processed/MRI_files/${dwi_folder_name}/eddycorrected_FA.nii ${study_dir}/TBSS_results_NoFMcheck/${this_subject_id}_eddycorrected_FA.nii
 		# cp ${Subject_dir}/Processed/MRI_files/${dwi_folder_name}/eddycorrected_FAt.nii ${study_dir}/TBSS_results_timeCheck/FW/${this_subject_id}_eddycorrected_FA.nii
 		# cp ${Subject_dir}/Processed/MRI_files/${dwi_folder_name}/eddycorrected_FA.nii ${study_dir}/TBSS_results_timeCheck/${this_subject_id}_eddycorrected_FA.nii
 		# cp ${Subject_dir}/Processed/MRI_files/${dwi_folder_name}/tensorfit_eddycorrected_driftcorrected_DWI_FA.nii ${study_dir}/TBSS_results_origCheck/${this_subject_id}_tensorfit_eddycorrected_driftcorrected_DWI_FA.nii
