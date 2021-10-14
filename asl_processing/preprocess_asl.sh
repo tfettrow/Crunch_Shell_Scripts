@@ -103,6 +103,31 @@ for this_preprocessing_step in ${preprocessing_steps[@]}; do
 		done
 	fi
 
+	if [[ $this_preprocessing_step == "basil_cbf" ]]; then
+		asl_folder=($asl_processed_folder_names)
+		this_t1_folder=($t1_processed_folder_names)
+
+		cp ${Subject_dir}/Processed/MRI_files/${this_t1_folder}/SkullStripped_biascorrected_T1.nii ${Subject_dir}/Processed/MRI_files/${asl_folder}
+		cd ${Subject_dir}/Processed/MRI_files/${asl_folder}/
+		rm -r BasilCMD_calib
+		# asl_file performs the subtraction then oxford_asl performs registration (to structural space) and calibration
+		# # for this_asl_folder in ${asl_folders[@]}; do
+		# asl_file --data=noM0_realigned_ASL_Run1.nii --ntis=1 --iaf=tc --diff --out=diffdata --mean=diffdata_mean
+		
+		# oxford_asl -i diffdata -o BasilCMD_calib --tis 1.8 --bolus .7 --casl -c M0_calibration.nii -s SkullStripped_biascorrected_T1.nii
+		oxford_asl -i noM0_realigned_ASL_Run1.nii --iaf tc --ibf rpt --casl --bolus 0.7 --rpts 92 --slicedt 0.00625 --tis 2.5 -s SkullStripped_biascorrected_T1.nii -c noM0_realigned_ASL_Run1.nii --cmethod single --tr 6 --cgain 1 --tissref csf --t1csf 4.3 --t2csf 750 --t2bl 150 --te 0 -o BasilCMD_calib --bat 1.3 --t1 1.3 --t1b 1.65 --alpha 0.85 --spatial --fixbolus --artoff
+
+		# cd ${Subject_dir}/Processed/MRI_files/${asl_folder}/BasilCMD_calib
+		# cp ${Subject_dir}/Processed/MRI_files/${asl_folder}/BasilCMD_calib/native_space/asl2struct.mat ${Subject_dir}/Processed/MRI_files/${asl_folder}
+		# asl_calib -c M0_calibration.nii -s SkullStripped_biascorrected_T1.nii -t native_space/asl2struct.mat
+		# gunzip -f *nii.gz
+
+		# oxford_asl -i diffdata -o ex1_3 --tis 2.9 --bolus 1.4 --casl -c calib --cref calib_body -s struct_brain
+		# perfusion.nii.gz The estimated CBF image in the same (arbitrary) units as the original data
+		# arrival.nii.gz The estimated bolus arrival time image (in seconds).
+
+	fi
+
 	if [[ $this_preprocessing_step == "copy_skullstripped_biascorrected_t1_4_ants" ]]; then
 		this_t1_folder=($t1_processed_folder_names)
 		data_folder_to_analyze=($asl_processed_folder_names)
@@ -116,14 +141,18 @@ for this_preprocessing_step in ${preprocessing_steps[@]}; do
 		data_folder_to_analyze=($asl_processed_folder_names)
 		for this_asl_folder in ${data_folder_to_analyze[@]}; do
 			cd ${Subject_dir}/Processed/MRI_files/${this_asl_folder}/ANTS_Normalization
-			cp ${Subject_dir}/Processed/MRI_files/${this_asl_folder}/noM0_realigned_ASL_Run1.nii ${Subject_dir}/Processed/MRI_files/${this_asl_folder}/ANTS_Normalization
+			# cp ${Subject_dir}/Processed/MRI_files/${this_asl_folder}/noM0_realigned_ASL_Run1.nii ${Subject_dir}/Processed/MRI_files/${this_asl_folder}/ANTS_Normalization
 			cp ${Subject_dir}/Processed/MRI_files/${this_asl_folder}/meanASL_Run1.nii ${Subject_dir}/Processed/MRI_files/${this_asl_folder}/ANTS_Normalization
-			cp ${Subject_dir}/Processed/MRI_files/${this_asl_folder}/M0_calibration.nii ${Subject_dir}/Processed/MRI_files/${this_asl_folder}/ANTS_Normalization
+			# cp ${Subject_dir}/Processed/MRI_files/${this_asl_folder}/M0_calibration.nii ${Subject_dir}/Processed/MRI_files/${this_asl_folder}/ANTS_Normalization
+			# cp ${Subject_dir}/Processed/MRI_files/${this_asl_folder}/M0_calibration.nii ${Subject_dir}/Processed/MRI_files/${this_asl_folder}/ANTS_Normalization
+   #          cp ${Subject_dir}/Processed/MRI_files/${this_asl_folder}/BasilCMD/native_space/perfusion* ${Subject_dir}/Processed/MRI_files/${this_asl_folder}/ANTS_Normalization
+   #          cp ${Subject_dir}/Processed/MRI_files/${this_asl_folder}/BasilCMD/native_space/arrival* ${Subject_dir}/Processed/MRI_files/${this_asl_folder}/ANTS_Normalization
             cp ${Template_dir}/MNI_2mm.nii ${Subject_dir}/Processed/MRI_files/${this_asl_folder}/ANTS_Normalization
+            cp ${Template_dir}/MNI_2mm.nii ${Subject_dir}/Processed/MRI_files/${this_asl_folder}/BasilCMD_calib/native_space/
+            cp ${Template_dir}/MNI_2mm.nii ${Subject_dir}/Processed/MRI_files/${this_asl_folder}/BasilGUI_calib/native_space/
 
 			T1_Template=SkullStripped_biascorrected_T1.nii
 			Mean_ASL=meanASL_Run1.nii
-
 			this_core_file_name=$(echo $Mean_ASL | cut -d. -f 1)
 			echo 'registering' $Mean_ASL 'to' $T1_Template
 			# moving low res func to high res T1
@@ -143,13 +172,16 @@ for this_preprocessing_step in ${preprocessing_steps[@]}; do
 			antsApplyTransforms -d 3 -e 3 -i ${this_core_file_name}.nii -r SkullStripped_biascorrected_T1.nii \
 				-n BSpline -o warpedToT1_${this_core_file_name}.nii -t [warpToT1Params_${this_core_file_name}0GenericAffine.mat,0] -v 
 
+			cp ${Subject_dir}/Processed/MRI_files/${this_asl_folder}/ANTS_Normalization/warpToT1Params_meanASL_Run10GenericAffine.mat ${Subject_dir}/Processed/MRI_files/${this_asl_folder}/BasilCMD_calib/native_space/
+
 			outputFolder=${Subject_dir}/Processed/MRI_files/${this_asl_folder}/ANTS_Normalization
 			T1_Template=${Subject_dir}/Processed/MRI_files/${this_asl_folder}/ANTS_Normalization/SkullStripped_biascorrected_T1.nii
 			MNI_Template=${Template_dir}/MNI_1mm.nii
-			this_core_file_name=SkullStripped_biascorrected_T1
+			this_file_to_warp=noM0_realigned_ASL_Run1.nii
+			this_T1_core_file_name=SkullStripped_biascorrected_T1
 			echo 'registering' $T1_Template 'to' $MNI_Template
 			antsRegistration --dimensionality 3 --float 0 \
-			    --output [$outputFolder/warpToMNIParams_${this_core_file_name},$outputFolder/warpToMNIEstimate_${this_core_file_name}.nii] \
+			    --output [$outputFolder/warpToMNIParams_${this_T1_core_file_name},$outputFolder/warpToMNIEstimate_${this_T1_core_file_name}.nii] \
 			    --interpolation Linear \
 			    --winsorize-image-intensities [0.01,0.99] \
 			    --use-histogram-matching 1 \
@@ -172,20 +204,61 @@ for this_preprocessing_step in ${preprocessing_steps[@]}; do
 
 			gunzip -f *nii.gz
 
-			antsApplyTransforms -d 3 -e 3 -i ${this_core_file_name}.nii -r MNI_2mm.nii \
-				-n BSpline -o warpedToMNI_${this_core_file_name}.nii -t [warpToMNIParams_${this_core_file_name}1Warp.nii] -t [warpToMNIParams_${this_core_file_name}0GenericAffine.mat,0] -v
-		
-			this_file_to_warp=noM0_realigned_ASL_Run1.nii
+
+			cp ${Subject_dir}/Processed/MRI_files/${this_asl_folder}/ANTS_Normalization/warpToMNIParams_* ${Subject_dir}/Processed/MRI_files/${this_asl_folder}/BasilCMD_calib/native_space/
+
+			cd ${Subject_dir}/Processed/MRI_files/${this_asl_folder}/BasilCMD_calib/native_space/
+			gunzip -f *nii.gz
 			
-			this_T1_core_file_name=SkullStripped_biascorrected_T1
-		
-			antsApplyTransforms -d 3 -e 3 -i $this_file_to_warp -r MNI_2mm.nii \
-			-o warpedToMNI_$this_file_to_warp -t [warpToT1Params_meanASL_Run10GenericAffine.mat,0] \
+			antsApplyTransforms -d 3 -e 3 -i arrival.nii -r MNI_2mm.nii \
+			-o warpedToMNI_arrival.nii -t [warpToT1Params_meanASL_Run10GenericAffine.mat,0] \
 			-t [warpToMNIParams_${this_T1_core_file_name}1Warp.nii] -t [warpToMNIParams_${this_T1_core_file_name}0GenericAffine.mat,0] -v
 
-			antsApplyTransforms -d 3 -e 3 -i M0_calibration.nii -r MNI_2mm.nii \
-			-o warpedToMNI_M0_calibration.nii -t [warpToT1Params_meanASL_Run10GenericAffine.mat,0] \
+			antsApplyTransforms -d 3 -e 3 -i arrival_var.nii -r MNI_2mm.nii \
+			-o warpedToMNI_arrival_vary.nii -t [warpToT1Params_meanASL_Run10GenericAffine.mat,0] \
 			-t [warpToMNIParams_${this_T1_core_file_name}1Warp.nii] -t [warpToMNIParams_${this_T1_core_file_name}0GenericAffine.mat,0] -v
+
+			antsApplyTransforms -d 3 -e 3 -i perfusion.nii -r MNI_2mm.nii \
+			-o warpedToMNI_perfusion.nii -t [warpToT1Params_meanASL_Run10GenericAffine.mat,0] \
+			-t [warpToMNIParams_${this_T1_core_file_name}1Warp.nii] -t [warpToMNIParams_${this_T1_core_file_name}0GenericAffine.mat,0] -v
+
+			antsApplyTransforms -d 3 -e 3 -i perfusion_var.nii -r MNI_2mm.nii \
+			-o warpedToMNI_perfusion_var.nii -t [warpToT1Params_meanASL_Run10GenericAffine.mat,0] \
+			-t [warpToMNIParams_${this_T1_core_file_name}1Warp.nii] -t [warpToMNIParams_${this_T1_core_file_name}0GenericAffine.mat,0] -v
+
+			antsApplyTransforms -d 3 -e 3 -i perfusion_var_calib.nii -r MNI_2mm.nii \
+			-o warpedToMNI_perfusion_var_calib.nii -t [warpToT1Params_meanASL_Run10GenericAffine.mat,0] \
+			-t [warpToMNIParams_${this_T1_core_file_name}1Warp.nii] -t [warpToMNIParams_${this_T1_core_file_name}0GenericAffine.mat,0] -v
+
+			antsApplyTransforms -d 3 -e 3 -i perfusion_calib.nii -r MNI_2mm.nii \
+			-o warpedToMNI_perfusion_calib.nii -t [warpToT1Params_meanASL_Run10GenericAffine.mat,0] \
+			-t [warpToMNIParams_${this_T1_core_file_name}1Warp.nii] -t [warpToMNIParams_${this_T1_core_file_name}0GenericAffine.mat,0] -v
+			
+			gunzip -f *nii.gz
+
+
+			cp ${Subject_dir}/Processed/MRI_files/${this_asl_folder}/ANTS_Normalization/warpToMNIParams_* ${Subject_dir}/Processed/MRI_files/${this_asl_folder}/BasilGUI_calib/native_space/
+
+			cd ${Subject_dir}/Processed/MRI_files/${this_asl_folder}/BasilGUI_calib/native_space/
+
+			gunzip -f *nii.gz
+			antsApplyTransforms -d 3 -e 3 -i arrival.nii -r MNI_2mm.nii \
+			-o warpedToMNI_arrival.nii -t [warpToMNIParams_${this_T1_core_file_name}1Warp.nii] -t [warpToMNIParams_${this_T1_core_file_name}0GenericAffine.mat,0] -v
+
+			antsApplyTransforms -d 3 -e 3 -i arrival_var.nii -r MNI_2mm.nii \
+			-o warpedToMNI_arrival_vary.nii -t [warpToMNIParams_${this_T1_core_file_name}1Warp.nii] -t [warpToMNIParams_${this_T1_core_file_name}0GenericAffine.mat,0] -v
+
+			antsApplyTransforms -d 3 -e 3 -i perfusion.nii -r MNI_2mm.nii \
+			-o warpedToMNI_perfusion.nii -t [warpToMNIParams_${this_T1_core_file_name}1Warp.nii] -t [warpToMNIParams_${this_T1_core_file_name}0GenericAffine.mat,0] -v
+
+			antsApplyTransforms -d 3 -e 3 -i perfusion_var.nii -r MNI_2mm.nii \
+			-o warpedToMNI_perfusion_var.nii -t [warpToMNIParams_${this_T1_core_file_name}1Warp.nii] -t [warpToMNIParams_${this_T1_core_file_name}0GenericAffine.mat,0] -v
+
+			antsApplyTransforms -d 3 -e 3 -i perfusion_var_calib.nii -r MNI_2mm.nii \
+			-o warpedToMNI_perfusion_var_calib.nii -t [warpToMNIParams_${this_T1_core_file_name}1Warp.nii] -t [warpToMNIParams_${this_T1_core_file_name}0GenericAffine.mat,0] -v
+
+			antsApplyTransforms -d 3 -e 3 -i perfusion_calib.nii -r MNI_2mm.nii \
+			-o warpedToMNI_perfusion_calib.nii -t [warpToMNIParams_${this_T1_core_file_name}1Warp.nii] -t [warpToMNIParams_${this_T1_core_file_name}0GenericAffine.mat,0] -v
 			
 			gunzip -f *nii.gz
 
