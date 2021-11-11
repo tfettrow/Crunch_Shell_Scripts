@@ -48,6 +48,8 @@ data_folder_to_analyze=($fmri_processed_folder_names)
 
 for this_functional_run_folder in ${data_folder_to_analyze[@]}; do
 	cd ${Subject_dir}/Processed/MRI_files/${this_functional_run_folder}
+	chmod g-s *.nii.gz
+	chmod g-s *.nii
 	GLOBIGNORE=*.json:rp_*:art_*:*.jpeg:unwarpedRealigned*:*biascorrected_T1.nii:meanunwarpedRealigned_*:RestingState*
 	rm -v *
 	unset GLOBIGNORE
@@ -55,6 +57,8 @@ for this_functional_run_folder in ${data_folder_to_analyze[@]}; do
 	
 ################################################################
 	cd ${Subject_dir}/Processed/MRI_files/${this_functional_run_folder}/ANTS_Normalization
+	chmod g-s *.nii.gz
+	chmod g-s *.nii
 	GLOBIGNORE=*.json:rp_*:art_*:*.jpeg:unwarpedRealigned*:*biascorrected_T1.nii:meanunwarpedRealigned_*:RestingState*:ewarpedToMNI*:warpedToMNI_*:warpToMNIParams*:warpToT1Params_*:smoothed_warpedToMNI_*:warpedToSUIT_*:smoothed_warpedToSUIT_*:warpToSUITParams*:SUIT_Nobrainstem_1mm.nii:SUIT_Nobrainstem_2mm.nii:CBmasked_coregToT1*:coregToT1_*:
 	rm -v *
 	unset GLOBIGNORE

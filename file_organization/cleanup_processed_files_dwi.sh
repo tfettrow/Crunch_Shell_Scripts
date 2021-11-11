@@ -48,6 +48,8 @@ data_folder_to_analyze=($dwi_processed_folder_name)
 #cd $Subject_dir/Processed/MRI_files
 
 cd ${Subject_dir}/Processed/MRI_files/${data_folder_to_analyze}
+chmod g-s *.nii.gz
+chmod g-s *.nii
 GLOBIGNORE=*.json:*.bval:driftcorrected_DWI.png:*.bvec:DWI.nii:eddycorrected_driftcorrected_DWI*:acqParams.txt:index.txt:SkullStripped_biascorrected_T1.nii:c2biascorrected_T1.nii:eddycorrected_*
 rm -v *
 unset GLOBIGNORE
