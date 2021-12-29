@@ -202,7 +202,6 @@ for this_preprocessing_step in ${preprocessing_steps[@]}; do
    			if [[ $subject_level == 3 ]]; then
 			   
    				cd ${Subject_dir}/Processed/MRI_files/03_Fieldmaps
-				# just cleaning up in case this is being rerun
 				if [[ -d Fieldmap_imagery ]]; then
 				cd Fieldmap_imagery
 				
@@ -288,7 +287,7 @@ for this_preprocessing_step in ${preprocessing_steps[@]}; do
 					ml fsl/6.0.1
 		
 					topup --imain=AP_PA_merged.nii --datain=acqParams.txt --fout=my_fieldmap_nifti --config=b02b0.cnf --iout=se_epi_unwarped --out=topup_results
-		
+
 					fslmaths se_epi_unwarped -Tmean my_fieldmap_mag
 		
 					ml fsl/5.0.8
