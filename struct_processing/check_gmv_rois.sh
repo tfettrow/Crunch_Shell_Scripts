@@ -12,7 +12,7 @@
 # this script requires arguments 
 
 # example >> check_gmv_rois.sh '1002,1004,1007,1009,1010,1011,1013,1020,1022,1024,1026,1027,2002,2007,2008,2012,2013,2015,2017,2018,2020,2021,2022,2023,2025,2026,2027,2033,2034,2037,2042,2052,3004,3006,3007,3008,3021,3023' 02_T1 ROI_settings_MiMRedcap_wfuMasked_CAT12.txt
-check_gmv_rois.sh '1002' 02_T1 ROI_settings_MiMRedcap_wfuMasked_CAT12.txt
+# check_gmv_rois.sh '3028' 02_T1 ROI_settings_MiMRedcap_wfuMasked_CAT12.txt
 # FYI>> This is setup to deal with CAT12 output atm
 
 

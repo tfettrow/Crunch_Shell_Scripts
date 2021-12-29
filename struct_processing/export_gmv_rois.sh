@@ -11,8 +11,10 @@
 
 # this script requires arguments 
 
-# example >> export_gmv_rois.sh '1002,1004,1007,1009,1010,1011,1012,1013,1017,1018,1019,1020,1022,1024,1025,1026,1027,2002,2007,2008,2012,2013,2015,2017,2018,2020,2021,2022,2023,2025,2026,2027,2033,2034,2037,2038,2039,2042,2052,3024,3029,3004,3006,3007,3008,3010,3021,3023,3025,3026,3027,3030,3036' 02_T1 ROI_settings_MiMRedcap_wfuMasked_CAT12.txt
+# example >> export_gmv_rois.sh '2059,3028,3029,3030,3034,3036,3039,3040,3042,3043,3046,3047,3051,3053,3058,3059,3063,3066,3068' 02_T1 ROI_settings_MiMRedcap_wfuMasked_CAT12.txt
 # export_gmv_rois.sh '1002' 02_T1 ROI_settings_MiMRedcap_wfuMasked_CAT12.txt
+# export_gmv_rois.sh '1002,1004,1007,1009,1010,1012,1013,1018,1019,1020,1022,1025,1026,1027,2002,2007,2008,2012,2013,2015,2017,2018,2020,2021,2022,2023,2025,2026,2033,2034,2037,2038,2039,2042,2052,2059,2027,3004,3006,3007,3008,3010,3021,3023,3024,3025,3026,3028,3029,3030,3034,3036,3039,3040,3042,3043,3046,3047,3051,3053,3058,3059,3063,3066,3068' 02_T1 ROI_settings_MiMRedcap_wfuMasked_CAT12.txt
+# export_gmv_rois.sh '3028' 02_T1 ROI_settings_MiMRedcap_wfuMasked_CAT12.txt
 # FYI>> This is setup to deal with CAT12 output atm
 
 
@@ -113,12 +115,12 @@ while IFS=',' read -ra subject_list; do
 				# 1) mkdir 02_T1/ANTS_Normalization
 				# 2) cp 04_rsfMRI/ANTS_Normalization/warpToMNIParams_biascorrected_SkullStripped_T11InverseWarp.nii and warpToMNIParams_biascorrected_SkullStripped_T10GenericAffine.mat
 				mkdir ${Study_dir}/$this_subject/Processed/MRI_files/${this_struct_folder_name}/ANTS_Normalization
-				cp ${Study_dir}/$this_subject/Processed/MRI_files/04_rsfMRI/ANTS_Normalization/warpToMNIParams_SkullStripped_biascorrected_T11InverseWarp.nii ${Study_dir}/$this_subject/Processed/MRI_files/${this_struct_folder_name}/ANTS_Normalization/
+				cp ${Study_dir}/$this_subject/Processed/MRI_files/04_rsfMRI/ANTS_Normalization/warpToMNIParams_SkullStripped_biascorrected_T11InverseWarp.nii.gz ${Study_dir}/$this_subject/Processed/MRI_files/${this_struct_folder_name}/ANTS_Normalization/
 				cp ${Study_dir}/$this_subject/Processed/MRI_files/04_rsfMRI/ANTS_Normalization/warpToMNIParams_SkullStripped_biascorrected_T10GenericAffine.mat  ${Study_dir}/$this_subject/Processed/MRI_files/${this_struct_folder_name}/ANTS_Normalization/
 
 				antsApplyTransforms -d 3 -e 3 -i $this_roi_image_name -r p1T1.nii \
 				-o warpedToP1_${this_roi_file_corename_squeeze}.nii -t [${Study_dir}/$this_subject/Processed/MRI_files/${this_struct_folder_name}/ANTS_Normalization/warpToMNIParams_SkullStripped_biascorrected_T10GenericAffine.mat,1]  \
-				-t [${Study_dir}/$this_subject/Processed/MRI_files/${this_struct_folder_name}/ANTS_Normalization/warpToMNIParams_SkullStripped_biascorrected_T11InverseWarp.nii] -v
+				-t [${Study_dir}/$this_subject/Processed/MRI_files/${this_struct_folder_name}/ANTS_Normalization/warpToMNIParams_SkullStripped_biascorrected_T11InverseWarp.nii.gz] -v
 
 
 				var1="record_id, redcap_event_name"
