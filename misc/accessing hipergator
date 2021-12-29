@@ -1,0 +1,113 @@
+accessing hipergator
+
+# ssh tfettrow@hpg.rc.ufl.edu
+
+# windows path: 
+
+\\exasmb.rc.ufl.edu\blue\rachaelseidler\tfettrow\Crunch_Code
+\\exasmb.rc.ufl.edu\blue\rachaelseidler\share\FromExternal\Research_Projects_UF\CRUNCH\
+
+smb://exasmb.rc.ufl.edu/blue/rachaelseidler/
+
+# HG path:
+blue/rachaelseidler/tfettrow/Crunch_Code
+blue/rachaelseidler/share/FromExternal/Research_Projects_UF/CRUNCH/
+
+Pilot_Study_Data/CrunchPilot02/Processed/MRI_files/03_Fieldmaps
+
+ufrc/rachaelseidler/share/FromExternal/Research_Projects_UF/CRUNCH/Pilot_Study_Data/CrunchPilot01
+
+ufrc/rachaelseidler/share/FromExternal/Research_Projects_UF/CRUNCH/Pilot_Study_Data/CrunchPilot01/Processed
+
+https://docs.google.com/spreadsheets/d/1N91wLzhBKvf_yJ2SKd5rK1QE7-1eJNkBSCvH1xz8oZg/edit?usp=sharing
+
+lfs quota -g rachaelseidler /ufrc
+blue_quota
+squeue -A rachaelseidler
+showQos rachaelseidler
+slurmInfo rachaelseidler
+# makings of zip func
+zip -r ../MRI_files.zip *
+rm -r !(T1_MPRAGE_SAG_ISO_8MM_0006)
+
+# TF HHP
+44ede490-fae9-46b3-99b5-e0e70e8fa019
+
+# TF HHP GDRIVE
+70e22a8b-63cc-4d6a-97fd-de112c31dfea
+
+flirt -in ANTs_c0Template_T1_IXI555_MNI152_GS_brain.nii -ref ANTs_c0Template_T1_IXI555_MNI152_GS_brain.nii -out MNI_2mm -applyxfm
+fslmaths 'image_1.nii.gz' -mas 'mask.nii.gz' 'output_image.nii.gz'
+fslmaths LThal_mask_func -bin LThal_mask_func_bin
+flirt -in small_image -ref small_image -out small_1mm -applyisoxfm 1
+
+flirt -in mask.nii.gz -ref stats.nii.gz -out mask_RS.nii.gz -applyxfm
+/apps/fsl/6.0.3/data/standard/MNI152_T1_1mm.nii.gz
+
+path(pathdef)
+
+./Shell_Scripts/estimate_betas_by_condition.sh '1002,1004,1010,1011,1013' youngAdult 05_MotorImagery ROI_settings_motorimagerySWE.txt
+
+./Shell_Scripts/estimate_betas_by_condition.sh '1002,1004,1010,1011,1013' youngAdult 05_MotorImagery ROI_settings_motorimagerySWE.txt
+
+FACL
+chmod g+rwxs /blue/dferris/share/MindInMotion -R
+chmod u+rwxs /blue/dferris/share/MindInMotion -R
+chmod o+rwxs /blue/dferris/share/MindInMotion -R
+setfacl -m u:username:permissions filename
+getfacl filename
+chmod -R 777
+
+#################################################
+# Windows:
+# Open  File Explorer and enter the address below:
+# Host: \\ICT-BA1-FS01.AD.UFL.EDU\AMRIS-AMRIS3TS$
+# Login: UFAD\gatorlink
+# Password: Your GatorLink/ID password
+ 
+# You can also map the drive to your File Explorer
+# 1.	Open Windows File Explorer
+# 2.	Right Click on This PC
+# 3.	Select Map Network Drive
+# 4.	Select Drive
+# 5.	In Folder enter the address: \\ICT-BA1-FS01.AD.UFL.EDU\AMRIS-AMRIS3TS$
+# 6.	Follow the onscreen instructions.    Login: UFAD/gatorlink (you may or may not need to use the “UFAD/”) and then access your specific folder
+
+
+# for transfering from my folder to CRUNCH folder on HG
+# scp -r SEIDLER_U01_20201208_085103_943000/* //blue/rachaelseidler/share/FromExternal/Research_Projects_UF/CRUNCH/MiM_Data/1022/Raw/MRI_files
+
+# need to create a script for DV FWF data
+#1) gather FWF folders into its own folder
+#2) scp folder/fileyouaresending mcuser@10.227.178.193:/home/mcuser/Desktop this is where it is now ... mcuser@10.227.178.193:/home/mcuser/Desktop/Tyler
+# image502L1 is password
+# scp -r folder commandmmcuserabove
+
+# In putty on local windows machine ...
+#1) pscp -P 22 tfettrow@sftp.rc.ufl.edu:/home/tfettrow/test.txt C:/Users/tfettrow/Desktop
+
+# 'wu120_001,wu120_002,wu120_003,wu120_004,wu120_005,wu120_006,wu120_007,wu120_008,wu120_009,wu120_010,wu120_011,wu120_012,wu120_013,wu120_014,wu120_015,wu120_016,wu120_017,wu120_018,wu120_019,wu120_020,wu120_021,wu120_022,wu120_023,wu120_024,wu120_025,wu120_026,wu120_027,wu120_028,wu120_029,wu120_030,wu120_031,wu120_032,wu120_033,wu120_034,wu120_035,wu120_036,wu120_037,wu120_038,wu120_039,wu120_040,wu120_041,wu120_042,wu120_043,wu120_044,wu120_045,wu120_046,wu120_047,wu120_048,wu120_049,wu120_050,wu120_051,wu120_052,wu120_053,wu120_054,wu120_055,wu120_056,wu120_057,wu120_058,wu120_059,wu120_060,wu120_061,wu120_062,wu120_063,wu120_064,wu120_065,wu120_066,wu120_067,wu120_068,wu120_069,wu120_070,wu120_071,wu120_072,wu120_073,wu120_074,wu120_075,wu120_076,wu120_077,wu120_078,wu120_079,wu120_080' 'wu120_081,wu120_082,wu120_083,wu120_084,wu120_085,wu120_086,wu120_087,wu120_088,wu120_089,wu120_090,wu120_091,wu120_092,wu120_093,wu120_094,wu120_095,wu120_096,wu120_097,wu120_098,wu120_099,wu120_100,wu120_101,wu120_102,wu120_103,wu120_104,wu120_105,wu120_106,wu120_107,wu120_108,wu120_109,wu120_110,wu120_111,wu120_112,wu120_113,wu120_114,wu120_115,wu120_116,wu120_117,wu120_118,wu120_119,wu120_120'
+# 'wu120_001' 'wu120_002' 'wu120_003' 'wu120_004' 'wu120_005' 'wu120_006' 'wu120_007' 'wu120_008' 'wu120_009' 'wu120_010' 'wu120_011' 'wu120_012' 'wu120_013' 'wu120_014' 'wu120_015' 'wu120_016' 'wu120_017' 'wu120_018' 'wu120_019' 'wu120_020' 'wu120_021' 'wu120_022' 'wu120_023' 'wu120_024' 'wu120_025' 'wu120_026' 'wu120_027' 'wu120_028' 'wu120_029' 'wu120_030' 'wu120_031' 'wu120_032' 'wu120_033' 'wu120_034' 'wu120_035' 'wu120_036' 'wu120_037' 'wu120_038' 'wu120_039' 'wu120_040' 'wu120_041' 'wu120_042' 'wu120_043' 'wu120_044' 'wu120_045' 'wu120_046' 'wu120_047' 'wu120_048' 'wu120_049' 'wu120_050' 'wu120_051' 'wu120_052' 'wu120_053' 'wu120_054' 'wu120_055' 'wu120_056' 'wu120_057' 'wu120_058' 'wu120_059' 'wu120_060' 'wu120_061' 'wu120_062' 'wu120_063' 'wu120_064' 'wu120_065' 'wu120_066' 'wu120_067' 'wu120_068' 'wu120_069' 'wu120_070' 'wu120_071' 'wu120_072' 'wu120_073' 'wu120_074' 'wu120_075' 'wu120_076' 'wu120_077' 'wu120_078' 'wu120_079' 'wu120_080' 'wu120_081' 'wu120_082' 'wu120_083' 'wu120_084' 'wu120_085' 'wu120_086' 'wu120_087' 'wu120_088' 'wu120_089' 'wu120_090' 'wu120_091' 'wu120_092' 'wu120_093' 'wu120_094' 'wu120_095' 'wu120_096' 'wu120_097' 'wu120_098' 'wu120_099' 'wu120_100' 'wu120_101' 'wu120_102' 'wu120_103' 'wu120_104' 'wu120_105' 'wu120_106' 'wu120_107' 'wu120_108' 'wu120_109' 'wu120_110' 'wu120_111' 'wu120_112' 'wu120_113' 'wu120_114' 'wu120_115' 'wu120_116' 'wu120_117' 'wu120_118' 'wu120_119' 'wu120_120'
+
+# crunchanalysis::analyze_nback_modalities_group(c("1002",'1004',"1007","1009","1010","1011","1013","1020","1022","1024","1026","2002","2007","2008","2012","2017","2018","2020","2021","2022","2023","2025","2026","2027","2033","2024","2037","2038","2042","2052"))
+
+# seperate performance based on cruncher classifications
+
+
+# CIA
+# username: u s g c k w 6 N
+# pw: QUIPtillion21#!
+
+
+ml fsl/6.0.1
+Study_dir=/blue/rachaelseidler/share/FromExternal/Research_Projects_UF/CRUNCH/MiM_Data
+
+subject_array=(1002 1004 1007 1009 1010 1011 1012 1013 1020 1022 1024 1026 1027 2002 2007 2008 2012 2013 2015 2017 2018 2020 2021 2022 2023 2025 2026 2027 2033 2034 2037 2042 2052 3004 3008 3006 3007 3021 3023 3024 1025 1018 1019 1017 2039 3024 3029 3023 3025 3026 3027 3010 3036)
+for this_subject in “${subject_array[@]}“; do	Subject_dir=/blue/rachaelseidler/share/FromExternal/Research_Projects_UF/CRUNCH/MiM_Data/${this_subject}
+	mkdir -p ${Study_dir}/${this_subject}/Processed/MRI_files/02_T1/FLIRT_Normalization/
+	cp ${Study_dir}/${this_subject}/Processed/MRI_files/02_T1/SkullStripped_biascorrected_T1.nii ${Study_dir}/${this_subject}/Processed/MRI_files/02_T1/FLIRT_Normalization
+	cd ${Study_dir}/${this_subject}/Processed/MRI_files/02_T1/FLIRT_Normalization
+	flirt -in ${Study_dir}/${this_subject}/Processed/MRI_files/02_T1/FLIRT_Normalization/SkullStripped_biascorrected_T1.nii -ref /apps/fsl/6.0.3/data/standard/MNI152_T1_1mm_brain.nii.gz -out ${Study_dir}/${this_subject}/Processed/MRI_files/02_T1/FLIRT_Normalization/${this_subject}_flirtToMNI_SkullStripped_T1.nii.gz -omat ${Study_dir}/${this_subject}/Processed/MRI_files/02_T1/FLIRT_Normalization/warpToMNI_flirt.mat -dof 12
+done
+
+taubert 
