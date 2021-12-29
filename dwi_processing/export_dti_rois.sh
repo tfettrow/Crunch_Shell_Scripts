@@ -11,7 +11,9 @@
 
 # this script requires arguments 
 
-# example >> export_dti_rois.sh '1002,1004,1007,1009,1010,1011,1013,1020,1022,1024,1026,1027,2002,2007,2008,2012,2013,2015,2017,2018,2020,2021,2022,2023,2025,2026,2027,2033,2034,2037,2042,2052,3004,3006,3007,3008,3021,3023' 08_DWI TBSS_results ROI_settings_MiMRedcap_wfuMasked.txt
+# example >> export_dti_rois.sh '1002,1004,1007,1009,1010,1011,1012,1013,1017,1018,1019,1020,1022,1024,1025,1026,1027,2002,2007,2008,2012,2013,2015,2017,2018,2020,2021,2022,2023,2025,2026,2033,2034,2037,2038,2039,2042,2052,2059,2027,3004,3006,3007,3008,3010,3021,3023,3024,3025,3026,3028,3029,3030,3034,3036,3039,3040,3042,3043,3046,3047,3051,3053,3058,3059,3063,3066,3068' 08_DWI TBSS_results_all ROI_settings_MiMRedcap_wfuMasked.txt
+# export_dti_rois.sh '1011,1017,1024' 08_DWI TBSS_results_all ROI_settings_MiMRedcap_wfuMasked.txt
+# export_dti_rois.sh '2062' 08_DWI TBSS_results_all ROI_settings_MiMRedcap_wfuMasked.txt
 # export_dti_rois.sh '1011' 08_DWI TBSS_Results ROI_settings_MiMRedcap_wfuMasked.txt
 # export_dti_rois.sh '3023_orig,3025_orig,3036_orig' 08_DWI TBSS_results_origCheck ROI_settings_MiMRedcap_wfuMasked.txt
 # export_dti_rois.sh '1002,1002_NoFM,1004,1004_NoFM,1007,1007_NoFM,2002,2002_NoFM,2007,2007_NoFM,2012,2012_NoFM,3023,3023_NoFM,3025,3025_NoFM,3036,3036_NoFM' 08_DWI TBSS_results_NoFMcheck ROI_settings_MiMRedcap_wfuMasked.txt
@@ -53,10 +55,10 @@ while IFS=',' read -ra subject_list; do
 		Eddy_image=eddycorrected_FAt.nii
 		this_core_file_name=$(echo $Eddy_image | cut -d. -f 1)
 		# go into 02_T1 and grab the c2biascorrected_T1.nii .. binary threshhold and mv to dti folder
-		# cd ${Study_dir}/$this_subject/Processed/MRI_files/02_T1
+		cd ${Study_dir}/$this_subject/Processed/MRI_files/02_T1
 		
-		# cp c2biascorrected_T1.nii ${Study_dir}/$this_subject/Processed/MRI_files/${this_dti_folder_name}
-		# cp SkullStripped_biascorrected_T1.nii ${Study_dir}/$this_subject/Processed/MRI_files/${this_dti_folder_name}
+		cp c2biascorrected_T1.nii ${Study_dir}/$this_subject/Processed/MRI_files/${this_dti_folder_name}
+		cp SkullStripped_biascorrected_T1.nii ${Study_dir}/$this_subject/Processed/MRI_files/${this_dti_folder_name}
 
    		cd ${Study_dir}/$this_subject/Processed/MRI_files/${this_dti_folder_name}
    		flirt -in SkullStripped_biascorrected_T1 -ref eddycorrected_FA.nii -out dtiMatched_SkullStripped_biascorrected_T1 -omat transf_T1_to_dti.mat

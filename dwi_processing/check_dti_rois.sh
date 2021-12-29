@@ -11,7 +11,7 @@
 
 # this script requires arguments 
 
-# example >> check_dti_rois.sh '1002,1004,1007,1009,1010,1011,1013,1020,1022,1024,1026,1027,2002,2007,2008,2012,2013,2015,2017,2018,2020,2021,2022,2023,2025,2026,2027,2033,2034,2037,2042,2052,3004,3006,3007,3008,3021,3023' 08_DWI ROI_settings_MiMRedcap_wfuMasked.txt
+# example >> check_dti_rois.sh '1002,1004,1007,1009,1010,1012,1013,1018,1019,1020,1022,1025,1026,1027,2002,2007,2008,2012,2013,2015,2017,2018,2020,2021,2022,2023,2025,2026,2033,2034,2037,2038,2039,2042,2052,2059,2062,2027,3004,3006,3007,3008,3010,3021,3023,3024,3025,3026,3028,3029,3030,3034,3036,3039,3040,3042,3043,3046,3047,3051,3053,3058,3059,3063,3066,3068' 08_DWI ROI_settings_MiMRedcap_wfuMasked.txt
 # check_dti_rois.sh '1002' 08_DWI ROI_settings_MiMRedcap_wfuMasked.txt
 # check_dti_rois.sh '3023,3023_orig,3025,3025_orig,3036,3036_orig' 08_DWI ROI_settings_MiMRedcap_wfuMasked.txt
 
@@ -46,7 +46,7 @@ while IFS=',' read -ra subject_list; do
 				this_roi_file_corename=$(cat $roi_settings_file | sed -n ${this_row}p | cut -d ',' -f4)
 				this_roi_file_corename_squeeze=$(echo $this_roi_file_corename | sed -r 's/( )+//g')
 				this_roi_image_name=${Study_dir}/ROIs/${this_roi_file_corename_squeeze}.nii
-				echo pulling vols for $this_roi_image_name on $this_subject
+				echo checking rois for $this_roi_image_name on $this_subject
 				cd ${Study_dir}/$this_subject/Processed/MRI_files/${this_dti_folder_name}
 				
 				itksnap -g eddycorrected_FAt.nii -o dtiMatched_$this_roi_file_corename_squeeze.nii c2biascorrectedT1Masked_dtiMatched_$this_roi_file_corename_squeeze.nii		

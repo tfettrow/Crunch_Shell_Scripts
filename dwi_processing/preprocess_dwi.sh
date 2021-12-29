@@ -336,25 +336,10 @@ for this_preprocessing_step in ${preprocessing_steps[@]};do
 		cd ${Subject_dir}/Processed/MRI_files/${dwi_folder_name}
 		subjectid=$(echo ${Subject_dir} | egrep -o '[[:digit:]]{4}' | head -n1)
 		if [[ -e eddycorrected_FA.nii ]]; then
-			cp eddycorrected_FA.nii /blue/rachaelseidler/share/FromExternal/Research_Projects_UF/CRUNCH/MiM_Data/TBSS_accel/${subjectid}_eddycorrected_FA.nii
+			cp eddycorrected_FA.nii /blue/rachaelseidler/share/FromExternal/Research_Projects_UF/CRUNCH/MiM_Data/TBSS_results_all/${subjectid}_eddycorrected_FA.nii
 		else
 			echo "fa doesnt exist"
 		fi
-
-		# cd ../
-		# study_dir=$(pwd)
-		# echo $study_dir
-		# this_subject_id=$(echo $Subject_dir | cut -d "/" -f9)
-		# echo $this_subject_id
-		
-		# # mkdir -p TBSS_results_timeCheck/FW
-		# #mkdir -p TBSS_results_NoFMcheck/FW
-		# cd $study_dir
-		# cp ${Subject_dir}/Processed/MRI_files/${dwi_folder_name}/eddycorrected_FAt.nii ${study_dir}/TBSS_results_NoFMcheck/FW/${this_subject_id}_eddycorrected_FA.nii
-		# cp ${Subject_dir}/Processed/MRI_files/${dwi_folder_name}/eddycorrected_FA.nii ${study_dir}/TBSS_results_NoFMcheck/${this_subject_id}_eddycorrected_FA.nii
-		# cp ${Subject_dir}/Processed/MRI_files/${dwi_folder_name}/eddycorrected_FAt.nii ${study_dir}/TBSS_results_timeCheck/FW/${this_subject_id}_eddycorrected_FA.nii
-		# cp ${Subject_dir}/Processed/MRI_files/${dwi_folder_name}/eddycorrected_FA.nii ${study_dir}/TBSS_results_timeCheck/${this_subject_id}_eddycorrected_FA.nii
-		# cp ${Subject_dir}/Processed/MRI_files/${dwi_folder_name}/tensorfit_eddycorrected_driftcorrected_DWI_FA.nii ${study_dir}/TBSS_results_origCheck/${this_subject_id}_tensorfit_eddycorrected_driftcorrected_DWI_FA.nii
 	fi
 
 	# if [[ $this_preprocessing_step == "invert_warps" ]]; then
