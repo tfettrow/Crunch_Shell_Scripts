@@ -8,3 +8,4 @@ batch_scripts/batch_dwi.batch
 batch_scripts/batch_start.batch
 batch_scripts/batch_start.batch
 batch_scripts/batch_start.batch
+*.batch
