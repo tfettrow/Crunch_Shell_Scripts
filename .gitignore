@@ -9,3 +9,6 @@ batch_scripts/batch_start.batch
 batch_scripts/batch_start.batch
 batch_scripts/batch_start.batch
 *.batch
+batch_scripts/batch_start.batch
+batch_scripts/batch_restingstate.batch
+*.batch
