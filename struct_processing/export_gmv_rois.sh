@@ -115,12 +115,12 @@ while IFS=',' read -ra subject_list; do
 				# 1) mkdir 02_T1/ANTS_Normalization
 				# 2) cp 04_rsfMRI/ANTS_Normalization/warpToMNIParams_biascorrected_SkullStripped_T11InverseWarp.nii and warpToMNIParams_biascorrected_SkullStripped_T10GenericAffine.mat
 				mkdir ${Study_dir}/$this_subject/Processed/MRI_files/${this_struct_folder_name}/ANTS_Normalization
-				cp ${Study_dir}/$this_subject/Processed/MRI_files/04_rsfMRI/ANTS_Normalization/warpToMNIParams_SkullStripped_biascorrected_T11InverseWarp.nii.gz ${Study_dir}/$this_subject/Processed/MRI_files/${this_struct_folder_name}/ANTS_Normalization/
+				cp ${Study_dir}/$this_subject/Processed/MRI_files/04_rsfMRI/ANTS_Normalization/warpToMNIParams_SkullStripped_biascorrected_T11InverseWarp.nii ${Study_dir}/$this_subject/Processed/MRI_files/${this_struct_folder_name}/ANTS_Normalization/
 				cp ${Study_dir}/$this_subject/Processed/MRI_files/04_rsfMRI/ANTS_Normalization/warpToMNIParams_SkullStripped_biascorrected_T10GenericAffine.mat  ${Study_dir}/$this_subject/Processed/MRI_files/${this_struct_folder_name}/ANTS_Normalization/
 
 				antsApplyTransforms -d 3 -e 3 -i $this_roi_image_name -r p1T1.nii \
 				-o warpedToP1_${this_roi_file_corename_squeeze}.nii -t [${Study_dir}/$this_subject/Processed/MRI_files/${this_struct_folder_name}/ANTS_Normalization/warpToMNIParams_SkullStripped_biascorrected_T10GenericAffine.mat,1]  \
-				-t [${Study_dir}/$this_subject/Processed/MRI_files/${this_struct_folder_name}/ANTS_Normalization/warpToMNIParams_SkullStripped_biascorrected_T11InverseWarp.nii.gz] -v
+				-t [${Study_dir}/$this_subject/Processed/MRI_files/${this_struct_folder_name}/ANTS_Normalization/warpToMNIParams_SkullStripped_biascorrected_T11InverseWarp.nii] -v
 
 
 				var1="record_id, redcap_event_name"

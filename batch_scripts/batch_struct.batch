@@ -1,9 +1,10 @@
 #!/bin/bash
 #SBATCH --job-name=batch_struct		     			# Job name
 #SBATCH --mail-type=END,FAIL          			# Mail events (NONE, BEGIN, END, FAIL, ALL)
-#SBATCH --mail-user=<tfettrow@ufl.edu>  		# Where to send mail	
+#SBATCH --mail-user=<valay.shah@ufl.edu>  		# Where to send mail	
+#SBATCH --cpus-per-task=2
 #SBATCH --ntasks=1                    			# Run a single task
-#SBATCH --mem=12000mb	                   	    # Memory limit
+#SBATCH --mem=16000mb	                   	    # Memory limit
 #SBATCH --qos=rachaelseidler
 #SBATCH --time=96:00:00               			# Time limit hrs:min:sec
 #SBATCH --output=batch_struct.%A_%a.out 	# Standard output and error log
@@ -11,10 +12,10 @@
 pwd; hostname; date
 
 ######TYLER F Directory
-#cd /blue/rachaelseidler/tfettrow/Crunch_Code
-Shell_dir=/blue/rachaelseidler/tfettrow/Crunch_Code/Shell_Scripts
-Matlab_dir=/blue/rachaelseidler/tfettrow/Crunch_Code/Matlab_Scripts
-Template_dir=/blue/rachaelseidler/tfettrow/Crunch_Code/MR_Templates
+# #cd /blue/rachaelseidler/tfettrow/Crunch_Code
+# Shell_dir=/blue/rachaelseidler/tfettrow/Crunch_Code/Shell_Scripts
+# Matlab_dir=/blue/rachaelseidler/tfettrow/Crunch_Code/Matlab_Scripts
+# Template_dir=/blue/rachaelseidler/tfettrow/Crunch_Code/MR_Templates
 
 ######VALAY S Directory
 #cd /blue/rachaelseidler/valay.shah
@@ -22,9 +23,14 @@ Shell_dir=/blue/rachaelseidler/valay.shah/Shell_Scripts
 Matlab_dir=/blue/rachaelseidler/valay.shah/MiM_Matlab/MiM_Matlab
 Template_dir=/blue/rachaelseidler/valay.shah/MR_Templates
 ####
-Study_dir=/blue/rachaelseidler/share/FromExternal/Research_Projects_UF/CRUNCH/Eric_BrainAge_TestData
+Study_dir=/blue/rachaelseidler/share/FromExternal/Research_Projects_UF/CRUNCH/MiM_Data
 
-cd "$Study_dir"
-ml matlab/2020a
-export MATLABPATH=${Matlab_dir}/helper
-matlab -nodesktop -nosplash -r "try; cat12StructuralAnalysis('subjects',{'1007','1008'},'t1_folder','02_T1','t1_filename','T1.nii','steps_to_run_vector',[1 0 1 0 1 1 1 1 1 1],'template_dir','/blue/rachaelseidler/tfettrow/Crunch_Code/MR_Templates'); catch; end; quit"
+
+# cd $Study_dir
+
+# ml matlab/2020b
+# export MATLABPATH=${Matlab_dir}/helper
+# matlab -nodesktop -nosplash -r "try; cat12StructuralAnalysis('subjects',{'3072'},'t1_folder','02_T1','t1_filename','T1.nii','steps_to_run_vector',[1 0 1 0 1 1 1 1 1 1],'template_dir','/blue/rachaelseidler/valay.shah/MR_Templates'); catch; end; quit"
+
+cd $Shell_dir
+./struct_processing/export_gmv_rois.sh '3041,3071,3073,3074' 02_T1 ROI_settings_MiMRedcap_wfuMasked_CAT12.txt

@@ -10,14 +10,14 @@
 #SBATCH --output=batch_dwi.%A_%a.out 	# Standard output and error log
 #SBATCH --partition=gpu
 #SBATCH --gpus=geforce:1
-#SBATCH --array=0				# array range
+#SBATCH --array=0-4				# array range
 
 
 pwd; hostname; date
 # subject_array=(1002 1004 1007 1009 1010 1012 1013 1018 1019 1020 1022 1025 1026 1027 2002 2007 2012 2013 2015 2017 2018 2020 2021 2022 2023 2025 2026 2033 2034 2037 2038 2039 2042 2052 2059 2062 2027 3004 3006 3007 3008 3010 3021 3026 3028 3029 3030 3039 3040 3042 3043 3046 3047)
 
 # subject_array=(1012 1018 1019 1025 2027 2038 2039 3029 3006 3010 3026 3028 3030 3036)
-subject_array=(1002)
+subject_array=(3041 3071 3073 3074)
 subject=${subject_array[$SLURM_ARRAY_TASK_ID]}
 Subject_dir=/blue/rachaelseidler/share/FromExternal/Research_Projects_UF/CRUNCH/MiM_Data/${subject}
 
@@ -36,7 +36,7 @@ Template_dir=/blue/rachaelseidler/valay.shah/MR_Templates
 cd $Shell_dir
 
 # ./Shell_Scripts/dwi_processing/run_tbss.sh
-./dwi_processing/preprocess_dwi.sh $Matlab_dir $Template_dir $Subject_dir drift_correction eddy_correction eddy_quad
+./dwi_processing/preprocess_dwi.sh $Matlab_dir $Template_dir $Subject_dir drift_correction fieldmap_dti eddy_correction eddy_quad freewater_correction
 #skull_strip_eddycorrected_image register_mni_to_dti fit_tensors
 #fieldmap_dti eddy_correction
 
