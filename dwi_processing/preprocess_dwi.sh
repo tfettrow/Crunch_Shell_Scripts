@@ -18,8 +18,10 @@ do
 		Template_dir=$this_argument
 	elif [[ $argument_counter == 2 ]]; then
     	Subject_dir=$this_argument
+	elif [[ $argument_counter == 3 ]]; then
+		TBSS_dir=$this_argument
 	else
-		preprocessing_steps["$argument_counter-3"]="$this_argument"
+		preprocessing_steps["$argument_counter-4"]="$this_argument"
 	fi
 	(( argument_counter++ ))
 done
@@ -334,12 +336,16 @@ for this_preprocessing_step in ${preprocessing_steps[@]};do
 	if [[ $this_preprocessing_step == "copy_fa_for_tbss" ]]; then
 		dwi_folder_name=($dwi_processed_folder_name)
 		cd ${Subject_dir}/Processed/MRI_files/${dwi_folder_name}
+		if [[ ! -e ${TBSS_dir} ]]; then
+			mkdir ${TBSS_dir}
+		fi
 		subjectid=$(echo ${Subject_dir} | egrep -o '[[:digit:]]{4}' | head -n1)
 		if [[ -e eddycorrected_FA.nii ]]; then
-			cp eddycorrected_FA.nii /blue/rachaelseidler/share/FromExternal/Research_Projects_UF/CRUNCH/MiM_Data/TBSS_results_all/${subjectid}_eddycorrected_FA.nii
+			cp eddycorrected_FA.nii ${Subject_dir}/Processed/MRI_files/${dwi_folder_name}/${TBSS_dir}/${subjectid}_eddycorrected_FA.nii
 		else
 			echo "fa doesnt exist"
 		fi
+		echo "copying done"
 	fi
 
 	# if [[ $this_preprocessing_step == "invert_warps" ]]; then

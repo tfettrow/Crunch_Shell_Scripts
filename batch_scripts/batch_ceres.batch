@@ -19,7 +19,7 @@ pwd; hostname; date
 # 4) make sure the directories are set to your repositories
 # 5) uncomment the step you would like to process for each subject specified in subject_array
 
-subject_array=(3041 3071 3073 3074)
+subject_array=(3054 3073 3076)
 
 subject=${subject_array[$SLURM_ARRAY_TASK_ID]}
 

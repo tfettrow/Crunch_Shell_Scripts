@@ -11,9 +11,9 @@
 argument_counter=0
 for this_argument in "$@"
 do
-	if [[ $argument_counter == 1 ]]; then
+	if [[ $argument_counter == 0 ]]; then
     	Subject_dir=$this_argument
-	elif [[ $argument_counter == 2 ]]; then
+	elif [[ $argument_counter == 1 ]]; then
 		TBSS_dir=$this_argument
 	fi
 	(( argument_counter++ ))
@@ -22,7 +22,7 @@ done
 ml fsl/6.0.3
 #Study_dir=/blue/rachaelseidler/share/FromExternal/Research_Projects_UF/CRUNCH/MiM_Data
 #cd "${Study_dir}/TBSS_results_all"
-cd ${Subject_dir}/${TBSS_dir}
+cd "${Subject_dir}/Processed/MRI_files/08_DWI/${TBSS_dir}"
 pwd
 
 ###### Running TBSS preprocessing Steps ###########
@@ -38,12 +38,13 @@ pwd
 ##################################################################
 
 ###### Warping MiM MNI ROIs in to Subject Space ###########
-# cd "${Study_dir}/TBSS_results_all/FA"
-# # for this_warp in *tensorfit_eddycorrected_driftcorrected_DWI_FA_FA_to_target_warp.nii.gz; do
-# for this_warp in *eddycorrected_FA_FA_to_target_warp.nii.gz; do
-# 	this_warp_file_name=$(echo $this_warp | cut -d. -f 1)
-# 	if [ ! -f ${this_warp_file_name}_inv.nii.gz ]; then
-# 		echo "inverting $this_warp"
-# 		invwarp --ref=target --warp=${this_warp_file_name} --out=${this_warp_file_name}_inv
-# 	fi
-# done
+cd FA
+# for this_warp in *tensorfit_eddycorrected_driftcorrected_DWI_FA_FA_to_target_warp.nii.gz; do
+for this_warp in *eddycorrected_FA_FA_to_target_warp.nii.gz; do
+	this_warp_file_name=$(echo $this_warp | cut -d. -f 1)
+	if [ ! -f ${this_warp_file_name}_inv.nii.gz ]; then
+		echo "inverting $this_warp"
+		invwarp --ref=target --warp=${this_warp_file_name} --out=${this_warp_file_name}_inv
+	fi
+done
+echo "Inverse warp done"

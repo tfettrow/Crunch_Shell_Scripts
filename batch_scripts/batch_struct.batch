@@ -26,11 +26,11 @@ Template_dir=/blue/rachaelseidler/valay.shah/MR_Templates
 Study_dir=/blue/rachaelseidler/share/FromExternal/Research_Projects_UF/CRUNCH/MiM_Data
 
 
-# cd $Study_dir
+cd $Study_dir
 
-# ml matlab/2020b
-# export MATLABPATH=${Matlab_dir}/helper
-# matlab -nodesktop -nosplash -r "try; cat12StructuralAnalysis('subjects',{'3072'},'t1_folder','02_T1','t1_filename','T1.nii','steps_to_run_vector',[1 0 1 0 1 1 1 1 1 1],'template_dir','/blue/rachaelseidler/valay.shah/MR_Templates'); catch; end; quit"
+ml matlab/2020b
+export MATLABPATH=${Matlab_dir}/helper
+matlab -nodesktop -nosplash -r "try; cat12StructuralAnalysis('subjects',{'3073','3076'},'t1_folder','02_T1','t1_filename','T1.nii','steps_to_run_vector',[1 0 1 0 1 1 1 1 1 1],'template_dir','/blue/rachaelseidler/valay.shah/MR_Templates'); catch; end; quit"
 
-cd $Shell_dir
-./struct_processing/export_gmv_rois.sh '3041,3071,3073,3074' 02_T1 ROI_settings_MiMRedcap_wfuMasked_CAT12.txt
+# cd $Shell_dir
+# ./struct_processing/export_gmv_rois.sh '3054,3072' 02_T1 ROI_settings_MiMRedcap_wfuMasked_CAT12.txt
