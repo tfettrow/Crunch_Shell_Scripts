@@ -98,7 +98,7 @@ while IFS=',' read -ra subject_list; do
 				echo -e "$var1\n$var2" >> "$subj_intensities_outfile"
 
 				avg_intensity=$(fslstats eddycorrected_FAt.nii -k c2biascorrectedT1Masked_dtiMatched_$this_roi_file_corename_squeeze.nii -M)
-
+				echo $avg_intensity
 				first_row_intensity=$(cat $subj_intensities_outfile | sed -n 1p)
 				second_row_intensity=$(cat $subj_intensities_outfile | sed -n 2p)
 				rm $subj_intensities_outfile

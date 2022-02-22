@@ -29,14 +29,15 @@ done
 Study_dir=/blue/rachaelseidler/share/FromExternal/Research_Projects_UF/CRUNCH/MiM_Data
 cd $Study_dir
 
-ml fsl/6.0.1
-outfile=${this_functional_run_folder}_${out_ext}
-if [ -e ${this_functional_run_folder}_${out_ext} ]; then
-	rm ${this_functional_run_folder}_${out_ext}
+ml fsl/6.0.3
+d=$(date +"%b_%d_%Y")
+outfile=${this_functional_run_folder}_${d}_${out_ext}
+if [[ -e $outfile ]]; then
+	rm $outfile
 fi
 
 subject_index=0
-while IFS=',' read -ra subject_list; do
+while IFS=' ' read -ra subject_list; do
     for this_subject in "${subject_list[@]}"; do
        	cd ${Study_dir}/$this_subject/Processed/MRI_files/${this_functional_run_folder}/ANTS_Normalization/Level1_WholeBrain
        	this_subject_header=$(cat ${this_subject}_${in_ext} | sed -n 1p)

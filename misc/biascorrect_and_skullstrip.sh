@@ -70,6 +70,14 @@ for this_preprocessing_step in ${preprocessing_steps[@]}; do
 		matlab -nodesktop -nosplash -r "try; segment_t1; catch; end; quit"
 		matlab -nodesktop -nosplash -r "try; skull_strip_t1; catch; end; quit"
 	fi
+	if [[ $this_preprocessing_step == "copy_t1" ]]; then
+		this_t1_folder=($t1_processed_folder_names)
+		subject=$(echo ${Subject_dir} | egrep -o '[[:digit:]]{4}' | head -n1)
+		cd ${Subject_dir}/Processed/MRI_files/${this_t1_folder}/
+		cp T1.nii ${subject}.nii
+		gzip ${subject}.nii
+		cp -t /blue/rachaelseidler/share/FromExternal/Research_Projects_UF/CRUNCH/MiM_Data/Ceres_Raw_T1 ${subject}.nii.gz 
+	fi
 	if [[ $this_preprocessing_step == "check_skullstrip" ]]; then
 		this_t1_folder=($t1_processed_folder_names)
 		cd ${Subject_dir}/Processed/MRI_files/${this_t1_folder}/

@@ -12,11 +12,5 @@
 Subject_dir=$1
 
 cd ${Subject_dir}/Raw/MRI_files
-
-rm -f *.zip
-
-zip -r MRI_files.zip *
-
-shopt -s extglob
-rm -r !(MRI_files.zip)
-shopt -u extglob
+pwd
+unzip -n *.zip

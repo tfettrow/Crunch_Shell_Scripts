@@ -32,16 +32,16 @@ done
 Study_dir=/blue/rachaelseidler/share/FromExternal/Research_Projects_UF/CRUNCH/MiM_Data
 	
 #####################################################################################################################################################
-ml fsl/6.0.1
+ml fsl/6.0.3
 while IFS=',' read -ra subject_list; do
-       for this_subject in "${subject_list[@]}"; do
+    for this_subject in "${subject_list[@]}"; do
        	cd ${Study_dir}/$this_subject/Processed/MRI_files/${this_functional_run_folder}/ANTS_Normalization/Level1_WholeBrain	     					
    	    outfile=${this_subject}_${out_ext}
 		if [ -e ${this_subject}_${out_ext} ]; then
 			rm ${this_subject}_${out_ext}
 		fi
 		var1="record_id, redcap_event_name"
-		var2="$H${this_subject}, base_v4_mri_arm_1" 
+		var2="$H${this_subject},base_v4_mri_arm_1" 
 		echo -e "$var1\n$var2" >> "$outfile"
        	cd "${Study_dir}"
 		lines_to_ignore=$(awk '/#/{print NR}' $roi_settings_file)
@@ -51,7 +51,7 @@ while IFS=',' read -ra subject_list; do
 				this_roi_file_corename=$(cat $roi_settings_file | sed -n ${this_row}p | cut -d ',' -f4)
 				this_roi_file_corename_squeeze=$(echo $this_roi_file_corename | sed -r 's/( )+//g')
 				this_roi_image_name=${Study_dir}/ROIs/${this_roi_file_corename_squeeze}.nii
-				echo pulling betas for $this_roi_image_name on $this_subject
+				echo "pulling betas for $this_roi_image_name on $this_subject"
 				cd ${Study_dir}/$this_subject/Processed/MRI_files/${this_functional_run_folder}/ANTS_Normalization/Level1_WholeBrain
    				if [[ $this_functional_run_folder == "05_MotorImagery" ]]; then
 		 	
@@ -61,7 +61,7 @@ while IFS=',' read -ra subject_list; do
     						fslmaths con_0003.nii -nan noNANcon_0003
     						fslmaths con_0004.nii -nan noNANcon_0004
     						gunzip -f *nii.gz
-    					fi
+    				fi
 					beta=0
 					beta=$(fslmeants -i noNANcon_0001.nii -m $this_roi_image_name)
 					# echo $this_roi_file_corename_squeeze
@@ -83,7 +83,7 @@ while IFS=',' read -ra subject_list; do
 					first_row=$(cat $outfile | sed -n 1p)
 					second_row=$(cat $outfile | sed -n 2p) 
 					rm $outfile
-					echo -e "${first_row},high_${this_roi_file_corename_squeeze}\n${second_row},$beta" >> "$outfile"		​
+					echo -e "${first_row},high_${this_roi_file_corename_squeeze}\n${second_row},$beta" >> "$outfile"
 					# beta=0
 					# beta=$(fslmeants -i con_0001.nii -m $this_roi_image_name)
 					# # echo $this_roi_file_corename_squeeze
@@ -119,7 +119,7 @@ while IFS=',' read -ra subject_list; do
     						fslmaths con_0007.nii -nan noNANcon_0007
     						fslmaths con_0008.nii -nan noNANcon_0008
     						gunzip -f *nii.gz
-    					fi
+    				fi
 					beta=0
 					beta=$(fslmeants -i noNANcon_0004.nii -m $this_roi_image_name)
 					first_row=$(cat $outfile | sed -n 1p)
@@ -160,7 +160,7 @@ while IFS=',' read -ra subject_list; do
 					first_row=$(cat $outfile | sed -n 1p)
 					second_row=$(cat $outfile | sed -n 2p) 
 					rm $outfile
-					echo -e "${first_row},three_short_${this_roi_file_corename_squeeze}\n${second_row},$beta" >> "$outfile"		
+					echo -e "${first_row},three_short_${this_roi_file_corename_squeeze}\n${second_row},$beta" >> "$outfile"
 					# beta=0
 					# beta=$(fslmeants -i con_0004.nii -m $this_roi_image_name)
 					# first_row=$(cat $outfile | sed -n 1p)

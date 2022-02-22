@@ -26,7 +26,7 @@ done
 	export MATLABPATH=${Matlab_dir}/helper
 	ml matlab/2020b
 	ml gcc/5.2.0; ml ants ## ml gcc/9.3.0; ml ants/2.3.4
-	ml fsl/6.0.1
+	ml fsl/6.0.4
 	ml itksnap
 	
 	cd $Subject_dir
@@ -89,6 +89,7 @@ for this_preprocessing_step in ${preprocessing_steps[@]}; do
             if [ -e slicetimed_*.nii ]; then 
                 rm slicetimed_*.nii
             fi
+			gunzip *.gz
             matlab -nodesktop -nosplash -r "try; slicetime_restingstate; catch; end; quit"
 
         	echo This step took $SECONDS seconds to execute
@@ -283,14 +284,10 @@ for this_preprocessing_step in ${preprocessing_steps[@]}; do
 						done
 						previous_encoding_direction=$encoding_direction
 					done
-			
-					ml fsl/6.0.1
-		
 					topup --imain=AP_PA_merged.nii --datain=acqParams.txt --fout=my_fieldmap_nifti --config=b02b0.cnf --iout=se_epi_unwarped --out=topup_results
 
 					fslmaths se_epi_unwarped -Tmean my_fieldmap_mag
-		
-					ml fsl/5.0.8
+
 					fslchfiletype ANALYZE my_fieldmap_nifti.nii fpm_my_fieldmap
 		
 					gunzip -f *nii.gz
@@ -676,8 +673,14 @@ for this_preprocessing_step in ${preprocessing_steps[@]}; do
 		if [[ $this_preprocessing_step == "copy_files_restingstate" ]]; then
 			data_folder_to_analyze=($restingstate_processed_folder_names)
 			echo copying files ${Subject_dir}
+			cd ${Subject_dir}/Processed/MRI_files/${data_folder_to_analyze}/ANTS_Normalization
+			pwd
+			gunzip *.gz
+			Study_dir=/blue/rachaelseidler/share/FromExternal/Research_Projects_UF/CRUNCH/MiM_Data
+			subject=$(echo ${Subject_dir} | egrep -o '[[:digit:]]{4}' | head -n1)
 			cp ${Subject_dir}/Processed/MRI_files/${data_folder_to_analyze}/rp_* ${Subject_dir}/Processed/MRI_files/${data_folder_to_analyze}/ANTS_Normalization
 			cp ${Subject_dir}/Processed/MRI_files/${data_folder_to_analyze}/art_regression_outliers_and_movement*.mat ${Subject_dir}/Processed/MRI_files/${data_folder_to_analyze}/ANTS_Normalization
-			#cp ${Subject_dir}/Processed/MRI_files/05_MotorImagery/ANTS_Normalization/warpedToMNI_biascorrected*.nii ${Subject_dir}/Processed/MRI_files/${data_folder_to_analyze}/ANTS_Normalization
+			# cp ${Subject_dir}/Processed/MRI_files/05_MotorImagery/ANTS_Normalization/warpedToMNI_biascorrected*.nii ${Subject_dir}/Processed/MRI_files/${data_folder_to_analyze}/ANTS_Normalization
+			echo "copying done: check CONN_test folder"
 		fi
 done

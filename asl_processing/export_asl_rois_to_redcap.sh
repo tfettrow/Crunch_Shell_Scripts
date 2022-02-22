@@ -19,35 +19,42 @@
 
 argument_counter=0
 for this_argument in "$@"; do
-	if	[[ $argument_counter == 0 ]]; then
+	if [[ $argument_counter == 0 ]]; then
 		subjects=$this_argument
 	elif [[ $argument_counter == 1 ]]; then
+		Matlab_dir=$this_argument
+	elif [[ $argument_counter == 2 ]]; then
+		Template_dir=$this_argument
+	elif [[ $argument_counter == 3 ]]; then
 		roi_settings_file=$this_argument
 	fi
 	(( argument_counter++ ))
 done
 
 Study_dir=/blue/rachaelseidler/share/FromExternal/Research_Projects_UF/CRUNCH/MiM_Data
-Template_dir=/blue/rachaelseidler/tfettrow/Crunch_Code/MR_Templates
+
 	
 #####################################################################################################################################################
-ml fsl/6.0.1
+ml fsl/6.0.3
 while IFS=',' read -ra subject_list; do
-       for this_subject in "${subject_list[@]}"; do
+    for this_subject in "${subject_list[@]}"; do
        	Results_folder_name=BasilCMD_calib_anat_FM_scalib_pvcorr
        	# Results_folder_name=BasilCMD_calib_anat_scalib_pvcorr
-       	cd ${Study_dir}/$this_subject/Processed/MRI_files/07_ASL/$Results_folder_name/ANTS_Normalization
-       	cp ${Template_dir}/MNI_2mm.nii ${Study_dir}/$this_subject/Processed/MRI_files/07_ASL/$Results_folder_name/ANTS_Normalization
-   	    outfile_fsl_perfusion=${this_subject}_fsl_perfusion.txt
-   	    outfile_fsl_perfusion_calib=${this_subject}_fsl_perfusion_calib.txt
-   	    # outfile_fsl_perfusion_wm=${this_subject}_fsl_perfusion_wm.txt
-   	    # outfile_fsl_perfusion_wm_calib=${this_subject}_fsl_perfusion_wm_calib.txt
+       	cd ${Study_dir}/${this_subject}/Processed/MRI_files/07_ASL/${Results_folder_name}/ANTS_Normalization
+       	cp ${Template_dir}/MNI_2mm.nii ${Study_dir}/${this_subject}/Processed/MRI_files/07_ASL/${Results_folder_name}/ANTS_Normalization
+		pwd
 		if [ -e ${this_subject}_fsl_perfusion.txt ]; then
 			rm ${this_subject}_fsl_perfusion.txt
 		fi
 		if [ -e ${this_subject}_fsl_perfusion_calib.txt ]; then
 			rm ${this_subject}_fsl_perfusion_calib.txt
 		fi
+   	    outfile_fsl_perfusion=${this_subject}_fsl_perfusion.txt
+   	    outfile_fsl_perfusion_calib=${this_subject}_fsl_perfusion_calib.txt
+		ls
+   	    # outfile_fsl_perfusion_wm=${this_subject}_fsl_perfusion_wm.txt
+   	    # outfile_fsl_perfusion_wm_calib=${this_subject}_fsl_perfusion_wm_calib.txt
+
 		# if [ -e ${this_subject}_fsl_perfusion_wm.txt ]; then
 		# 	rm ${this_subject}_fsl_perfusion_wm.txt
 		# fi
@@ -60,7 +67,7 @@ while IFS=',' read -ra subject_list; do
 		# echo -e "$var1\n$var2" >> "$outfile_fsl_perfusion_calib"
        	
        	cd "${Study_dir}"
-		
+		echo "check point 1"
 		lines_to_ignore=$(awk '/#/{print NR}' $roi_settings_file)
 		roi_line_numbers=$(awk 'END{print NR}' $roi_settings_file)
 		for (( this_row=1; this_row<=${roi_line_numbers}; this_row++ )); do
@@ -68,7 +75,7 @@ while IFS=',' read -ra subject_list; do
 				this_roi_file_corename=$(cat $roi_settings_file | sed -n ${this_row}p | cut -d ',' -f4)
 				this_roi_file_corename_squeeze=$(echo $this_roi_file_corename | sed -r 's/( )+//g')
 				this_roi_image_name=${Study_dir}/ROIs/${this_roi_file_corename_squeeze}.nii
-				
+				echo "check 2"
 				# echo pulling asl betas for $this_roi_image_name on $this_subject
 				# cd ${Study_dir}/$this_subject/Processed/MRI_files/07_ASL/BasilCMD_calib_anat_FM/std_space/pvcorr/
 				
@@ -126,8 +133,8 @@ while IFS=',' read -ra subject_list; do
 				################ vv for ANTS Normed vv ##################
 
 
-				echo pulling asl betas for $this_roi_image_name on $this_subject
-				cd ${Study_dir}/$this_subject/Processed/MRI_files/07_ASL/$Results_folder_name/ANTS_Normalization/
+				echo "pulling asl betas for $this_roi_image_name on ${this_subject}"
+				cd ${Study_dir}/$this_subject/Processed/MRI_files/07_ASL/${Results_folder_name}/ANTS_Normalization/
 				
 				var1="record_id, redcap_event_name"
 				var2="$H${this_subject}, base_v4_mri_arm_1"
@@ -174,4 +181,4 @@ while IFS=',' read -ra subject_list; do
 		done
 		cd ${Study_dir}
 	done
- done <<< "$subjects"
+done <<< "$subjects"

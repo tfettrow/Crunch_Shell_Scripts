@@ -9,42 +9,38 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-# this script requires arguments 
-
-
 # this script requires arguments... use the batch_fmri.batch to call this shell script
-# example >> combine_asl_redcap.sh '1002,1004,1007,1009,1010,1011,1012,1013,1017,1018,1019,1020,1022,1024,1025,1026,1027,2002,2007,2008,2012,2013,2015,2017,2018,2020,2021,2022,2023,2025,2026,2033,2034,2037,2038,2039,2042,2052,2059,2027,3004,3006,3007,3008,3010,3021,3023,3024,3025,3026,3028,3029,3030,3034,3036,3039,3040,3042,3043,3046,3047,3051,3053,3058,3059,3063,3066,3068' 07_ASL 
+# example >> combine_subject_gmv.sh '1002,1004,1007,1009,1010,1011,1012,1013,1017,1018,1019,1020,1022,1024,1025,1026,1027,2002,2007,2008,2012,2013,2015,2017,2018,2020,2021,2022,2023,2025,2026,2027,2033,2034,2037,2038,2039,2042,2052,3024,3029,3004,3006,3007,3008,3010,3021,3023,3025,3026,3030,3036' 08_DWI 
 
 argument_counter=0
 for this_argument in "$@"; do
-	if [[ $argument_counter == 0 ]]; then
+	if	[[ $argument_counter == 0 ]]; then
 		subjects=$this_argument
 	elif [[ $argument_counter == 1 ]]; then
-		asl_processed_folder_name=$this_argument
+		dwi_processed_folder_name=$this_argument
 	fi
 	(( argument_counter++ ))
 done
 
 Study_dir=/blue/rachaelseidler/share/FromExternal/Research_Projects_UF/CRUNCH/MiM_Data
+cd $Study_dir
 
-#####################################################################################################################################################
 ml fsl/6.0.3
+d=$(date +"%b_%d_%Y")
+outfile=${dwi_processed_folder_name}_${d}_dti_roi_fa.csv
+if [[ -e ${dwi_processed_folder_name}_${d}_dti_roi_fa.csv ]]; then
+	rm ${dwi_processed_folder_name}_${d}_dti_roi_fa.csv
+fi
 
 subject_index=0
-d=$(date +"%b_%d_%Y")
-outfile=${asl_processed_folder_name}_${d}_redcap.csv
-if [[ -e ${asl_processed_folder_name}_${d}_redcap.csv ]]; then
-	rm ${asl_processed_folder_name}_${d}_redcap.csv
-fi
-while IFS=',' read -ra subject_list; do
-   	for this_subject in "${subject_list[@]}"; do
-   		Results_folder_name=BasilCMD_calib_anat_FM_scalib_pvcorr
-   	   	cd ${Study_dir}/$this_subject/Processed/MRI_files/07_ASL/${Results_folder_name}/ANTS_Normalization
-   	   	this_subject_header=$(cat ${this_subject}_fsl_perfusion_calib.csv | sed -n 1p)
-   	   	this_subject_data=$(cat ${this_subject}_fsl_perfusion_calib.csv | sed -n 2p)
+while IFS=' ' read -ra subject_list; do
+    for this_subject in "${subject_list[@]}"; do
+       	cd ${Study_dir}/$this_subject/Processed/MRI_files/${dwi_processed_folder_name}
+		this_subject_header=$(cat subj_${this_subject}_dti_roi_fa.csv | sed -n 1p)
+       	this_subject_data=$(cat subj_${this_subject}_dti_roi_fa.csv | sed -n 2p)
 		
 		cd ${Study_dir}
-   	   	this_subject_header_outfile=$(cat ${outfile} | sed 1d)
+       	this_subject_header_outfile=$(cat $outfile | sed 1d)
    		row1=$this_subject_header
 		existing_section=$this_subject_header_outfile
 		new_row=$this_subject_data

@@ -25,14 +25,15 @@ done
 Study_dir=/blue/rachaelseidler/share/FromExternal/Research_Projects_UF/CRUNCH/MiM_Data
 cd $Study_dir
 
-ml fsl/6.0.1
-outfile=${struct_processed_folder_name}_gmv_roi_vols.csv
-if [ -e ${struct_processed_folder_name}_gmv_roi_vols.csv ]; then
-	rm ${struct_processed_folder_name}_gmv_roi_vols.csv
+ml fsl/6.0.3
+d=$(date +"%b_%d_%Y")
+outfile=${struct_processed_folder_name}_${d}_gmv_roi_vols.csv
+if [[ -e ${struct_processed_folder_name}_${d}_gmv_roi_vols.csv ]]; then
+	rm ${struct_processed_folder_name}_${d}_gmv_roi_vols.csv
 fi
 
 subject_index=0
-while IFS=',' read -ra subject_list; do
+while IFS=' ' read -ra subject_list; do
     for this_subject in "${subject_list[@]}"; do
        	cd ${Study_dir}/$this_subject/Processed/MRI_files/${struct_processed_folder_name}/CAT12_Analysis/mri
        	this_subject_header=$(cat subj_${this_subject}_gmv_roi_volumes.csv | sed -n 1p)

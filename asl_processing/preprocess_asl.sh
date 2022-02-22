@@ -19,7 +19,7 @@ do
 	elif [[ $argument_counter == 2 ]]; then
     	Subject_dir=$this_argument
 	else
-		preprocessing_steps[argument_counter]="$this_argument"
+		preprocessing_steps["$argument_counter-3"]="$this_argument"
 	fi
 	(( argument_counter++ ))
 done
@@ -95,9 +95,17 @@ for this_preprocessing_step in ${preprocessing_steps[@]}; do
 
 	if [[ $this_preprocessing_step == "realign_asl" ]]; then
 		asl_folders=($asl_processed_folder_names)
+		echo ${asl_folders}
 		for this_asl_folder in ${asl_folders[@]}; do
-			cd ${Subject_dir}/Processed/MRI_files/${this_asl_folder}/
-			matlab -nodesktop -nosplash -r "try; realign_asl('ASL_Run1.nii'); catch; end; quit"
+			cd ${Subject_dir}/Processed/MRI_files/${this_asl_folder}
+			pwd
+			# shopt -s extglob
+			# rm -r !(ASL_Run1.*)
+			# shopt -u extglob
+			if [[ -e realigned_*.nii ]]; then 
+       	        rm realigned_*.nii
+       	    fi
+			matlab -nodesktop -nosplash -r "try; realign_asl; catch; end; quit"
 			fslroi realigned_ASL_Run1.nii M0_calibration.nii 0 1
 			if [[ $subject_id == "3004" ]]; then
 				fslroi realigned_ASL_Run1.nii noM0_realigned_ASL_Run1.nii 1 124
@@ -200,7 +208,7 @@ for this_preprocessing_step in ${preprocessing_steps[@]}; do
 	fi
 
 	if [[ $this_preprocessing_step == "check_fsl_basil_native_ran" ]]; then
-		cd ${Subject_dir}/Processed/MRI_files/07_ASL/BasilCMD_calib_anat_scalib_pvcorr/native_space/pvcorr
+		cd ${Subject_dir}/Processed/MRI_files/07_ASL/BasilCMD_calib_anat_FM_scalib_pvcorr/native_space/pvcorr
 		# rm log.txt
 		if [ "$(ls *.nii.gz)" ]; then
      		echo "FULL:" $Subject_dir
@@ -210,7 +218,7 @@ for this_preprocessing_step in ${preprocessing_steps[@]}; do
 	fi
 
 	if [[ $this_preprocessing_step == "check_fsl_basil_std_ran" ]]; then
-		cd ${Subject_dir}/Processed/MRI_files/07_ASL/BasilCMD_calib_anat_scalib_pvcorr/std_space/pvcorr
+		cd ${Subject_dir}/Processed/MRI_files/07_ASL/BasilCMD_calib_anat_FM_scalib_pvcorr/std_space/pvcorr
 		# rm log.txt
 		if [ "$(ls *.nii.gz)" ]; then
      		echo "FULL:" $Subject_dir
@@ -226,15 +234,15 @@ for this_preprocessing_step in ${preprocessing_steps[@]}; do
 			# Results_folder_name=BasilCMD_calib_anat_scalib_pvcorr
 			Results_folder_name=BasilCMD_calib_anat_FM_scalib_pvcorr
 
-			mkdir -p ${Subject_dir}/Processed/MRI_files/${this_asl_folder}/$Results_folder_name/ANTS_Normalization
-			cp ${Subject_dir}/Processed/MRI_files/${this_t1_folder}/SkullStripped_biascorrected_T1.nii ${Subject_dir}/Processed/MRI_files/${this_asl_folder}/$Results_folder_name/ANTS_Normalization
-			cd ${Subject_dir}/Processed/MRI_files/${this_asl_folder}/$Results_folder_name/ANTS_Normalization
-			cp ${Subject_dir}/Processed/MRI_files/${this_asl_folder}/meanASL_Run1.nii ${Subject_dir}/Processed/MRI_files/${this_asl_folder}/$Results_folder_name/ANTS_Normalization
-            cp ${Subject_dir}/Processed/MRI_files/${this_asl_folder}/$Results_folder_name/native_space/perfusion.nii.gz ${Subject_dir}/Processed/MRI_files/${this_asl_folder}/$Results_folder_name/ANTS_Normalization
-            cp ${Subject_dir}/Processed/MRI_files/${this_asl_folder}/$Results_folder_name/native_space/perfusion_calib.nii.gz ${Subject_dir}/Processed/MRI_files/${this_asl_folder}/$Results_folder_name/ANTS_Normalization
-            cp ${Subject_dir}/Processed/MRI_files/${this_asl_folder}/$Results_folder_name/native_space/perfusion_wm.nii.gz ${Subject_dir}/Processed/MRI_files/${this_asl_folder}/$Results_folder_name/ANTS_Normalization
-            cp ${Subject_dir}/Processed/MRI_files/${this_asl_folder}/$Results_folder_name/native_space/perfusion_wm_calib.nii.gz ${Subject_dir}/Processed/MRI_files/${this_asl_folder}/$Results_folder_name/ANTS_Normalization
-            cp ${Template_dir}/MNI_2mm.nii ${Subject_dir}/Processed/MRI_files/${this_asl_folder}/$Results_folder_name/ANTS_Normalization
+			mkdir -p ${Subject_dir}/Processed/MRI_files/${this_asl_folder}/${Results_folder_name}/ANTS_Normalization
+			cp ${Subject_dir}/Processed/MRI_files/${this_t1_folder}/SkullStripped_biascorrected_T1.nii ${Subject_dir}/Processed/MRI_files/${this_asl_folder}/${Results_folder_name}/ANTS_Normalization
+			cd ${Subject_dir}/Processed/MRI_files/${this_asl_folder}/${Results_folder_name}/ANTS_Normalization
+			cp ${Subject_dir}/Processed/MRI_files/${this_asl_folder}/meanASL_Run1.nii ${Subject_dir}/Processed/MRI_files/${this_asl_folder}/${Results_folder_name}/ANTS_Normalization
+            cp ${Subject_dir}/Processed/MRI_files/${this_asl_folder}/${Results_folder_name}/native_space/perfusion.nii.gz ${Subject_dir}/Processed/MRI_files/${this_asl_folder}/${Results_folder_name}/ANTS_Normalization
+            cp ${Subject_dir}/Processed/MRI_files/${this_asl_folder}/${Results_folder_name}/native_space/perfusion_calib.nii.gz ${Subject_dir}/Processed/MRI_files/${this_asl_folder}/${Results_folder_name}/ANTS_Normalization
+            # cp ${Subject_dir}/Processed/MRI_files/${this_asl_folder}/${Results_folder_name}/native_space/perfusion_wm.nii.gz ${Subject_dir}/Processed/MRI_files/${this_asl_folder}/${Results_folder_name}/ANTS_Normalization
+            # cp ${Subject_dir}/Processed/MRI_files/${this_asl_folder}/${Results_folder_name}/native_space/perfusion_wm_calib.nii.gz ${Subject_dir}/Processed/MRI_files/${this_asl_folder}/${Results_folder_name}/ANTS_Normalization
+            cp ${Template_dir}/MNI_2mm.nii ${Subject_dir}/Processed/MRI_files/${this_asl_folder}/${Results_folder_name}/ANTS_Normalization
           
 			T1_Template=SkullStripped_biascorrected_T1.nii
 			Mean_ASL=meanASL_Run1.nii
@@ -259,8 +267,8 @@ for this_preprocessing_step in ${preprocessing_steps[@]}; do
 
 			# cp ${Subject_dir}/Processed/MRI_files/${this_asl_folder}/BasilCMD_calib_anat_FM/ANTS_Normalization/pvcorr/warpToT1Params_meanASL_Run10GenericAffine.mat ${Subject_dir}/Processed/MRI_files/${this_asl_folder}/BasilCMD_calib/native_space/
 
-			outputFolder=${Subject_dir}/Processed/MRI_files/${this_asl_folder}/$Results_folder_name/ANTS_Normalization/
-			T1_Template=${Subject_dir}/Processed/MRI_files/${this_asl_folder}/$Results_folder_name/ANTS_Normalization/SkullStripped_biascorrected_T1.nii
+			outputFolder=${Subject_dir}/Processed/MRI_files/${this_asl_folder}/${Results_folder_name}/ANTS_Normalization/
+			T1_Template=${Subject_dir}/Processed/MRI_files/${this_asl_folder}/${Results_folder_name}/ANTS_Normalization/SkullStripped_biascorrected_T1.nii
 			MNI_Template=${Template_dir}/MNI_1mm.nii
 			this_file_to_warp=noM0_realigned_ASL_Run1.nii
 			this_T1_core_file_name=SkullStripped_biascorrected_T1
@@ -302,13 +310,13 @@ for this_preprocessing_step in ${preprocessing_steps[@]}; do
 			-o warpedToMNI_perfusion_calib.nii -t [warpToT1Params_meanASL_Run10GenericAffine.mat,0] \
 			-t [warpToMNIParams_${this_T1_core_file_name}1Warp.nii] -t [warpToMNIParams_${this_T1_core_file_name}0GenericAffine.mat,0] -v
 
-			antsApplyTransforms -d 3 -e 3 -i perfusion_wm.nii -r MNI_2mm.nii \
-			-o warpedToMNI_perfusion_wm.nii -t [warpToT1Params_meanASL_Run10GenericAffine.mat,0] \
-			-t [warpToMNIParams_${this_T1_core_file_name}1Warp.nii] -t [warpToMNIParams_${this_T1_core_file_name}0GenericAffine.mat,0] -v
+			# antsApplyTransforms -d 3 -e 3 -i perfusion_wm.nii -r MNI_2mm.nii \
+			# -o warpedToMNI_perfusion_wm.nii -t [warpToT1Params_meanASL_Run10GenericAffine.mat,0] \
+			# -t [warpToMNIParams_${this_T1_core_file_name}1Warp.nii] -t [warpToMNIParams_${this_T1_core_file_name}0GenericAffine.mat,0] -v
 			
-			antsApplyTransforms -d 3 -e 3 -i perfusion_wm_calib.nii -r MNI_2mm.nii \
-			-o warpedToMNI_perfusion_wm_calib.nii -t [warpToT1Params_meanASL_Run10GenericAffine.mat,0] \
-			-t [warpToMNIParams_${this_T1_core_file_name}1Warp.nii] -t [warpToMNIParams_${this_T1_core_file_name}0GenericAffine.mat,0] -v
+			# antsApplyTransforms -d 3 -e 3 -i perfusion_wm_calib.nii -r MNI_2mm.nii \
+			# -o warpedToMNI_perfusion_wm_calib.nii -t [warpToT1Params_meanASL_Run10GenericAffine.mat,0] \
+			# -t [warpToMNIParams_${this_T1_core_file_name}1Warp.nii] -t [warpToMNIParams_${this_T1_core_file_name}0GenericAffine.mat,0] -v
 			
 			gunzip -f *nii.gz
 
@@ -342,7 +350,7 @@ for this_preprocessing_step in ${preprocessing_steps[@]}; do
 	fi
 
 	if [[ $this_preprocessing_step == "check_ants_norm" ]]; then
-		cd ${Subject_dir}/Processed/MRI_files/07_ASL/BasilCMD_calib_anat_scalib_pvcorr/ANTS_Normalization
+		cd ${Subject_dir}/Processed/MRI_files/07_ASL/BasilCMD_calib_anat_FM_scalib_pvcorr/ANTS_Normalization
 		# cd ${Subject_dir}/Processed/MRI_files/07_ASL/BasilCMD_calib_anat_FM_scalib_pvcorr/std_space
 		# rm log.txt
 		echo checking $Subject_dir
@@ -352,7 +360,7 @@ for this_preprocessing_step in ${preprocessing_steps[@]}; do
 	if [[ $this_preprocessing_step == "smooth_asl_ants" ]]; then
 		data_folder_to_analyze=($asl_processed_folder_names)
 		for this_asl_folder in ${data_folder_to_analyze[@]}; do
-			Results_folder_name=BasilCMD_calib_anat_scalib_pvcorr
+			Results_folder_name=BasilCMD_calib_anat_FM_scalib_pvcorr
 			cd ${Subject_dir}/Processed/MRI_files/${this_asl_folder}/$Results_folder_name/ANTS_Normalization/pvcorr
 			shopt -s nullglob
 			prefix_to_delete=(smoothed_*.nii)

@@ -19,7 +19,7 @@ do
 	elif [[ $argument_counter == 2 ]]; then
     	Subject_dir=$this_argument
 	else
-		preprocessing_steps[argument_counter]="$this_argument"
+		preprocessing_steps["$argument_counter-3"]="$this_argument"
 	fi
 	(( argument_counter++ ))
 done
