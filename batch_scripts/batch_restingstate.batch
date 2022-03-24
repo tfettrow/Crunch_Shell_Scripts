@@ -18,7 +18,7 @@ pwd; hostname; date
 # 4) make sure the directories are set to your repositories
 # 5) uncomment the step you would like to process for each subject specified in subject_array
 #subject_array=(3004 3006 3007)
-subject_array=(1022)
+subject_array=(3082)
 # subject=${subject_array[0]}
 
 

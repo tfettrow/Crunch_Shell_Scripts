@@ -26,7 +26,7 @@ done
 	export MATLABPATH=${Matlab_dir}/helper
 	ml matlab/2020b
 	ml gcc/5.2.0; ml ants ## ml gcc/9.3.0; ml ants/2.3.4
-	ml fsl/6.0.4
+	ml fsl/6.0.3
 	ml itksnap
 	
 	cd $Subject_dir
@@ -101,98 +101,7 @@ for this_preprocessing_step in ${preprocessing_steps[@]}; do
 		if [[ $this_preprocessing_step == "create_fieldmap_restingstate" ]]; then
 
 			data_folder_to_copy_to=($restingstate_processed_folder_names)
-			####  this section was for hcp 1200 rsfMRI data ... what TF learned.. need to make this more universal 
-			# cd "${Subject_dir}/Processed/MRI_files/03_Fieldmaps/04_rsfMRI"
-			#    	# just cleaning up in case this is being rerun
-			#    	if [ -e my_fieldmap_nifti.nii ]; then
-			#    		rm my_fieldmap_nifti.nii
-			#    	fi
-			#    	if [ -e acqParams.txt ]; then
-			#    		rm acqParams.txt
-			#    	fi
-			#    	if [ -e my_fieldmap_mag.nii ]; then
-			# 		rm my_fieldmap_mag.nii
-			# 	fi
-			# 	if [ -e Distmap_merged.nii ]; then 
-			# 		rm Distmap_merged.nii
-			# 	fi
-			# 	if [ -e Mean_Distmap_merged.nii ]; then 
-			# 		rm Mean_Distmap_merged.nii
-			# 	fi
-			# 	if [ -e se_epi_unwarped.nii ]; then 
-			# 		rm se_epi_unwarped.nii
-			# 	fi
-			# 	if [ -e topup_results_fieldcoef.nii ]; then 
-			# 		rm topup_results_fieldcoef.nii
-			# 	fi
-			# 	if [ -e topup_results_movpar.txt ]; then 
-			# 		rm topup_results_movpar.txt
-			# 	fi
-				
-			# 	ml fsl
-			# 	fslmerge -t Distmap_merged.nii Distmap_LR.nii Distmap_RL.nii
-		
-			# 	this_file_header_info=$(fslhd Distmap_merged.nii )
-			# 	this_file_number_of_slices=$(echo $this_file_header_info | grep -o dim3.* | tr -s ' ' | cut -d ' ' -f 2)
-	
-			# 	if [ $((this_file_number_of_slices%2)) -ne 0 ]; then
-			# 		fslsplit Distmap_merged.nii slice -z
-			# 		gunzip -f *nii.gz
-			# 		rm slice0000.nii
-			# 		fslmerge -z Distmap_merged slice0*
-			# 		rm slice00*.nii
-			# 	fi
-	
-			# 	fslmaths Distmap_merged.nii -Tmean Mean_Distmap_merged.nii
-			# 	gunzip -f *nii.gz
-	
-			# 	cp Mean_Distmap_merged.nii "${Subject_dir}/Processed/MRI_files/${data_folder_to_copy_to}"
 			
-			#    	echo creating fieldmap...
-					
-			# 	# just a dummy value to check whether ecoding direction is same between distmaps
-			# 	previous_encoding_direction=k
-			# 	# assuming only the DistMaps have .jsons in this folder
-			# 	for this_json_file in *.json; do
-											
-			# 		total_readout=$(grep "TotalReadoutTime" ${this_json_file} | tr -dc '0.00-9.00')
-			# 		encoding_direction=$(grep "PhaseEncodingDirection" ${this_json_file} | cut -d: -f 2 | head -1 | tr -d '"' |  tr -d ',')
-
-			# 		this_file_name=$(echo $this_json_file | cut -d. -f 1)
-			# 		ml fsl
-			# 		this_file_header_info=$(fslhd $this_file_name.nii)
-			# 		this_file_number_of_volumes=$(echo $this_file_header_info | grep -o dim4.* | tr -s ' ' | cut -d ' ' -f 2)
-	
-			# 		for (( this_volume=1; this_volume<=$this_file_number_of_volumes; this_volume++ )); do
-			# 			if [[ $encoding_direction =~ i- ]]; then
-			# 				echo 1 0 0 ${total_readout} >> acqParams.txt
-			# 			else
-			# 				echo -1 0 0 ${total_readout} >> acqParams.txt
-			# 			fi
-			# 			if [[ $encoding_direction == $previous_encoding_direction ]]; then
-			# 				echo WARNING: the phase encoding directions appear to be the same between distmaps!!!
-			# 			fi
-			# 		done
-			# 		previous_encoding_direction=$encoding_direction
-			# 	done
-		
-			# 	ml fsl
-	
-			# 	topup --imain=Distmap_merged.nii --datain=acqParams.txt --fout=my_fieldmap_nifti --config=b02b0.cnf --iout=se_epi_unwarped --out=topup_results
-	
-			# 	fslmaths se_epi_unwarped -Tmean my_fieldmap_mag
-	
-			# 	ml fsl/5.0.8
-			# 	fslchfiletype ANALYZE my_fieldmap_nifti.nii fpm_my_fieldmap
-	
-			# 	gunzip -f *nii.gz
-			# 	cp fpm_my_fieldmap.hdr ${Subject_dir}/Processed/MRI_files/${data_folder_to_copy_to}
-   #   	    	cp fpm_my_fieldmap.img ${Subject_dir}/Processed/MRI_files/${data_folder_to_copy_to}
-   #   	    	cp ${Matlab_dir}/helper/vdm_defaults.m ${Subject_dir}/Processed/MRI_files/${data_folder_to_copy_to}
-			# 	cp se_epi_unwarped.nii ${Subject_dir}/Processed/MRI_files/${data_folder_to_copy_to}
-			##########################################################
-
-   			# This really needs to be reworked.. for all scripts
    			# WARNING: this logic is specific to MiM until decide on better method
 			subject=$(echo ${Subject_dir} | egrep -o '[[:digit:]]{4}' | head -n1)
    			subject_level=$(echo $subject | cut -c1-1)
@@ -226,8 +135,7 @@ for this_preprocessing_step in ${preprocessing_steps[@]}; do
 					if [ -e topup_results_movpar.txt ]; then 
 						rm topup_results_movpar.txt
 					fi
-					
-					ml fsl
+
 					fslmerge -t AP_PA_merged.nii DistMap_AP.nii DistMap_PA.nii
 			
 					this_file_header_info=$(fslhd AP_PA_merged.nii )
@@ -268,7 +176,6 @@ for this_preprocessing_step in ${preprocessing_steps[@]}; do
 						encoding_direction=$(grep "PhaseEncodingDirection" ${this_json_file} | cut -d: -f 2 | head -1 | tr -d '"' |  tr -d ',')
 
 						this_file_name=$(echo $this_json_file | cut -d. -f 1)
-						ml fsl/6.0.1
 						this_file_header_info=$(fslhd $this_file_name.nii)
 						this_file_number_of_volumes=$(echo $this_file_header_info | grep -o dim4.* | tr -s ' ' | cut -d ' ' -f 2)
 		
@@ -287,7 +194,8 @@ for this_preprocessing_step in ${preprocessing_steps[@]}; do
 					topup --imain=AP_PA_merged.nii --datain=acqParams.txt --fout=my_fieldmap_nifti --config=b02b0.cnf --iout=se_epi_unwarped --out=topup_results
 
 					fslmaths se_epi_unwarped -Tmean my_fieldmap_mag
-
+					
+					ml fsl/5.0.8
 					fslchfiletype ANALYZE my_fieldmap_nifti.nii fpm_my_fieldmap
 		
 					gunzip -f *nii.gz
