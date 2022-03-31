@@ -102,11 +102,11 @@ for this_preprocessing_step in ${preprocessing_steps[@]}; do
        	#cd $Subject_dir/Processed/MRI_files
        	for this_functional_run_folder in ${data_folder_to_analyze[@]}; do
        	    cd "${Subject_dir}/Processed/MRI_files/${this_functional_run_folder}/"
-       	    
-       	    if [[ -e slicetimed_*.nii ]]; then 
-       	        rm slicetimed_*.nii
+       	    gunzip *.gz
+       	    if [[ ! -e slicetimed_fMRI_Run1.nii ]]; then
+				matlab -nodesktop -nosplash -r "try; slicetime_fmri; catch; end; quit"
        	    fi
-       	    matlab -nodesktop -nosplash -r "try; slicetime_fmri; catch; end; quit"
+       	    #matlab -nodesktop -nosplash -r "try; slicetime_fmri; catch; end; quit"
        	done
        	echo This step took $SECONDS seconds to execute
        	cd "${Subject_dir}"
@@ -580,15 +580,23 @@ for this_preprocessing_step in ${preprocessing_steps[@]}; do
 	fi
 	if [[ $this_preprocessing_step == "check_fmri_ants" ]]; then
 		data_folder_to_analyze=($fmri_processed_folder_names)
+	
 		for this_functional_run_folder in ${data_folder_to_analyze[@]}; do
-			cd ${Subject_dir}/Processed/MRI_files/${this_functional_run_folder}/ANTS_Normalization
-			for this_functional_file in smoothed_warpedToMNI_unwarpedRealigned*.nii; do
-				this_core_functional_file_name=$(echo $this_functional_file | cut -d. -f 1)
-				echo checking $this_core_functional_file_name for ${Subject_dir}
-				
-				ml itksnap
-				itksnap -g MNI_2mm.nii  -o $this_functional_file
-			done
+			cd ${Subject_dir}/Processed/MRI_files/${this_functional_run_folder}
+			gunzip *.gz
+			matlab -nodesktop -nosplash -r "try; save_fmriRun_png; catch; end; quit"
+			matlab -nodesktop -nosplash -r "try; save_slicetimedRun_png; catch; end; quit"
+			matlab -nodesktop -nosplash -r "try; save_meanunwarpedRun_png; catch; end; quit"
+			cd ANTS_Normalization
+			gunzip *.gz
+			matlab -nodesktop -nosplash -r "try; save_smoothedRun_png; catch; end; quit"
+			echo "saved PNGs"
+			# for this_functional_file in smoothed_warpedToMNI_unwarpedRealigned*.nii*; do
+			# 	this_core_functional_file_name=$(echo $this_functional_file | cut -d. -f 1)
+			# 	echo checking $this_core_functional_file_name for ${Subject_dir}
+			# 	#fsleyes render --scene 'ortho' --outfile '/blue/rachaelseidler/share/FromExternal/Research_Projects_UF/CRUNCH/MiM_Data/fmri_check/${this_functional_file}' ${this_functional_file}
+
+			# done
 		done
 	fi
 	if [[ $this_preprocessing_step == "check_fmri_outliers" ]]; then	
