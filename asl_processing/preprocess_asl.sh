@@ -369,5 +369,43 @@ for this_preprocessing_step in ${preprocessing_steps[@]}; do
            	fi
 			matlab -nodesktop -nosplash -r "try; smooth_asl_ants; catch; end; quit"
 		done
+	fi
+	
+	if [[ $this_preprocessing_step == "whole_brain" ]]; then
+		this_subject=$(echo ${Subject_dir} | egrep -o '[[:digit:]]{4}' | head -n1)
+		Study_dir=/blue/rachaelseidler/share/FromExternal/Research_Projects_UF/CRUNCH/MiM_Data
+
+	    Results_folder_name=BasilCMD_calib_anat_FM_scalib_pvcorr
+       	cd ${Subject_dir}/Processed/MRI_files/07_ASL/${Results_folder_name}/ANTS_Normalization
+		pwd
+        outfile_fsl_perfusion=${this_subject}_fsl_perfusion_temporal.csv
+   	    outfile_fsl_perfusion_calib=${this_subject}_fsl_perfusion_calib_whole.csv
+		this_roi_image_name=${Study_dir}/rwwtemp.nii
+		if [ -e ${this_subject}_fsl_perfusion_temporal.csv ]; then
+			rm ${this_subject}_fsl_perfusion_temporal.csv
+		fi
+		if [ -e ${this_subject}_fsl_perfusion_calib_whole.csv ]; then
+			rm ${this_subject}_fsl_perfusion_calib_whole.csv
+		fi
+		      	
+        var1="record_id,redcap_event_name"
+        var2="$H${this_subject},base_v4_mri_arm_1" 
+		echo -e "$var1\n$var2" >> "$outfile_fsl_perfusion"
+        echo -e "$var1\n$var2" >> "$outfile_fsl_perfusion_calib"
+		echo "check point 1"
+		beta=0
+		beta=$(fslmeants -i warpedToMNI_perfusion_calib.nii)
+		# echo $this_roi_file_corename_squeeze
+		first_row=$(cat $outfile_fsl_perfusion_calib | sed -n 1p)
+		second_row=$(cat $outfile_fsl_perfusion_calib | sed -n 2p) 
+		rm $outfile_fsl_perfusion_calib
+		echo -e "${first_row},${this_roi_file_corename_squeeze}\n${second_row},$beta" >> "$outfile_fsl_perfusion_calib"
+		beta=0
+		beta=$(fslmeants -i warpedToMNI_perfusion_calib.nii -m $this_roi_image_name)
+		# echo $this_roi_file_corename_squeeze
+		first_row=$(cat $outfile_fsl_perfusion | sed -n 1p)
+		second_row=$(cat $outfile_fsl_perfusion | sed -n 2p) 
+		rm $outfile_fsl_perfusion
+		echo -e "${first_row},${this_roi_file_corename_squeeze}\n${second_row},$beta" >> "$outfile_fsl_perfusion"
 	fi	
 done
