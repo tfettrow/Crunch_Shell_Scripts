@@ -124,7 +124,7 @@ while IFS=',' read -ra subject_list; do
 
 
 				var1="record_id, redcap_event_name"
-				var2="$H${this_subject}, base_v4_mri_arm_1"
+				var2="$H${this_subject},base_v4_mri_arm_1"
 				echo -e "$var1\n$var2" >> "$subj_volumes_outfile"
 				echo -e "$var1\n$var2" >> "$subj_intensities_outfile"
 				# cat $subj_volumes_outfile

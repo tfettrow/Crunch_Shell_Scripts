@@ -36,8 +36,7 @@ Study_dir=/blue/rachaelseidler/share/FromExternal/Research_Projects_UF/CRUNCH/Mi
 	
 #####################################################################################################################################################
 ml fsl/6.0.3
-ml gcc/5.2.0; ml ants
-ml itksnap
+ml gcc/5.2.0
 
 while IFS=',' read -ra subject_list; do
     for this_subject in "${subject_list[@]}"; do

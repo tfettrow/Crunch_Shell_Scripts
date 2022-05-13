@@ -2,7 +2,7 @@
 #SBATCH --job-name=batch_rsfmri					# Job name
 #SBATCH --mail-type=END,FAIL          			# Mail events (NONE, BEGIN, END, FAIL, ALL)
 #SBATCH --mail-user=<valay.shah@ufl.edu>  		# Where to send mail	
-#SBATCH --cpus-per-task=1
+#SBATCH --cpus-per-task=2
 #SBATCH --ntasks=1                    			# Run a single task
 #SBATCH --mem=16000mb	                   	    # Memory limit
 #SBATCH --qos=rachaelseidler
@@ -18,7 +18,7 @@ pwd; hostname; date
 # 4) make sure the directories are set to your repositories
 # 5) uncomment the step you would like to process for each subject specified in subject_array
 #subject_array=(3004 3006 3007)
-subject_array=(3082)
+subject_array=(1030)
 # subject=${subject_array[0]}
 
 

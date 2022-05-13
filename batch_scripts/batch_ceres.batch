@@ -19,7 +19,7 @@ pwd; hostname; date
 # 4) make sure the directories are set to your repositories
 # 5) uncomment the step you would like to process for each subject specified in subject_array
 
-subject_array=(3073)
+subject_array=(1030)
 
 subject=${subject_array[$SLURM_ARRAY_TASK_ID]}
 
@@ -39,8 +39,8 @@ Template_dir=/blue/rachaelseidler/valay.shah/MR_Templates
 cd $Shell_dir
 
 
-# ./ceres_processing/ceres_processing.sh $Matlab_dir $Template_dir $Subject_dir ceres_unzip coreg_func_to_ceresT1 ceres_cb_mask_ants_norm ceres_smooth_ants_norm
-./ceres_processing/ceres_fmri_processing.sh $Matlab_dir $Template_dir $Subject_dir ceres_unzip coreg_func_to_ceresT1 ceres_cb_mask_ants_norm ceres_smooth_ants_norm
+./ceres_processing/ceres_processing.sh $Matlab_dir $Template_dir $Subject_dir ceres_unzip coreg_func_to_ceresT1 ceres_cb_mask_ants_norm ceres_smooth_ants_norm
+# ./ceres_processing/ceres_fmri_processing.sh $Matlab_dir $Template_dir $Subject_dir ceres_unzip coreg_func_to_ceresT1 ceres_cb_mask_ants_norm ceres_smooth_ants_norm
 
 #ceres_cb_mask_ants_norm ceres_smooth_ants_norm
 # ./Shell_Scripts/ceres_processing.sh $subject check_ceres_ants
