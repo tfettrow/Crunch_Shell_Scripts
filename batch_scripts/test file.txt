@@ -1,5 +1,5 @@
 #!/bin/bash
-#SBATCH --job-name=batch_dwi		     			# Job name
+#SBATCH --job-name=batch_tbss		     			# Job name
 #SBATCH --mail-type=END,FAIL          			# Mail events (NONE, BEGIN, END, FAIL, ALL)
 #SBATCH --mail-user=<valay.shah@ufl.edu>  		# Where to send mail	
 #SBATCH --ntasks=1
@@ -7,9 +7,7 @@
 #SBATCH --qos=rachaelseidler
 #SBATCH --mem=16000mb	                   	    # Memory limit
 #SBATCH --time=96:00:00               			# Time limit hrs:min:sec
-#SBATCH --output=batch_dwi.%A_%a.out 	# Standard output and error log
-#SBATCH --partition=gpu
-#SBATCH --gpus=geforce:1
+#SBATCH --output=batch_tbss.%A_%a.out 	# Standard output and error log
 #SBATCH --array=0			# array range
 
 
@@ -35,18 +33,10 @@ Template_dir=/blue/rachaelseidler/valay.shah/MR_Templates
 TBSS_dir=TBSS_${subject}
 
 cd $Shell_dir
+./dwi_processing/preprocess_dwi.sh $Matlab_dir $Template_dir $Subject_dir $TBSS_dir copy_fa_for_tbss
+./dwi_processing/preprocess_dwi.sh $Subject_dir $TBSS_dir
 
-./dwi_processing/preprocess_dwi.sh $Matlab_dir $Template_dir $Subject_dir $TBSS_dir drift_correction fieldmap_dti eddy_correction eddy_quad freewater_correction 
-
-## steps vv ##
-#drift_correction
-#fieldmap_dti
-#eddy_correction
-#eddy_correction_noFM
-#eddy_quad
-#cleanup_dti
-#freewater_correction
-
+##steps
 
 
 # for this_subject in "${subject_array[@]}"; do

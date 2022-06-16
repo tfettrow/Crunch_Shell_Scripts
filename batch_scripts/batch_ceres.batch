@@ -51,7 +51,7 @@ cd $Shell_dir
 # ceres_smooth_spm_norm
 # ceres_cb_mask_ants_norm
 # ceres_smooth_ants_norm
-# check_ceres_ants_func
+
 
 
 # for this_subject in "${subject_array[@]}"; do
