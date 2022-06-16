@@ -10,7 +10,13 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 Subject_dir=$1
+remove_processed=$2
 
 cd ${Subject_dir}/Raw/MRI_files
 pwd
 unzip -n *.zip
+
+if [[ $remove_processed == "remove_proc" ]]; then
+    cd ${Subject_dir}/Processed
+    rm -r MRI_files
+fi

@@ -8,7 +8,7 @@
 #SBATCH --qos=rachaelseidler
 #SBATCH --time=96:00:00               			# Time limit hrs:min:sec
 #SBATCH --output=batch_rsfmri.%A_%a.out 	# Standard output and error log
-#SBATCH --array=0		# array range
+#SBATCH --array=0-47		# array range
 pwd; hostname; date
 
 ##### BATCH FILE INFO ######
@@ -18,7 +18,7 @@ pwd; hostname; date
 # 4) make sure the directories are set to your repositories
 # 5) uncomment the step you would like to process for each subject specified in subject_array
 #subject_array=(3004 3006 3007)
-subject_array=(1030)
+subject_array=(1004 1007 1009 1010 1011 1012 1013 1017 1018 1019 1020 1022 1024 1025 1026 1027 2002 2007 2008 2012 2013 2015 2017 2018 2020 2021 2022 2023 2025 2026 2033 2034 2037 2038 2039 2042 2052 2059 2027)
 # subject=${subject_array[0]}
 
 

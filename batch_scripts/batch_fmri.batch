@@ -4,7 +4,7 @@
 #SBATCH --mail-user=<valay.shah@ufl.edu>  		# Where to send mail	
 #SBATCH --cpus-per-task=2
 #SBATCH --ntasks=1                    			# Run a single task
-#SBATCH --mem=8000mb	                   	    # Memory limit
+#SBATCH --mem=16000mb	                   	    # Memory limit
 #SBATCH --qos=rachaelseidler
 #SBATCH --time=96:00:00               			# Time limit hrs:min:sec
 #SBATCH --output=batch_fmri.%A_%a.out 	# Standard output and error log
@@ -20,10 +20,10 @@ pwd; hostname; date
 
 
 
-# subject_array=(1012 1004 1011 1002 1010 1013 2021 2015 2002 2018 2017 2012 2025 2020 2026 2023 2022 2007 2013 2008 2033 2034)
+subject_array=(1002)
 # subject_array=(1002 1004 1007 1009 1010 1011 1013 1017 1018 1019 1020 1022 1024 1025 1026 1027 1029 1030 2002 2007 2008 2012 2013 2015 2017 2018 2020 2021 2022 2023 2025 2026 2027 2033 2034 2037 2038 2039 2042 2052 2059 2062 2082 3024 3029 3039 3042 3046 3047 3053 3063 3072 3073 3077 3092)
 
-subject_array=(1030)
+# subject_array=(1004 1007 1009 1010 1011 1012 1013 1017 1018 1019 1020 1022 1024 1025 1026 1027 2002 2007 2008 2012 2013 2015 2017 2018 2020 2021 2022 2023 2025 2026 2033 2034 2037 2038 2039 2042 2052 2059 2027)
 
 # subject=${subject_array[0]}
 
@@ -47,7 +47,7 @@ cd $Shell_dir
 ./fmri_processing/preprocess_fmri.sh $Matlab_dir $Template_dir $Subject_dir slicetime_fmri create_fieldmap unwarp_fmri art_fmri 
 ./fmri_processing/preprocess_fmri.sh $Matlab_dir $Template_dir $Subject_dir copy_skullstripped_biascorrected_t1_4_ants n4_bias_correction ants_norm_fmri smooth_fmri_ants
 # ./fmri_processing/preprocess_fmri.sh $Matlab_dir $Template_dir $Subject_dir check_fmri_ants
-./fmri_processing/preprocess_fmri.sh $Matlab_dir $Template_dir $Subject_dir level_one_stats_ants
+./fmri_processing/preprocess_fmri.sh $Matlab_dir $Template_dir $Subject_dir copy_cond level_one_stats_ants
 # ./fmri_processing/process_level_two_fmri.sh
 
 # ./cleanup_processed_files_fmri.sh $subject

@@ -45,7 +45,11 @@ convertDICOM(){
 		cp $this_processed_file_name.json "${Subject_dir}/Processed/MRI_files/$this_processed_folder_name";
 	done
 
-	if [ -e *.bval ]; then
+	if [[ -e DWI.bval ]]; then
+		cp DWI.bval "${Subject_dir}/Processed/MRI_files/$this_processed_folder_name";
+		cp DWI.bvec "${Subject_dir}/Processed/MRI_files/$this_processed_folder_name";
+	fi
+	if [[ ! -e DWI.bval ]] && [[ EP*.bval ]]; then
 		for bval_file in *.bval*; do
 			mv -v ${bval_file} $this_processed_file_name.bval
 			cp $this_processed_file_name.bval "${Subject_dir}/Processed/MRI_files/$this_processed_folder_name";
