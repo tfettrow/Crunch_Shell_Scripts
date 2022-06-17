@@ -1,0 +1,73 @@
+#!/bin/bash
+#SBATCH --job-name=batch_asl					# Job name
+#SBATCH --mail-type=END,FAIL          			# Mail events (NONE, BEGIN, END, FAIL, ALL)
+#SBATCH --mail-user=<tfettrow@ufl.edu>  		# Where to send mail	
+#SBATCH --cpus-per-task=1
+#SBATCH --ntasks=1                    			# Run a single task
+#SBATCH --mem=16000mb	                   	    # Memory limit
+#SBATCH --qos=rachaelseidler
+#SBATCH --time=96:00:00               			# Time limit hrs:min:sec
+#SBATCH --output=batch_asl.%A_%a.out 	# Standard output and error log
+#SBATCH --array=0				# array range
+pwd; hostname; date
+
+##### BATCH FILE INFO ######
+# 1) specify the anticipated memory for the job (>25% more than what it will actually use)
+# 2) specify the array (0-N) vector.. must be size of the subject_array.. starts with 0
+# 3) specify the subject_array
+# 4) make sure the directories are set to your repositories
+# 5) uncomment the step you would like to process for each subject specified in subject_array
+#subject_array=(3004 3006 3007)
+
+# 64 vv
+# subject_array=(1002 1004 1009 1010 1013 1018 1019 1020 1022 1026 1027 2002 2007 2008 2012 2013 2015 2017 2018 2020 2021 2022 2023 2025 2026 2033 2034 2037 2038 2039 2042 2052 2059 2062 2027 3004 3006 3007 3008 3010 3021 3023 3024 3025 3026 3027 3028 3029 3030 3036 3039 3040 3042 3043 3046 3047 3051 3053 3056 3058 3059 3063 3066 3068)
+# subject_array=(2002 2007 2008 2012 2013 2015 2017 2018 2020 2021 2022 2023 2025 2026 2033 2034 2037 2038 2039 2042 2052 2059 2062) 
+# subject=${subject_array[0]}
+# subject_array=(1007 1012 1025 3021 3023)
+# subject_array=(1002 1004 1009 1010 1013)
+## vv 44 vv
+# subject_array=(1004 1007 1019 1020 1027 2002 2007 2008 2012 2013 2015 2017 2021 2022 2023 2025 2033 2037 2038 2042 2062 2027 3004 3007 3008 3010 3023 3024 3025 3026 3027 3028 3030 3036 3039 3043 3046 3047 3051 3053 3056 3059 3063 3066)
+# subject_array=(2017 3004)
+subject_array=(3068 3069)
+
+
+subject=${subject_array[$SLURM_ARRAY_TASK_ID]}
+
+Subject_dir=/blue/rachaelseidler/share/FromExternal/Research_Projects_UF/CRUNCH/MiM_Data/${subject}
+# # ######TYLER F Directory
+# cd /blue/rachaelseidler/tfettrow/Crunch_Code
+# Shell_dir=/blue/rachaelseidler/tfettrow/Crunch_Code/Shell_Scripts
+# Matlab_dir=/blue/rachaelseidler/tfettrow/Crunch_Code/Matlab_Scripts
+# Template_dir=/blue/rachaelseidler/tfettrow/Crunch_Code/MR_Templates
+
+#####VALAY S Directory
+cd /blue/rachaelseidler/valay.shah
+Shell_dir=/blue/rachaelseidler/valay.shah/Shell_Scripts
+Matlab_dir=/blue/rachaelseidler/valay.shah/MiM_Matlab/MiM_Matlab
+Template_dir=/blue/rachaelseidler/valay.shah/MR_Templates
+
+cd $Shell_dir
+
+################################ asl preprocessing #######################################
+./asl_processing/preprocess_asl.sh $Matlab_dir $Template_dir $Subject_dir realign_asl fsl_anat basil_cbf asl_norm_ants
+# ./asl_processing/preprocess_asl.sh $Matlab_dir $Template_dir $Subject_dir realign_asl
+
+#realign_asl
+#fsl_anat
+# check_fsl_anat_ran
+#basil_cbf
+# check_fsl_basil_native_ran
+# check_fsl_basil_std_ran
+#asl_norm_ants
+#smooth_asl_fsl
+#smooth_asl_ants
+
+
+############### CONN ###############################
+#./conn_network.sh
+
+
+# for this_subject in "${subject_array[@]}"; do
+#     Subject_dir=/blue/rachaelseidler/share/FromExternal/Research_Projects_UF/CRUNCH/MiM_Data/${this_subject}
+#     ./asl_processing/preprocess_asl.sh $Matlab_dir $Template_dir $Subject_dir check_ants_norm
+# done
