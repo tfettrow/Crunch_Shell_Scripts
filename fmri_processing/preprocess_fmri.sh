@@ -611,11 +611,22 @@ for this_preprocessing_step in ${preprocessing_steps[@]}; do
 	if [[ $this_preprocessing_step == "zip_mid_files" ]]; then
 		data_folder_to_analyze=($fmri_processed_folder_names)
 		for this_functional_run_folder in ${data_folder_to_analyze[@]}; do
-		cd ${Subject_dir}/Processed/MRI_files/${this_functional_run_folder}/ANTS_Normalization
-		gzip !smoothed*.nii
-		rm c*T1*
+			cd ${Subject_dir}/Processed/MRI_files/${this_functional_run_folder}/ANTS_Normalization
+			for file in *.nii; do
+				if [[ $file != smoothed* ]]; then
+				gzip -v $file
+				fi
+			done
+			rm warpedToMNI_*.nii*
+			cd ..
+			for file in *.nii; do
+				if [[ $file != fmri_Run* ]]; then
+				gzip -v $file
+				fi
+			done
+		# gzip ! fMRI_Run*.nii
    		done
-   		echo "Mid files zipped"
+   		echo "Mid files zipped for ${Subject_dir}"
    		cd "${Subject_dir}"
 	fi
 	

@@ -8,7 +8,7 @@
 #SBATCH --qos=rachaelseidler
 #SBATCH --time=96:00:00               			# Time limit hrs:min:sec
 #SBATCH --output=batch_start.%A_%a.out 	# Standard output and error log
-#SBATCH --array=0		# array range
+#SBATCH --array=0	# array range
 pwd; hostname; date
 
 ##### BATCH FILE INFO ######
@@ -21,7 +21,7 @@ pwd; hostname; date
 
 # subject_array=(3004 3006 3007 3008 3010 3021 3023 3024 3025 3026 3028 3029 3030 3036 3039 3040 3041 3042 3043 3046 3047 3051 3053 3054 3055 3056 3058 3059 3063 3066 3068 3069 3070 3071 3072 3073 3074 3076)
 
-subject_array=(2095)
+subject_array=(2090)
 subject=${subject_array[$SLURM_ARRAY_TASK_ID]}
 Subject_dir=/blue/rachaelseidler/share/FromExternal/Research_Projects_UF/CRUNCH/MiM_Data/${subject}
 
@@ -39,15 +39,15 @@ Template_dir=/blue/rachaelseidler/valay.shah/MR_Templates
 
 cd $Shell_dir
 
-# ./file_organization/file_organize.sh $Subject_dir
-# ./file_organization/save_subject_info.sh $Subject_dir $Matlab_dir
-# ./misc/biascorrect_and_skullstrip.sh $Matlab_dir $Template_dir $Subject_dir n4_bias_correction skull_strip_t1_4_ants copy_t1
-# ./file_organization/zip_raw_files.sh $Subject_dir
-
-./file_organization/unzip_raw_files.sh $Subject_dir remove_proc
 ./file_organization/file_organize.sh $Subject_dir
+./file_organization/save_subject_info.sh $Subject_dir $Matlab_dir
 ./misc/biascorrect_and_skullstrip.sh $Matlab_dir $Template_dir $Subject_dir n4_bias_correction skull_strip_t1_4_ants copy_t1
 ./file_organization/zip_raw_files.sh $Subject_dir
+
+# ./file_organization/unzip_raw_files.sh $Subject_dir remove_proc
+# ./file_organization/file_organize.sh $Subject_dir
+# ./misc/biascorrect_and_skullstrip.sh $Matlab_dir $Template_dir $Subject_dir n4_bias_correction skull_strip_t1_4_ants copy_t1
+# ./file_organization/zip_raw_files.sh $Subject_dir
 
 
 ###########################################################################################
