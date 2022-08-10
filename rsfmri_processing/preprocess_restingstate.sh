@@ -591,4 +591,25 @@ for this_preprocessing_step in ${preprocessing_steps[@]}; do
 			# cp ${Subject_dir}/Processed/MRI_files/05_MotorImagery/ANTS_Normalization/warpedToMNI_biascorrected*.nii ${Subject_dir}/Processed/MRI_files/${data_folder_to_analyze}/ANTS_Normalization
 			echo "copying done: check CONN_test folder"
 		fi
+
+		if [[ $this_preprocessing_step == "zip_mid_files" ]]; then
+			data_folder_to_analyze=($restingstate_processed_folder_names)
+			cd ${Subject_dir}/Processed/MRI_files/${data_folder_to_analyze}/ANTS_Normalization
+			for file in *.nii; do
+				if [[ $file != smoothed* ]]; then
+				gzip -v $file
+				fi
+			done
+			rm CBmasked_coreg*.gz
+			rm coregToT1_unwarp*.gz
+			cd ..
+			for file in *.nii; do
+				if [[ $file != RestingState* ]]; then
+				gzip -v $file
+				fi
+			done
+		# gzip ! fMRI_Run*.nii
+   		echo "Mid files zipped for ${Subject_dir}"
+   		cd "${Subject_dir}"
+		fi
 done
