@@ -10,11 +10,11 @@
 #SBATCH --output=batch_dwi.%A_%a.out 	# Standard output and error log
 #SBATCH --partition=gpu
 #SBATCH --gpus=geforce:1
-#SBATCH --array=0-8		# array range
+#SBATCH --array=0	# array range
 
 
 pwd; hostname; date
-subject_array=(2022 2023 2025 2026 2033 2034 2037 2038 2039) # 2042 2052 2059 2062 2027 3004 3006 3007 3008 3010 3021 3026 3028 3029 3030 3039 3040 3042 3043 3046 3047)
+subject_array=(3103)
 
 # subject_array=(1012 1018 1019 1025 2027 2038 2039 3029 3006 3010 3026 3028 3030 3036)
 # subject_array=(1004)

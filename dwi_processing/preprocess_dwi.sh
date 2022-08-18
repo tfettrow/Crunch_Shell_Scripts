@@ -107,6 +107,7 @@ for this_preprocessing_step in ${preprocessing_steps[@]};do
 	if [[ $this_preprocessing_step == "drift_correction" ]]; then
 		dwi_folder_name=($dwi_processed_folder_name)
         cd ${Subject_dir}/Processed/MRI_files/${dwi_folder_name}
+		gunzip *.gz
         # ./create_bmat_text
         matlab -nodesktop -nosplash -r "try; create_bmat_text; catch; end; quit"
 		matlab -nodesktop -nosplash -r "try; flip_or_permute; catch; end; quit"
@@ -306,22 +307,7 @@ for this_preprocessing_step in ${preprocessing_steps[@]};do
 	if [[ $this_preprocessing_step == "cleanup_dti" ]]; then
 		dwi_folder_name=($dwi_processed_folder_name)
 		cd ${Subject_dir}/Processed/MRI_files/${dwi_folder_name}
-
-		# rm tensorfit_eddycorrected_driftcorrected_DWI*
-		rm se_epi_unwarped_brain_mask_pixelAdjusted.nii
-		rm T1_warpedTo_*
-		rm MNI_warpedTo_*
-		rm MNI_1mm*
-		rm binary*
-		rm warpT1To_*
-		rm warpMNITo_*
-		rm mean_FA*
-		rm Mean_driftcorrected*
-		rm FMRIB58skeleton_*
-		rm FMRIB58_FA*
-		rm single_eddy*
-		rm FMRIB58*
-		rm eddy_warpedTo_biascorrected*
+		gzip *.nii
 	fi
 
 	if [[ $this_preprocessing_step == "freewater_correction" ]]; then
@@ -336,6 +322,7 @@ for this_preprocessing_step in ${preprocessing_steps[@]};do
 	if [[ $this_preprocessing_step == "copy_fa_for_tbss" ]]; then
 		dwi_folder_name=($dwi_processed_folder_name)
 		cd ${Subject_dir}/Processed/MRI_files/${dwi_folder_name}
+		gunzip *.gz
 		if [[ ! -e ${TBSS_dir} ]]; then
 			mkdir ${TBSS_dir}
 		fi

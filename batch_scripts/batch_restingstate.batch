@@ -2,13 +2,13 @@
 #SBATCH --job-name=batch_rsfmri					# Job name
 #SBATCH --mail-type=END,FAIL          			# Mail events (NONE, BEGIN, END, FAIL, ALL)
 #SBATCH --mail-user=<valay.shah@ufl.edu>  		# Where to send mail	
-#SBATCH --cpus-per-task=2
+#SBATCH --cpus-per-task=1
 #SBATCH --ntasks=1                    			# Run a single task
-#SBATCH --mem=16000mb	                   	    # Memory limit
+#SBATCH --mem=8000mb	                   	    # Memory limit
 #SBATCH --qos=rachaelseidler
 #SBATCH --time=96:00:00               			# Time limit hrs:min:sec
 #SBATCH --output=batch_rsfmri.%A_%a.out 	# Standard output and error log
-#SBATCH --array=0-47		# array range
+#SBATCH --array=0-1	# array range
 pwd; hostname; date
 
 ##### BATCH FILE INFO ######
@@ -17,8 +17,9 @@ pwd; hostname; date
 # 3) specify the subject_array
 # 4) make sure the directories are set to your repositories
 # 5) uncomment the step you would like to process for each subject specified in subject_array
-#subject_array=(3004 3006 3007)
-subject_array=(1004 1007 1009 1010 1011 1012 1013 1017 1018 1019 1020 1022 1024 1025 1026 1027 2002 2007 2008 2012 2013 2015 2017 2018 2020 2021 2022 2023 2025 2026 2033 2034 2037 2038 2039 2042 2052 2059 2027)
+# subject_array=()
+subject_array=(3103 3107)
+ #(1002 1004 1007 1009 1010 1011 1013 1017 1018 1019 1020 1022 1024 1025 1026 1027 1029 1030 1032 1033 1034 2002 2007 2008 2012 2013 2015 2017 2018 2020 2021 2022 2023 2025 2026 2027 2033 2034 2037 2038 2039 2042 2052 2059 2062 2090 2095 3004 3006 3007 3008 3010 3021 3023 3024 3025 3026 3028 3029 3030 3036 3039 3040 3041 3042 3043 3046 3047 3051 3053 3054 3055 3056 3058 3059 3063 3066 3068 3069 3070 3071 3072 3073 3074 3076 3077 3082 3086 3090 3092 3102 3104 3105 3106 3107 3110 3111 3112 3113) 
 # subject=${subject_array[0]}
 
 
@@ -46,6 +47,8 @@ cd $Shell_dir
 # ./preprocess_restingstate.sh $subject remove_outlier_volumes
 ./rsfmri_processing/preprocess_restingstate.sh $Matlab_dir $Template_dir $Subject_dir n4_bias_correct ants_norm_restingstate smooth_restingstate_ants
 ./rsfmri_processing/preprocess_restingstate.sh $Matlab_dir $Template_dir $Subject_dir copy_files_restingstate
+
+
 
 
 #slicetime_restingstate

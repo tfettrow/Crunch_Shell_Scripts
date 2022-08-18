@@ -2,13 +2,13 @@
 #SBATCH --job-name=batch_fmri					# Job name
 #SBATCH --mail-type=END,FAIL          			# Mail events (NONE, BEGIN, END, FAIL, ALL)
 #SBATCH --mail-user=<valay.shah@ufl.edu>  		# Where to send mail	
-#SBATCH --cpus-per-task=1
+#SBATCH --cpus-per-task=2
 #SBATCH --ntasks=1                    			# Run a single task
-#SBATCH --mem=8000mb	                   	    # Memory limit
+#SBATCH --mem=16000mb	                   	    # Memory limit
 #SBATCH --qos=rachaelseidler
 #SBATCH --time=96:00:00               			# Time limit hrs:min:sec
 #SBATCH --output=batch_fmri.%A_%a.out 	# Standard output and error log
-#SBATCH --array=0-19				# array range
+#SBATCH --array=0-1				# array range
 pwd; hostname; date
 
 ##### BATCH FILE INFO ######
@@ -19,8 +19,8 @@ pwd; hostname; date
 # 5) uncomment the step you would like to process for each subject specified in subject_array
 
 
-
-subject_array=(2002 2007 2008 2012 2013 2015 2017 2018 2020 2021 2022 2023 2025 2026 2027 2033 2034 2037 2038 2039)
+# subject_array=(3077)
+subject_array=(3103 3107)
 # subject_array=(1002 1004 1007 1009 1010 1011 1013 1017 1018 1019 1020 1022 1024 1025 1026 1027 1029 1030 2002 2007 2008 2012 2013 2015 2017 2018 2020 2021 2022 2023 2025 2026 2027 2033 2034 2037 2038 2039 2042 2052 2059 2062 2082 3024 3029 3039 3042 3046 3047 3053 3063 3072 3073 3077 3092)
 
 # subject_array=(1007 1009 1010 1011 1012 1013 1017 1018 1019 1020 1022 1024 1025 1026 1027 2002 2007 2008 2012 2013 2015 2017 2018 2020 2021 2022 2023 2025 2026 2033 2034 2037 2038 2039 2042 2052 2059 2027 3024 3029 3039 3042 3046 3047 3053 3063 3072 3073)
@@ -44,10 +44,10 @@ Template_dir=/blue/rachaelseidler/valay.shah/MR_Templates
 
 cd $Shell_dir
 
-# ./fmri_processing/preprocess_fmri.sh $Matlab_dir $Template_dir $Subject_dir slicetime_fmri create_fieldmap unwarp_fmri art_fmri 
-# ./fmri_processing/preprocess_fmri.sh $Matlab_dir $Template_dir $Subject_dir copy_skullstripped_biascorrected_t1_4_ants n4_bias_correction ants_norm_fmri smooth_fmri_ants
-# # ./fmri_processing/preprocess_fmri.sh $Matlab_dir $Template_dir $Subject_dir check_fmri_ants
-# ./fmri_processing/preprocess_fmri.sh $Matlab_dir $Template_dir $Subject_dir copy_cond level_one_stats_ants
+./fmri_processing/preprocess_fmri.sh $Matlab_dir $Template_dir $Subject_dir slicetime_fmri create_fieldmap unwarp_fmri art_fmri 
+./fmri_processing/preprocess_fmri.sh $Matlab_dir $Template_dir $Subject_dir copy_skullstripped_biascorrected_t1_4_ants n4_bias_correction ants_norm_fmri smooth_fmri_ants
+# # # # ./fmri_processing/preprocess_fmri.sh $Matlab_dir $Template_dir $Subject_dir check_fmri_ants
+./fmri_processing/preprocess_fmri.sh $Matlab_dir $Template_dir $Subject_dir copy_cond level_one_stats_ants
 ./fmri_processing/preprocess_fmri.sh $Matlab_dir $Template_dir $Subject_dir zip_mid_files
 # ./fmri_processing/process_level_two_fmri.sh
 
@@ -83,11 +83,11 @@ cd $Shell_dir
 # ./combine_conn_node_networks $Matlab_dir conn_wu120_all_wb 'left_dlpfc,right_dlpfc,left_acc,right_acc,medial_prefrontal_cortex,post_cingulate,left_aud_cortex,left_post_ips,right_post_ips,left_insular,right_insular,visual_cortex,left_ips,right_ips,right_thalamus,left_hand,right_hand,left_mouth,right_mouth,left_rsc,right_rsc,dACC'
 
 ################################ redcap beta estimate extraction #######################################
-# ./fmri_processing/export_fmri_rois_to_redcap.sh '1002 1004 1007 1009 1010 1011 1013 1017 1018 1019 1020 1022 1024 1025 1026 1027 2007 2008 2012 2013 2015 2017 2018 2020 2021 2022 2023 2025 2026 2027 2033 2034 2037 2038 2039 2042 2052 2059 2062 3024 3029 3039 3042 3046 3047 3053 3063 3072 3073' 05_MotorImagery ROI_settings_MiMRedcap_wfuMasked.txt fmri_roi_betas.csv
-# ./fmri_processing/export_fmri_rois_to_redcap.sh '1002 1004 1007 1009 1010 1011 1013 1017 1018 1019 1020 1022 1024 1025 1026 1027 2007 2008 2012 2013 2015 2017 2018 2020 2021 2022 2023 2025 2026 2027 2033 2034 2037 2038 2039 2042 2052 2059 2062 3024 3029 3039 3042 3046 3047 3053 3063 3072 3073' 06_Nback ROI_settings_MiMRedcap_wfuMasked.txt fmri_roi_betas.csv
+# ./fmri_processing/export_fmri_rois_to_redcap.sh '1002,1004,1007,1009,1010,1011,1013,1017,1018,1019,1020,1022,1024,1025,1026,1027,1029,1030,1032,2002,2007,2008,2012,2013,2015,2017,2018,2020,2021,2022,2023,2025,2026,2027,2033,2034,2037,2038,2039,2042,2052,2059,2082,2090,2095,3024,3029,3039,3042,3046,3047,3053,3063,3072,3073,3092' 05_MotorImagery ROI_settings_MiMRedcap_wfuMasked.txt fmri_roi_betas.csv
+# ./fmri_processing/export_fm ri_rois_to_redcap.sh '1002,1004,1007,1009,1010,1011,1013,1017,1018,1019,1020,1022,1024,1025,1026,1027,1029,1030,1032,2002,2007,2008,2012,2013,2015,2017,2018,2020,2021,2022,2023,2025,2026,2027,2033,2034,2037,2038,2039,2042,2052,2059,2082,2090,2095,3024,3029,3039,3042,3046,3047,3053,3063,3072,3073,3092' 06_Nback ROI_settings_MiMRedcap_wfuMasked.txt fmri_roi_betas.csv
 
-# ./fmri_processing/combine_subject_mri_roi.sh '1002 1004 1007 1009 1010 1011 1013 1017 1018 1019 1020 1022 1024 1025 1026 1027 2007 2008 2012 2013 2015 2017 2018 2020 2021 2022 2023 2025 2026 2027 2033 2034 2037 2038 2039 2042 2052 2059 2062 3024 3029 3039 3042 3046 3047 3053 3063 3072 3073' 05_MotorImagery fmri_roi_betas.csv fmri_redcap.csv
-# ./fmri_processing/combine_subject_mri_roi.sh '1002 1004 1007 1009 1010 1011 1013 1017 1018 1019 1020 1022 1024 1025 1026 1027 2007 2008 2012 2013 2015 2017 2018 2020 2021 2022 2023 2025 2026 2027 2033 2034 2037 2038 2039 2042 2052 2059 2062 3024 3029 3039 3042 3046 3047 3053 3063 3072 3073' 06_Nback fmri_roi_betas.csv fmri_redcap.csv
+# ./fmri_processing/combine_subject_mri_roi.sh '1002 1004 1007 1009 1010 1011 1012 1013 1017 1018 1019 1020 1022 1024 1025 1026 1027 1029 1030 1032 2002 2007 2008 2012 2013 2015 2017 2018 2020 2021 2022 2023 2025 2026 2027 2033 2034 2037 2038 2039 2042 2052 2059 2082 2090 2095 3024 3029 3039 3042 3046 3047 3053 3063 3072 3073 3092' 05_MotorImagery fmri_roi_betas.csv fmri_redcap.csv
+# ./fmri_processing/combine_subject_mri_roi.sh '1002 1004 1007 1009 1010 1011 1012 1013 1017 1018 1019 1020 1022 1024 1025 1026 1027 1029 1030 1032 2002 2007 2008 2012 2013 2015 2017 2018 2020 2021 2022 2023 2025 2026 2027 2033 2034 2037 2038 2039 2042 2052 2059 2082 2090 2095 3024 3029 3039 3042 3046 3047 3053 3063 3072 3073 3092' 06_Nback fmri_roi_betas.csv fmri_redcap.csv
 
 ################################ beta estimate extraction #######################################
 #./estimate_betas_by_condition.sh '2002,2007,2008,2012,2013,2015,2018,2020,2021,2022,2023,2025,2026' oldAdult 05_MotorImagery convert_load_sensitive_voxel_coordinates

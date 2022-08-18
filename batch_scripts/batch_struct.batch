@@ -30,7 +30,7 @@ cd $Study_dir
 
 ml matlab/2020b
 export MATLABPATH=${Matlab_dir}/helper
-matlab -nodesktop -nosplash -r "try; cat12StructuralAnalysis('subjects',{'2090'},'t1_folder','02_T1','t1_filename','T1.nii','steps_to_run_vector',[1 0 1 0 1 1 1 1 1 1],'template_dir','/blue/rachaelseidler/valay.shah/MR_Templates'); catch; end; quit"
+matlab -nodesktop -nosplash -r "try; cat12StructuralAnalysis('subjects',{'3103'},'t1_folder','02_T1','t1_filename','T1.nii','steps_to_run_vector',[1 0 1 0 1 1 1 1 1 1],'template_dir','/blue/rachaelseidler/valay.shah/MR_Templates'); catch; end; quit"
 
 # cd $Shell_dir
 # ./struct_processing/export_gmv_rois.sh '3077,3082,1029,2082,3092,3086,3106,1030' 02_T1 ROI_settings_MiMRedcap_wfuMasked_CAT12.txt
