@@ -22,6 +22,13 @@ Shell_dir=/blue/rachaelseidler/valay.shah/Shell_Scripts
 Matlab_dir=/blue/rachaelseidler/valay.shah/MiM_Matlab/MiM_Matlab
 Template_dir=/blue/rachaelseidler/valay.shah/MR_Templates
 
+# ######SUMIRE S Directory
+
+# cd /blue/rachaelseidler/sumiresato
+# Shell_dir=/blue/rachaelseidler/sumiresato/MiM_Shell_Scripts
+# Matlab_dir=/blue/rachaelseidler/sumiresato/MiM_Matlab
+# Template_dir=/blue/rachaelseidler/sumiresato/MR_Templates
+
 export MATLABPATH=${Matlab_dir}/helper
 
 Study_dir=/blue/rachaelseidler/share/FromExternal/Research_Projects_UF/CRUNCH/MiM_Data

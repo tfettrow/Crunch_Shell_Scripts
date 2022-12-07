@@ -37,7 +37,7 @@ if [[ -e $outfile ]]; then
 fi
 
 subject_index=0
-while IFS=' ' read -ra subject_list; do
+while IFS=',' read -ra subject_list; do
     for this_subject in "${subject_list[@]}"; do
        	cd ${Study_dir}/$this_subject/Processed/MRI_files/${this_functional_run_folder}/ANTS_Normalization/Level1_WholeBrain
        	this_subject_header=$(cat ${this_subject}_${in_ext} | sed -n 1p)

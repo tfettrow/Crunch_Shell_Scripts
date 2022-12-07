@@ -19,7 +19,7 @@ pwd; hostname; date
 # 4) make sure the directories are set to your repositories
 # 5) uncomment the step you would like to process for each subject specified in subject_array
 
-subject_array=(3103 3107)
+subject_array=(1031 3120)
 
 subject=${subject_array[$SLURM_ARRAY_TASK_ID]}
 
@@ -35,6 +35,13 @@ cd /blue/rachaelseidler/valay.shah
 Shell_dir=/blue/rachaelseidler/valay.shah/Shell_Scripts
 Matlab_dir=/blue/rachaelseidler/valay.shah/MiM_Matlab/MiM_Matlab
 Template_dir=/blue/rachaelseidler/valay.shah/MR_Templates
+
+# ######SUMIRE S Directory
+
+# cd /blue/rachaelseidler/sumiresato
+# Shell_dir=/blue/rachaelseidler/sumiresato/MiM_Shell_Scripts
+# Matlab_dir=/blue/rachaelseidler/sumiresato/MiM_Matlab
+# Template_dir=/blue/rachaelseidler/sumiresato/MR_Templates
 
 cd $Shell_dir
 

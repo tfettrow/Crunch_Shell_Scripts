@@ -10,11 +10,11 @@
 #SBATCH --output=batch_dwi.%A_%a.out 	# Standard output and error log
 #SBATCH --partition=gpu
 #SBATCH --gpus=geforce:1
-#SBATCH --array=0	# array range
+#SBATCH --array=0 #array range
 
 
 pwd; hostname; date
-subject_array=(3103)
+subject_array=(2117)
 
 # subject_array=(1012 1018 1019 1025 2027 2038 2039 3029 3006 3010 3026 3028 3030 3036)
 # subject_array=(1004)
@@ -32,6 +32,14 @@ cd /blue/rachaelseidler/valay.shah
 Shell_dir=/blue/rachaelseidler/valay.shah/Shell_Scripts
 Matlab_dir=/blue/rachaelseidler/valay.shah/MiM_Matlab/MiM_Matlab
 Template_dir=/blue/rachaelseidler/valay.shah/MR_Templates
+
+# ######SUMIRE S Directory
+
+# cd /blue/rachaelseidler/sumiresato
+# Shell_dir=/blue/rachaelseidler/sumiresato/MiM_Shell_Scripts
+# Matlab_dir=/blue/rachaelseidler/sumiresato/MiM_Matlab
+# Template_dir=/blue/rachaelseidler/sumiresato/MR_Templates
+
 TBSS_dir=TBSS_${subject}
 
 cd $Shell_dir

@@ -592,6 +592,21 @@ for this_preprocessing_step in ${preprocessing_steps[@]}; do
    		echo "copying cond files done"
 	fi
 
+	if [[ $this_preprocessing_step == "level_one_stats_ants_vs" ]]; then
+		data_folder_to_analyze=($fmri_processed_folder_names)
+		for this_functional_run_folder in ${data_folder_to_analyze[@]}; do
+			cd ${Subject_dir}/Processed/MRI_files/${this_functional_run_folder}/ANTS_Normalization
+			cp ${Subject_dir}/Processed/MRI_files/${this_functional_run_folder}/*.json ${Subject_dir}/Processed/MRI_files/${this_functional_run_folder}/ANTS_Normalization
+			# cp ${Subject_dir}/Processed/MRI_files/${this_functional_run_folder}/Condition_Onsets*.csv ${Subject_dir}/Processed/MRI_files/${this_functional_run_folder}/ANTS_Normalization
+			cp ${Subject_dir}/Processed/MRI_files/${this_functional_run_folder}/art_regression_outliers_and_movement*.mat ${Subject_dir}/Processed/MRI_files/${this_functional_run_folder}/ANTS_Normalization
+
+   			matlab -nodesktop -nosplash -r "try; level_one_stats_wb_fmri_vs; catch; end; quit"
+   		done
+   		echo This step took $SECONDS seconds to execute
+   		cd "${Subject_dir}"
+		echo "Level One ANTS: $SECONDS sec" >> preprocessing_log.txt
+		SECONDS=0
+	fi
 	if [[ $this_preprocessing_step == "level_one_stats_ants" ]]; then
 		data_folder_to_analyze=($fmri_processed_folder_names)
 		for this_functional_run_folder in ${data_folder_to_analyze[@]}; do

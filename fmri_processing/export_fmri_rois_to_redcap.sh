@@ -50,7 +50,8 @@ while IFS=',' read -ra subject_list; do
 			if ! [[ ${lines_to_ignore[*]} =~ $this_row ]]; then
 				this_roi_file_corename=$(cat $roi_settings_file | sed -n ${this_row}p | cut -d ',' -f4)
 				this_roi_file_corename_squeeze=$(echo $this_roi_file_corename | sed -r 's/( )+//g')
-				this_roi_image_name=${Study_dir}/ROIs/${this_roi_file_corename_squeeze}.nii
+				#this_roi_image_name=${Study_dir}/ROIs/${this_roi_file_corename_squeeze}.nii   # normal folder
+				this_roi_image_name=${Study_dir}/fmri_ROIs/${this_roi_file_corename_squeeze}.nii
 				echo "pulling betas for $this_roi_image_name on $this_subject"
 				cd ${Study_dir}/$this_subject/Processed/MRI_files/${this_functional_run_folder}/ANTS_Normalization/Level1_WholeBrain
    				if [[ $this_functional_run_folder == "05_MotorImagery" ]]; then

@@ -2,13 +2,13 @@
 #SBATCH --job-name=batch_asl					# Job name
 #SBATCH --mail-type=END,FAIL          			# Mail events (NONE, BEGIN, END, FAIL, ALL)
 #SBATCH --mail-user=<tfettrow@ufl.edu>  		# Where to send mail	
-#SBATCH --cpus-per-task=1
+#SBATCH --cpus-per-task=2
 #SBATCH --ntasks=1                    			# Run a single task
 #SBATCH --mem=16000mb	                   	    # Memory limit
 #SBATCH --qos=rachaelseidler
 #SBATCH --time=96:00:00               			# Time limit hrs:min:sec
 #SBATCH --output=batch_asl.%A_%a.out 	# Standard output and error log
-#SBATCH --array=0				# array range
+#SBATCH --array=0-30				# array range
 pwd; hostname; date
 
 ##### BATCH FILE INFO ######
@@ -20,7 +20,7 @@ pwd; hostname; date
 #subject_array=(3004 3006 3007)
 
 # 64 vv
-# subject_array=(1002 1004 1009 1010 1013 1018 1019 1020 1022 1026 1027 2002 2007 2008 2012 2013 2015 2017 2018 2020 2021 2022 2023 2025 2026 2033 2034 2037 2038 2039 2042 2052 2059 2062 2027 3004 3006 3007 3008 3010 3021 3023 3024 3025 3026 3027 3028 3029 3030 3036 3039 3040 3042 3043 3046 3047 3051 3053 3056 3058 3059 3063 3066 3068)
+subject_array=(3053 3054 3055 3056 3058 3059 3063 3066 3068 3069 3070 3071 3072 3073 3074 3076 3077 3082 3086 3090 3092 3102 3103 3104 3105 3106 3107 3110 3111 3112 3113)
 # subject_array=(2002 2007 2008 2012 2013 2015 2017 2018 2020 2021 2022 2023 2025 2026 2033 2034 2037 2038 2039 2042 2052 2059 2062) 
 # subject=${subject_array[0]}
 # subject_array=(1007 1012 1025 3021 3023)
@@ -28,7 +28,7 @@ pwd; hostname; date
 ## vv 44 vv
 # subject_array=(1004 1007 1019 1020 1027 2002 2007 2008 2012 2013 2015 2017 2021 2022 2023 2025 2033 2037 2038 2042 2062 2027 3004 3007 3008 3010 3023 3024 3025 3026 3027 3028 3030 3036 3039 3043 3046 3047 3051 3053 3056 3059 3063 3066)
 # subject_array=(2017 3004)
-subject_array=(3068 3069)
+# subject_array=()
 
 
 subject=${subject_array[$SLURM_ARRAY_TASK_ID]}
@@ -45,6 +45,13 @@ cd /blue/rachaelseidler/valay.shah
 Shell_dir=/blue/rachaelseidler/valay.shah/Shell_Scripts
 Matlab_dir=/blue/rachaelseidler/valay.shah/MiM_Matlab/MiM_Matlab
 Template_dir=/blue/rachaelseidler/valay.shah/MR_Templates
+
+# ######SUMIRE S Directory
+
+# cd /blue/rachaelseidler/sumiresato
+# Shell_dir=/blue/rachaelseidler/sumiresato/MiM_Shell_Scripts
+# Matlab_dir=/blue/rachaelseidler/sumiresato/MiM_Matlab
+# Template_dir=/blue/rachaelseidler/sumiresato/MR_Templates
 
 cd $Shell_dir
 
