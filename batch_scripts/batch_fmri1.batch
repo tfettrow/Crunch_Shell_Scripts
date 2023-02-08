@@ -1,5 +1,5 @@
 #!/bin/bash
-#SBATCH --job-name=batch_fmri					# Job name
+#SBATCH --job-name=batch_fmri1					# Job name
 #SBATCH --mail-type=END,FAIL          			# Mail events (NONE, BEGIN, END, FAIL, ALL)
 #SBATCH --mail-user=<valay.shah@ufl.edu>  		# Where to send mail	
 #SBATCH --cpus-per-task=2
@@ -7,7 +7,7 @@
 #SBATCH --mem=16000mb	                   	    # Memory limit
 #SBATCH --qos=rachaelseidler
 #SBATCH --time=96:00:00               			# Time limit hrs:min:sec
-#SBATCH --output=batch_fmri.%A_%a.out 	# Standard output and error log
+#SBATCH --output=batch_fmri1.%A_%a.out 	# Standard output and error log
 #SBATCH --array=0				# array range
 pwd; hostname; date
 
@@ -19,12 +19,11 @@ pwd; hostname; date
 # 5) uncomment the step you would like to process for each subject specified in subject_array
 
 
-subject_array=(1002)
+subject_array=(1002) # 1004 1007 1009 1010 1011 1013 1017 1018 1019 1020 1022 1024 1025 1026 1027 1029 1030 1031 1032 1033 1034 2002 2007 2008 2013 2015 2017 2018 2020 2021 2022 2023 2025 2026 2027 2033 2034 2037 2038 2039 2042 2052 2059 2082 2090 2095 2111 2117 3024 3029 3039 3042 3046 3053 3072 3073 3092 3107 3120)
 # subject_array=(2002 2007 2008 2013 2015 2017 2018 2020 2021 2022 2023 2025 2026 2027 2033 2034 2037 2038 2039 2042 2052 2059 2082 2090 2095 2117 3024 3029 3039 3042 3046 3053 3072 3073 3092 3107 3120)
 # subject_array=(1002 1004 1007 1009 1010 1011 1013 1017 1018 1019 1020 1022 1024 1025 1026 1027 1029 1030 2002 2007 2008 2012 2013 2015 2017 2018 2020 2021 2022 2023 2025 2026 2027 2033 2034 2037 2038 2039 2042 2052 2059 2062 2082 3024 3029 3039 3042 3046 3047 3053 3063 3072 3073 3077 3092)
 
-# subject_array=(1007 1009 1010 1011 1012 1013 1017 1018 1019 1020 1022 1024 1025 1026 1027 2002 2007 2008 2012 2013 2015 2017 2018 2020 2021 2022 2023 2025 2026 2033 2034 2037 2038 2039 2042 2052 2059 2027 3024 3029 3039 3042 3046 3047 3053 3063 3072 3073)
-
+# subject_array=(1002)
 # subject=${subject_array[0]}
 
 subject=${subject_array[$SLURM_ARRAY_TASK_ID]}
@@ -45,13 +44,12 @@ Template_dir=/blue/rachaelseidler/valay.shah/MR_Templates
 cd $Shell_dir
 
 # ./fmri_processing/preprocess_fmri.sh $Matlab_dir $Template_dir $Subject_dir slicetime_fmri create_fieldmap unwarp_fmri art_fmri 
-# ./fmri_processing/preprocess_fmri.sh $Matlab_dir $Template_dir $Subject_dir copy_skullstripped_biascorrected_t1_4_ants n4_bias_correction ants_norm_fmri smooth_fmri_ants
+./fmri_processing/preprocess_fmri.sh $Matlab_dir $Template_dir $Subject_dir copy_skullstripped_biascorrected_t1_4_ants n4_bias_correction ants_norm_fmri
 # # ./fmri_processing/preprocess_fmri.sh $Matlab_dir $Template_dir $Subject_dir check_fmri_ants
-./fmri_processing/preprocess_fmri.sh $Matlab_dir $Template_dir $Subject_dir copy_cond level_one_stats_ants
+# ./fmri_processing/preprocess_fmri.sh $Matlab_dir $Template_dir $Subject_dir level_one_stats_ants_vs
 # # ./fmri_processing/preprocess_fmri.sh $Matlab_dir $Template_dir $Subject_dir zip_mid_files
 # ./fmri_processing/process_level_two_fmri.sh
 
-# ./file_organization/cleanup_processed_files_fmri.sh $subject
 
 # slicetime_fmri
 # create_fieldmap

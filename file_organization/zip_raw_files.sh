@@ -10,13 +10,17 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 Subject_dir=$1
-
-cd ${Subject_dir}/Raw/MRI_files
-
-rm -f *.zip
-
-zip -r MRI_files.zip *
-
 shopt -s extglob
-rm -r !(MRI_files.zip)
+
+if [[ -d ${Subject_dir} ]]; then
+    cd ${Subject_dir}/Raw/MRI_files
+    pwd
+    rm -f *.zip
+
+    zip -r MRI_files.zip *
+
+   
+    rm -r !(MRI_files.zip)
+
+fi
 shopt -u extglob

@@ -20,8 +20,7 @@ pwd; hostname; date
 
 
 
-subject_array=(2111)
-
+subject_array=(3108)
 #orange move
 # subject_array=(2022 2023 2025 2026 2027 2033 2034 2037 2038 2039 2042 2052 2059 2062 2090 2095 3004 3006 3007 3008)
 
@@ -59,7 +58,8 @@ cd $Shell_dir
 # ./misc/biascorrect_and_skullstrip.sh $Matlab_dir $Template_dir $Subject_dir n4_bias_correction skull_strip_t1_4_ants copy_t1
 # ./file_organization/zip_raw_files.sh $Subject_dir
 
-./file_organization/orange_raw_move.sh $subject
+./file_organization/blue2orange.sh $subject
+# ./file_organization/orange2blue.sh $subject
 
 
 ###########################################################################################

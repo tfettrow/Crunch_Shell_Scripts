@@ -21,6 +21,8 @@ for this_argument in "$@"; do
 		subjects=$this_argument
 	elif [[ $argument_counter == 1 ]]; then
 		rsfmri_processed_folder_name=$this_argument
+	elif [[ $argument_counter == 2 ]]; then
+		sub_csv=$this_argument
 	fi
 	(( argument_counter++ ))
 done
@@ -31,15 +33,15 @@ Study_dir=/blue/rachaelseidler/share/FromExternal/Research_Projects_UF/CRUNCH/Mi
 ml fsl/6.0.3
 
 subject_index=0
-outfile=${rsfmri_processed_folder_name}_rsfmri_segregation_all.csv
-if [ -e ${rsfmri_processed_folder_name}_rsfmri_segregation_all.csv ]; then
-	rm ${rsfmri_processed_folder_name}_rsfmri_segregation_all.csv
+outfile=${rsfmri_processed_folder_name}_rsfmri_segregation_Sumi.csv
+if [ -e ${rsfmri_processed_folder_name}_rsfmri_segregation_Sumi.csv ]; then
+	rm ${rsfmri_processed_folder_name}_rsfmri_segregation_Sumi.csv
 fi
 while IFS=',' read -ra subject_list; do
    	for this_subject in "${subject_list[@]}"; do
    	   	cd ${Study_dir}/$this_subject/Processed/MRI_files/${rsfmri_processed_folder_name}/ANTS_Normalization/Level1
-   	   	this_subject_header=$(cat ${this_subject}_rsfmri_segregation.csv | sed -n 1p)
-   	   	this_subject_data=$(cat ${this_subject}_rsfmri_segregation.csv | sed -n 2p)
+   	   	this_subject_header=$(cat ${this_subject}${sub_csv} | sed -n 1p)
+   	   	this_subject_data=$(cat ${this_subject}${sub_csv} | sed -n 2p)
 		
 		cd ${Study_dir}
    	   	this_subject_header_outfile=$(cat $outfile | sed 1d)

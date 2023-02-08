@@ -206,7 +206,7 @@ for this_preprocessing_step in ${preprocessing_steps[@]}; do
 		done
 		echo This step took $SECONDS seconds to execute
 		cd "${Subject_dir}"
-		echo "Realign and Unwarp: $SECONDS sec" >> preprocessing_log.txt
+		echo "Fieldmap creation: $SECONDS sec" >> preprocessing_log.txt
 		SECONDS=0
 	fi	
 	if [[ $this_preprocessing_step == "unwarp_fmri" ]]; then
@@ -433,6 +433,8 @@ for this_preprocessing_step in ${preprocessing_steps[@]}; do
 	if [[ $this_preprocessing_step == "ants_norm_fmri" ]]; then
 		data_folder_to_analyze=($fmri_processed_folder_names)
 		for this_functional_run_folder in ${data_folder_to_analyze[@]}; do
+			cd ${Subject_dir}/Processed/MRI_files/${this_functional_run_folder}
+			gunzip *.gz
 			cd ${Subject_dir}/Processed/MRI_files/${this_functional_run_folder}/ANTS_Normalization
 			
 			if [[ -e warpToT1Params_*.nii ]]; then 
@@ -444,9 +446,9 @@ for this_preprocessing_step in ${preprocessing_steps[@]}; do
 			for this_mean_file in biascorrected_mean*.nii; do
 				T1_Template=SkullStripped_biascorrected_T1.nii
 				Mean_Func=$this_mean_file
-				if [ -e warpToT1_*.nii ]; then 
-       	        	rm warpToT1_*.nii
-       	    	fi
+				# if [ -e warpToT1_*.nii ]; then 
+       	        # 	rm warpToT1_*.nii
+       	    	# fi
 				this_core_file_name=$(echo $this_mean_file | cut -d. -f 1)
 				echo 'registering' $Mean_Func 'to' $T1_Template
 				# moving low res func to high res T1
@@ -469,7 +471,7 @@ for this_preprocessing_step in ${preprocessing_steps[@]}; do
 		for this_functional_run_folder in ${data_folder_to_analyze[@]}; do
 			cd ${Subject_dir}/Processed/MRI_files/${this_functional_run_folder}/ANTS_Normalization
 			gunzip -f *nii.gz
-			if [ -e warpedToT1_*.nii ]; then 
+			if [[ -e warpedToT1_*.nii ]]; then 
        	        rm warpedToT1_*.nii
        	    fi
 			for this_mean_file in biascorrected_mean*.nii; do
@@ -484,7 +486,7 @@ for this_preprocessing_step in ${preprocessing_steps[@]}; do
 			this_t1_folder=($t1_processed_folder_names)
 			cd ${Subject_dir}/Processed/MRI_files/${this_functional_run_folder}/ANTS_Normalization
 
-			if [ -e warpToMNIParams_*.nii ]; then 
+			if [[ -e warpToMNIParams_*.nii ]]; then 
        	        rm warpToMNIParams_*.nii
        	        rm warpToMNIParams_*.mat
        	        rm warpToMNIEstimate_*.nii
@@ -544,6 +546,7 @@ for this_preprocessing_step in ${preprocessing_steps[@]}; do
 			-n BSpline -o warpedToMNI_c2biascorrected_T1.nii -t [warpToMNIParams_${this_core_file_name}1Warp.nii] -t [warpToMNIParams_${this_core_file_name}0GenericAffine.mat,0] -v
 			antsApplyTransforms -d 3 -e 3 -i c3biascorrected_T1.nii -r MNI_2mm.nii \
 			-n BSpline -o warpedToMNI_c3biascorrected_T1.nii -t [warpToMNIParams_${this_core_file_name}1Warp.nii] -t [warpToMNIParams_${this_core_file_name}0GenericAffine.mat,0] -v
+			
 			for this_file_to_warp in unwarpedRealigned*.nii; do 
 				this_file_header_info=$(fslhd $this_file_to_warp)
 				this_file_number_of_volumes=$(echo $this_file_header_info | grep -o dim4.* | tr -s ' ' | cut -d ' ' -f 2)
@@ -595,16 +598,21 @@ for this_preprocessing_step in ${preprocessing_steps[@]}; do
 	if [[ $this_preprocessing_step == "level_one_stats_ants_vs" ]]; then
 		data_folder_to_analyze=($fmri_processed_folder_names)
 		for this_functional_run_folder in ${data_folder_to_analyze[@]}; do
+			cd ${Subject_dir}/Processed/MRI_files/${this_functional_run_folder}
+			gunzip *.gz
 			cd ${Subject_dir}/Processed/MRI_files/${this_functional_run_folder}/ANTS_Normalization
+			gunzip *.gz
 			cp ${Subject_dir}/Processed/MRI_files/${this_functional_run_folder}/*.json ${Subject_dir}/Processed/MRI_files/${this_functional_run_folder}/ANTS_Normalization
 			# cp ${Subject_dir}/Processed/MRI_files/${this_functional_run_folder}/Condition_Onsets*.csv ${Subject_dir}/Processed/MRI_files/${this_functional_run_folder}/ANTS_Normalization
 			cp ${Subject_dir}/Processed/MRI_files/${this_functional_run_folder}/art_regression_outliers_and_movement*.mat ${Subject_dir}/Processed/MRI_files/${this_functional_run_folder}/ANTS_Normalization
 
    			matlab -nodesktop -nosplash -r "try; level_one_stats_wb_fmri_vs; catch; end; quit"
+			cd ${Subject_dir}/Processed/MRI_files/${this_functional_run_folder}
+			gzip *.nii
    		done
    		echo This step took $SECONDS seconds to execute
    		cd "${Subject_dir}"
-		echo "Level One ANTS: $SECONDS sec" >> preprocessing_log.txt
+		echo "Level One ANTS VS: $SECONDS sec" >> preprocessing_log.txt
 		SECONDS=0
 	fi
 	if [[ $this_preprocessing_step == "level_one_stats_ants" ]]; then

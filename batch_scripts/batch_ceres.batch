@@ -8,7 +8,7 @@
 #SBATCH --qos=rachaelseidler
 #SBATCH --time=96:00:00               			# Time limit hrs:min:sec
 #SBATCH --output=batch_ceres.%A_%a.out 	# Standard output and error log
-#SBATCH --array=0-1						# array range
+#SBATCH --array=0-59						# array range
 pwd; hostname; date
 
 
@@ -18,8 +18,8 @@ pwd; hostname; date
 # 3) specify the subject_array
 # 4) make sure the directories are set to your repositories
 # 5) uncomment the step you would like to process for each subject specified in subject_array
-
-subject_array=(1031 3120)
+subject_array=(1002 1004 1007 1009 1010 1011 1013 1017 1018 1019 1020 1022 1024 1025 1026 1027 1029 1030 1031 1032 1033 1034 2002 2007 2008 2013 2015 2017 2018 2020 2021 2022 2023 2025 2026 2027 2033 2034 2037 2038 2039 2042 2052 2059 2082 2090 2095 2111 2117 3024 3029 3039 3042 3046 3053 3072 3073 3092 3107 3120)
+# subject_array=(1009 1010 1011 1012 1013 1017 1018 1019 1020 1022 1024 1025 1026 1027 1029 1030 1031 1032 1033 1034 2002 2012 2013 2015 2017 2018 2020 2021 2022 2023 2025 2026 2027 2033 2034 2037 2038 2039 2042 2052 2059 2062 2090 2095 2117 3004 3006 3007 3008 3010 3021 3023 3024 3025 3026 3028 3029 3030 3036 3039 3040 3041 3042 3043 3046 3047 3051 3053 3054 3055 3056 3058 3059 3063 3066 3068 3069 3070 3071 3072 3073 3074 3076 3077 3082 3086 3090 3092 3102 3103 3104 3105 3106 3107 3110 3111 3112 3113 3114 3120 3123)
 
 subject=${subject_array[$SLURM_ARRAY_TASK_ID]}
 
@@ -46,9 +46,12 @@ Template_dir=/blue/rachaelseidler/valay.shah/MR_Templates
 cd $Shell_dir
 
 
-./ceres_processing/ceres_processing.sh $Matlab_dir $Template_dir $Subject_dir ceres_unzip coreg_func_to_ceresT1 ceres_cb_mask_ants_norm ceres_smooth_ants_norm
+# ./ceres_processing/ceres_processing.sh $Matlab_dir $Template_dir $Subject_dir ceres_unzip coreg_func_to_ceresT1 ceres_cb_mask_ants_norm ceres_smooth_ants_norm
 # ./ceres_processing/ceres_fmri_processing.sh $Matlab_dir $Template_dir $Subject_dir ceres_unzip coreg_func_to_ceresT1 ceres_cb_mask_ants_norm ceres_smooth_ants_norm
-./rsfmri_processing/preprocess_restingstate.sh $Matlab_dir $Template_dir $Subject_dir zip_mid_files
+# ./rsfmri_processing/preprocess_restingstate.sh $Matlab_dir $Template_dir $Subject_dir zip_mid_files
+
+# ./file_organization/cleanup_processed_files_restingstate.sh $subject
+./file_organization/cleanup_processed_files_fmri.sh $subject
 
 #ceres_cb_mask_ants_norm ceres_smooth_ants_norm
 # ./Shell_Scripts/ceres_processing.sh $subject check_ceres_ants

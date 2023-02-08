@@ -139,7 +139,7 @@ done
         	    fi
 
 				for this_func_run in unwarpedRealigned_*.nii; do
-					this_core_file_name=$(echo $this_func_run | cut -d. -f 1)
+					this_core_file_name=$(echo $this_func_run | cut -d. -f1)
 
 					flirt -in SkullStripped_biascorrected_T1.nii -ref mean${this_func_run} -out dimMatch2Func_SkullStripped_biascorrected_T1.nii
 					gunzip -f *nii.gz

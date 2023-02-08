@@ -46,23 +46,24 @@ data_folder_to_analyze=($fmri_processed_folder_names)
 # leave the slicetimed bc in the event of outlier removals, the volumes are removed from slicetimed, not the raw image
 
 for this_functional_run_folder in ${data_folder_to_analyze[@]}; do
-	# cd ${Subject_dir}/Processed/MRI_files/${this_functional_run_folder}
-	# chmod g-s *.nii.gz
-	# chmod g-s *.nii
-	# GLOBIGNORE=fMRI_Run*:*.json:rp_*:art_*:*.jpeg:warpedToMNI_*:warpToMNIParams*:smoothed_*:MNI_2mm*:meanunwarpedRealigned_*:*biascorrected_T1.nii
-	# rm -v *
-	# unset GLOBIGNORE
-	# gzip *.nii
+	cd ${Subject_dir}/Processed/MRI_files/${this_functional_run_folder}
+	chmod g-s *.nii.gz
+	chmod g-s *.nii
+	# # GLOBIGNORE=fMRI_Run*:*.json:rp_*:art_*:*.jpeg:warpedToMNI_*:warpToMNIParams*:smoothed_*:MNI_2mm*:meanunwarpedRealigned_*:*biascorrected_T1.nii
+	# # rm -v *
+	# # unset GLOBIGNORE
+	gzip *.nii
+	# # gunzip *.gz
 	
 ################################################################
 	cd ${Subject_dir}/Processed/MRI_files/${this_functional_run_folder}/ANTS_Normalization
 	chmod g-s *.nii.gz
 	chmod g-s *.nii
-	GLOBIGNORE=Condition_Onsets*:fMRI_Run*:art_*:meanunwarpedRealigned_*:smoothed*:biascorrected_mean*
-	# rm -r conn_processing
-	# rm -r Level1_Results
-	rm -v *
+	GLOBIGNORE=Condition_Onsets*.csv:smoothed*.nii:warpedToSUIT_CBmasked*.nii:warpedToMNI_unwarped*.nii:*T1Params*
+	rm -v *.nii
 	unset GLOBIGNORE
-	# gunzip *.gz
+	#gzip *.nii
+	#gunzip *.gz
+	echo "Cleanup done in Ants norm folder"
 done
 unset GLOBIGNORE

@@ -85,11 +85,16 @@ for this_preprocessing_step in ${preprocessing_steps[@]}; do
 		    data_folder_to_analyze=($restingstate_processed_folder_names)
         	#cd $Subject_dir/Processed/MRI_files
             cd ${Subject_dir}/Processed/MRI_files/${data_folder_to_analyze}/
-            
+			
+			gunzip *.gz
+			GLOBIGNORE=RestingState*
+			rm -vr *
+			unset GLOBIGNORE
+
             if [ -e slicetimed_*.nii ]; then 
                 rm slicetimed_*.nii
             fi
-			gunzip *.gz
+			
             matlab -nodesktop -nosplash -r "try; slicetime_restingstate; catch; end; quit"
 
         	echo This step took $SECONDS seconds to execute

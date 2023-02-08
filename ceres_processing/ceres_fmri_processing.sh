@@ -105,20 +105,9 @@ done
 ########### move and unzip raw ceres files ############################
 		if [[ $this_ceres_processing_step ==  "ceres_unzip" ]]; then
 			
-			# cd $Subject_dir/Processed/MRI_files/
-			# mkdir -p 01_Ceres
-			# cd 01_Ceres
-			# rm *
-			# cd $study_dir/Ceres_Output_Native
-			# cp native_${subject}.nii* $Subject_dir/Processed/MRI_files/01_Ceres
-			
 			cd $Subject_dir/Processed/MRI_files/01_Ceres
 
-			# unzip *.zip
-			
-			# matlab -nodesktop -nosplash -r "try; ceres_create_binary; catch; end; quit"
-
-			for this_functional_run_folder in ${fmri_processed_folder_names[@]}; do # ${restingstate_processed_folder_names[@]}; do
+			for this_functional_run_folder in ${fmri_processed_folder_names[@]}; do
 				cp $Subject_dir/Processed/MRI_files/01_Ceres/CB_mask.nii $Subject_dir/Processed/MRI_files/$this_functional_run_folder/ANTS_Normalization
 				cp $Subject_dir/Processed/MRI_files/01_Ceres/WM_mask.nii $Subject_dir/Processed/MRI_files/$this_functional_run_folder/ANTS_Normalization
 				cp $Subject_dir/Processed/MRI_files/01_Ceres/GM_mask.nii $Subject_dir/Processed/MRI_files/$this_functional_run_folder/ANTS_Normalization
@@ -132,14 +121,14 @@ done
 		if [[ $this_ceres_processing_step ==  "coreg_func_to_ceresT1" ]]; then
 			for this_functional_run_folder in ${fmri_processed_folder_names[@]}; do #${restingstate_processed_folder_names[@]}; do
 				cd $Subject_dir/Processed/MRI_files/$this_functional_run_folder/ANTS_Normalization
-				cp ${Subject_dir}/Processed/MRI_files/${this_functional_run_folder}/meanunwarped*.nii ${Subject_dir}/Processed/MRI_files/${this_functional_run_folder}/ANTS_Normalization
+				#cp ${Subject_dir}/Processed/MRI_files/${this_functional_run_folder}/meanunwarped*.nii ${Subject_dir}/Processed/MRI_files/${this_functional_run_folder}/ANTS_Normalization
 
 				if [[ -e coregToT1_*.nii ]]; then 
         	        rm coregToT1_*.nii
         	    fi
 
 				for this_func_run in unwarpedRealigned_*.nii; do
-					this_core_file_name=$(echo $this_func_run | cut -d. -f 1)
+					this_core_file_name=$(echo $this_func_run | cut -d. -f1)
 
 					flirt -in SkullStripped_biascorrected_T1.nii -ref mean${this_func_run} -out dimMatch2Func_SkullStripped_biascorrected_T1.nii
 					gunzip -f *nii.gz
@@ -177,7 +166,7 @@ done
 ###################################################################################
 ########### JAMMED FULL WITH LOTS OF STEPS (Change dimensions, masking, and Ants warping) ############################
 		if [[ $this_ceres_processing_step ==  "ceres_cb_mask_ants_norm" ]]; then
-			for this_functional_run_folder in ${fmri_processed_folder_names[@]}; do # ${restingstate_processed_folder_names[@]}; do
+			for this_functional_run_folder in ${fmri_processed_folder_names[@]}; do
 				cd $Subject_dir/Processed/MRI_files/$this_functional_run_folder/ANTS_Normalization
 				
 				# TO DO: remove this for loop
