@@ -107,16 +107,34 @@ for this_preprocessing_step in ${preprocessing_steps[@]};do
 	if [[ $this_preprocessing_step == "drift_correction" ]]; then
 		dwi_folder_name=($dwi_processed_folder_name)
         cd ${Subject_dir}/Processed/MRI_files/${dwi_folder_name}
-		gunzip *.gz
+		gunzip DWI.nii.gz
         # ./create_bmat_text
         matlab -nodesktop -nosplash -r "try; create_bmat_text; catch; end; quit"
 		matlab -nodesktop -nosplash -r "try; flip_or_permute; catch; end; quit"
 		matlab -nodesktop -nosplash -r "try; driftcorrect; catch; end; quit"
+  
+  #Flip PA added 3/28/2024 sumi
+        fieldmap_folder_name=($dwi_fieldmap_processed_folder_name)
+        cd ${Subject_dir}/Processed/MRI_files/${fieldmap_folder_name}
+        matlab -nodesktop -nosplash -r "try; flip_or_permute_PAFieldmaps; catch; end; quit"
 	fi
 
    	if [[ $this_preprocessing_step == "fieldmap_dti" ]]; then
    		fieldmap_folder_name=($dwi_fieldmap_processed_folder_name)
    		dwi_folder_name=($dwi_processed_folder_name)
+        cd ${Subject_dir}/Processed/MRI_files/${dwi_folder_name}
+        if [ -e topup_results_movpar.txt ]; then
+            rm topup_results_movpar.txt
+        fi
+        if [ -e topup_results_fieldcoef.nii ]; then
+            rm topup_results_fieldcoef.nii
+        fi
+        if [ -e topup_results_fieldcoef.nii.gz ]; then
+            rm topup_results_fieldcoef.nii.gz
+        fi
+        
+        
+        
    		cd ${Subject_dir}/Processed/MRI_files/${fieldmap_folder_name}
 
 		if [ -e AP_PA_merged.nii ]; then 
@@ -124,7 +142,16 @@ for this_preprocessing_step in ${preprocessing_steps[@]};do
 		fi
 		if [ -e se_epi_unwarped.nii ]; then 
 			rm se_epi_unwarped.nii
-		fi 
+		fi
+        if [ -e se_epi_unwarped_brain_mask.nii ]; then
+            rm se_epi_unwarped_brain_mask.nii
+        fi
+        if [ -e se_epi_unwarped_brain.nii ]; then
+            rm se_epi_unwarped_brain.nii
+        fi
+        if [ -e se_epi_unwarped_mean.nii ]; then
+            rm se_epi_unwarped_mean.nii
+        fi
 		if [ -e topup_results_fieldcoef.nii ]; then 
 			rm topup_results_fieldcoef.nii
 		fi
@@ -142,7 +169,7 @@ for this_preprocessing_step in ${preprocessing_steps[@]};do
 			rm my_fieldmap_rads.nii
 		fi
 		
-		fslroi DistMap_PA DistMap_PA1 0 1
+		fslroi DistMap_PA_DTIExplore DistMap_PA1 0 1
 		fslroi ${Subject_dir}/Processed/MRI_files/${dwi_folder_name}/driftcorrected_DWI.nii DistMap_AP1 0 1
 
 		fslmerge -t AP_PA_merged.nii DistMap_AP1.nii DistMap_PA1.nii
@@ -197,6 +224,7 @@ for this_preprocessing_step in ${preprocessing_steps[@]};do
 		NVOL=`fslnvols driftcorrected_DWI.nii`
 		for ((i=1; i<=${NVOL}; i+=1)); do indx="$indx 1"; done; echo $indx > index.txt
 
+        rm -r eddycorrected_driftcorrected_DWI.qc
 		rm eddycorrected_driftcorrected_DWI.*
 		
 		# flirt -in se_epi_unwarped_brain_mask.nii -ref driftcorrected_DWI.nii -out se_epi_unwarped_brain_mask_pixelAdjusted.nii
