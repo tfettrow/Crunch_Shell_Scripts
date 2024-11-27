@@ -1,0 +1,61 @@
+#!/bin/sh
+#SBATCH --job-name=batch_dtialps                         # Job name
+#SBATCH --mail-type=END,FAIL                      # Mail events (NONE, BEGIN, END, FAIL, ALL)
+#SBATCH --mail-user=<sumiresato@ufl.edu>          # Where to send mail
+#SBATCH --ntasks=1
+#SBATCH --cpus-per-task=2                          # Run a single task
+#SBATCH --qos=rachaelseidler
+#SBATCH --mem=16000mb                               # Memory limit
+#SBATCH --time=96:00:00                           # Time limit hrs:min:sec
+#SBATCH --output=batch_dtialps.%A_%a.out     # Standard output and error log
+##SBATCH --array=0 #array range
+
+
+pwd; hostname; date
+
+#subject_array(1004 1007 1010 1011)
+#4/9/2024
+#subject_array=(1013 1017 1018 1019 1020 1022 1024 1025 1026 1027 1029 1030 1031 1032 1033 3004 3006 3007 3008 3010 3021 3023 3024 3025 3026 3028 3029 3030 3036 3039 3040 3041 3042)
+#4/10/2024
+#subject_array=(2002 2007 2008 2012 2013 2015 2017 2018 2020 2021 2022 2023 2025 2026 2027 2033 2034 2037 2038 2039 3043 3046 3047 3051 3053 3054 3055 3056 3058 3059 3063 3066 3068 3069 3070 3071 3072 3073 3074 3076 3077)
+#4/11/2024
+#subject_array=(3082 3090 3092 3102 3103 3104 3105 3106 3108 3110 3111 3112 3113 3114 3120 3123 3128 3129 1012 1034)
+#4/17/2024
+#subject_array=(2042 2052 2059 2062 2082 2090 2095 2117 3086)
+#4/18/2024
+
+#EXCLUDE 1002, 2111,3027, 3034,3107
+subject_array=(1004 1007 1009 1010 1011 1012 1013 1017 1018 1019 1020 1022 1024 1025 1026 1027 1029
+    1030 1031 1032 1033 1034 2002 2007 2008 2012 2013 2015 2017 2018 2020 2021 2022 2023
+    2025 2026 2027 2033 2034 2037 2038 2039 2042 2052 2059 2062 2082 2090 2095 2117 3004
+    3006 3007 3008 3010 3021 3023 3024 3025 3026 3028 3029 3030 3036 3039 3040 3041 3042
+    3043 3046 3047 3051 3053 3054 3055 3056 3058 3059 3063 3066 3068 3069 3070 3071 3072
+    3073 3074 3076 3077 3082 3086 3090 3092 3102 3103 3104 3105 3106 3108 3110 3111 3112
+    3113 3114 3120 3123 3128 3129)
+
+#subject=${subject_array[$SLURM_ARRAY_TASK_ID]}
+#Subject_dir=/blue/rachaelseidler/share/FromExternal/Research_Projects_UF/CRUNCH/MiM_Data/${subject}
+
+# ######SUMIRE S Directory
+
+cd /blue/rachaelseidler/sumiresato
+Shell_dir=/blue/rachaelseidler/sumiresato/MiM_Shell_Scripts
+Matlab_dir=/blue/rachaelseidler/sumiresato/MiM_Matlab
+Template_dir=/blue/rachaelseidler/sumiresato/MR_Templates
+
+
+for subject in "${subject_array[@]}"
+do
+    echo "Processing subject $subject"
+    
+    Subject_dir=/blue/rachaelseidler/share/FromExternal/Research_Projects_UF/CRUNCH/MiM_Data/${subject}
+
+    cd $Shell_dir
+
+    #./dwi_processing/dtialps_proc.sh $Matlab_dir $Template_dir $Subject_dir copyfiles_ants coreg_dwi normalize_dwi copyfiles_normalizeddwi dtifit_dwi eigenvalues_dtialps
+    ./dwi_processing/dtialps_proc.sh $Matlab_dir $Template_dir $Subject_dir eigenvalues_dtialps
+
+done
+
+
+
